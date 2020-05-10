@@ -15,15 +15,11 @@ class Pizza:
     def __repr__(self):
         return " - ".join([self.number, self.name, self.ingredients, self.price])
 
-    
+"""
+    def pizzaList():
 
+    # die Idee habe ich schon wieder verworfen
 
-
-
-def pizzaList():
-    """
-    die Idee habe ich schon wieder verworfen
-    """
     myPizzaList = [
         Pizza(0, 'Pizzabrot', [], 3.00),
         Pizza(1, 'Pizza', ['Tomatensoße','Käse'], 4.00),
@@ -44,6 +40,7 @@ def pizzaList():
         Pizza(15, 'Pizza', ['Tomatensoße','Käse'], 00)
     ]
     return myPizzaList
+"""    
 
 def pizzaListFromCsv():
     
