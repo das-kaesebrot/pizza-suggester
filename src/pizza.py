@@ -40,7 +40,7 @@ class Pizza:
         Pizza(15, 'Pizza', ['Tomatensoße','Käse'], 00)
     ]
     return myPizzaList
-"""    
+"""
 
 def pizzaListFromCsv():
     
