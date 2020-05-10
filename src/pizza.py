@@ -4,6 +4,7 @@
 import csv
 import os
 from pathlib import Path
+import time
 
 class Pizza:
     def __init__(self,number,name,ingredients,price):
@@ -16,11 +17,11 @@ class Pizza:
     def __repr__(self):
         return " - ".join([self.number, self.name, self.ingredients, self.price])
 
-def pizzaListFromCsv():
+def pizzaListFromCSV(filename):
     
     pizzaList = []
 
-    filename = "kantine.csv"
+    # filename = "kantine.csv"
 
     with open(os.path.join("csv",filename),encoding='utf-8') as f:
         reader = csv.reader(f,delimiter=';')
@@ -37,6 +38,6 @@ def pizzaListFromCsv():
 
 if __name__ == "__main__":
     
-    print(pizzaListFromCsv())
+    print(pizzaListFromCSV("kantine.csv"))
     
     pass
