@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# coding=utf8
+#! /usr/bin/env python3
 
 import csv
 import os
@@ -23,7 +22,7 @@ def pizzaListFromCSV(filename):
 
     # filename = "kantine.csv"
 
-    with open(os.path.join("csv",filename),encoding='utf-8') as f:
+    with open(os.path.join(filename),encoding='utf-8') as f:
         reader = csv.reader(f,delimiter=';')
         for x in reader:
             pizzaList.append(x)
@@ -36,8 +35,16 @@ def pizzaListFromCSV(filename):
 
     return pizzaList
 
+def pizzaDictListFromCSV(filename):
+    pizzaList = []
+    with open(os.path.join(filename),encoding='utf-8-sig') as f:
+        reader = csv.DictReader(f,delimiter=';')
+        for row in reader:
+            row["Zutaten"] = row["Zutaten"].split(",")
+            pizzaList.append(row)
+
+    return pizzaList
+
 if __name__ == "__main__":
-    
-    print(pizzaListFromCSV("kantine.csv"))
-    
-    pass
+    for row in pizzaDictListFromCSV("assets/csv/kantine.csv"):
+        print(row)
