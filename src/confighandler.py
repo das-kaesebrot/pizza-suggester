@@ -17,12 +17,6 @@ def readConfig():
                         'baseURL': 'https://api.telegram.org/bot',
                         'token': ''
                         }
-        config['DB'] = {
-                        'serverAddress': '',
-                        'serverPort': '3306',
-                        'user': '',
-                        'database': '',
-                        }
         with open(configPathFull, 'w') as configfile:
             config.write(configfile)
             # print("wrote config file to " + str(configPathFull))
