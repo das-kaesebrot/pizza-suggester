@@ -5,15 +5,21 @@ from requests import Request, Session
 import json
 import time
 from babel.numbers import format_currency
+from datetime import datetime
 from pathlib import Path
 from src import confighandler
 
-def updatePoller(config, verbose, fullDict):
+def updatePoller(config, verbose1, fullDict):
     global baseURL
     global token
     global reqPath
     global pizzaDict
     global extrasDict
+    global verbose
+
+    verbose = verbose1
+
+    if verbose: print("Starting bot...\nPress [CTRL+C] to stop\n")
 
     pizzaDict = fullDict["pizza"]
     extrasDict = fullDict["extras"]
@@ -27,25 +33,37 @@ def updatePoller(config, verbose, fullDict):
     offset = None
  
     while True:
-        params = {"timeout": str(pollingTimeout), "offset": str(offset)}
-        resp = apiCall(reqPath, "getUpdates", params)
-        if resp.status_code == 200:
-            update_dict = json.loads(resp.text)
+        try:
+            params = {"timeout": str(pollingTimeout), "offset": str(offset)}
+            resp = apiCall(reqPath, "getUpdates", params)
+            if resp.status_code == 200:
+                update_dict = json.loads(resp.text)
 
-            print(update_dict)
+                if verbose: print("[{}] {}\n".format(getTime(),update_dict))
 
-            if (update_dict["result"]): offset = update_dict["result"][-1]["update_id"] + 1
+                if (update_dict["result"]): offset = update_dict["result"][-1]["update_id"] + 1
 
-            handleUpdate(update_dict)
-        """
-        elif resp.status_code != 304:
-            time.sleep(60)
-            continue
-        """
-        time.sleep(0.1)
+                handleUpdate(update_dict)
+            """
+            elif resp.status_code != 304:
+                time.sleep(60)
+                continue
+            """
+            time.sleep(0.1)
+        except KeyboardInterrupt:
+            break
+
+    if verbose: print("Bot stopped")
+
 
 def apiCall(path, method, params):
-    return requests.get(path + "/" + method, params=params)
+    resp = requests.get(path + "/" + method, params=params)
+    if verbose:
+        print("[{}] {}\n".format(getTime(),json.loads(resp.text)))
+    return resp
+
+def getTime():
+    return str(datetime.now())
 
 def getBelagList(pizDict):
     belagList = []
@@ -55,6 +73,20 @@ def getBelagList(pizDict):
                 belagList.append(entry)
 
     return belagList
+
+def str2bool(string_, default='raise'):
+    true = ['true', 't', '1', 'y', 'yes', 'enabled', 'enable', 'on']
+    false = ['false', 'f', '0', 'n', 'no', 'disabled', 'disable', 'off']
+    if string_.lower() in true:
+        return True
+    elif string_.lower() in false or (not default):
+        return False
+    else:
+        raise ValueError('The value \'{}\' cannot be mapped to boolean.'
+                         .format(string_))
+
+def formatPrice(number):
+    return format_currency(float(number), 'EUR', locale='de_DE')
 
 def handleUpdate(update_dict):
 
@@ -72,16 +104,14 @@ def handleUpdate(update_dict):
     emojiRobot = u'\U0001F916'
 
     # Commands
-    commandPizza = "/pizza"
+    commandPizza = "/debug" # TEMP SWITCH
+    commandDebug = "/pizza" # TEMP SWITCH
     commandStart = "/start"
     commandRandom = "/zufall"
     commandAddress = "/kontakt"
     commandHelp = "/help"
 
-    numberCells = 3
-
     # Kantine data
-    # d49.9936668!4d8.4121598
     KantineLat = 49.9936668
     KantineLong = 8.4121598
     KantineTitle = "Die Holzofen Kantine"
@@ -93,6 +123,7 @@ def handleUpdate(update_dict):
     methodContact = "sendContact"
     methodVenue = "sendVenue"
     parseMode = "MarkdownV2"
+    numberCells = 3
 
     # Pre formatted strings
     TextSelectToppings = "Bitte Beläge auswählen und dann mit Button bestätigen"
@@ -132,18 +163,33 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
 
     TextAddress = """{emojiPin} Hier die Daten:""".format(emojiPin = emojiPin)
 
+
+    ### MAIN HANDLING THREAD ###
     for update in update_dict["result"]:
+
+        # Check if update is a message
         if "message" in update.keys():
+
+            # Response for /start or /help
             if (update["message"]["text"] == commandStart) or (update["message"]["text"] == commandHelp):
                 params = {}
                 params["chat_id"] = update["message"]["from"]["id"]
                 params["text"] = TextStart
                 params["parse_mode"] = parseMode
-                print(apiCall(reqPath, methodMsg, params).text)
+                apiCall(reqPath, methodMsg, params)
 
+            # TEMP Response for /pizza
+            elif (update["message"]["text"] == commandDebug):
+                params = {}
+                params["chat_id"] = update["message"]["from"]["id"]
+                params["text"] = "Hi {}, leider funktioniert diese Funktion noch nicht\\. Ich arbeite dran, ok".format(update["message"]["from"]["first_name"])
+                params["parse_mode"] = parseMode
+                apiCall(reqPath, methodMsg, params)
+
+            # Response for /pizza
             elif (update["message"]["text"] == commandPizza):
-                keyboardButtonsAll = []
-                keyboardRow = []
+                InlineKeyboardButtonsAll = []
+                InlineKeyboardRow = []
 
                 belagList = getBelagList(pizzaDict)
             
@@ -156,23 +202,24 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
                     belagList.append("test")
 
                 for belag in belagList:
-                    keyboardButton= {}
-                    keyboardButton["text"] = belag
-                    keyboardButton["callback_data"] = str(counter)
-                    keyboardRow.append(json.dumps(keyboardButton, ensure_ascii=False))
+                    InlineKeyboardButton= {}
+                    InlineKeyboardButton["text"] = belag
+                    InlineKeyboardButton["callback_data"] = str(counter)
+                    InlineKeyboardRow.append(json.dumps(InlineKeyboardButton, ensure_ascii=False))
                     counter+=1
                     if (counter % numberCells) == 0:
-                        keyboardButtonsAll.append(keyboardRow)
-                        keyboardRow = []
+                        InlineKeyboardButtonsAll.append(InlineKeyboardRow)
+                        InlineKeyboardRow = []
                 
-                # keyboardRows = [keyboardButtons[x:x+2] for x in range(0, len(keyboardButtons), 2)]
-                inlineKeyboard = {}
-                inlineKeyboard["inline_keyboard"] = keyboardButtonsAll
+                # InlineKeyboardRows = [keyboardButtons[x:x+2] for x in range(0, len(keyboardButtons), 2)]
+                InlineKeyboardMarkup = {}
+                InlineKeyboardMarkup["inline_keyboard"] = InlineKeyboardButtonsAll
 
-                params["reply_markup"] = str(json.dumps(inlineKeyboard, ensure_ascii=False))
+                params["reply_markup"] = str(json.dumps(InlineKeyboardMarkup, ensure_ascii=False))
                 
-                print(apiCall(reqPath, methodMsg, params).text)
+                apiCall(reqPath, methodMsg, params)
 
+            # Response for /zufall
             elif (update["message"]["text"] == commandRandom):
                 pizzaNum = random.randint(0, len(pizzaDict)-1)
                 pizza = pizzaDict[pizzaNum]
@@ -209,40 +256,30 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
                 params["chat_id"] = update["message"]["from"]["id"]
                 params["text"] = TextRandomFull
                 params["parse_mode"] = parseMode
-                print(apiCall(reqPath, methodMsg, params).text)
+                apiCall(reqPath, methodMsg, params)
 
+            # Response for /kontakt
             elif (update["message"]["text"] == commandAddress):
+
+                # Send general info message
                 params = {}
                 params["chat_id"] = update["message"]["from"]["id"]
                 params["text"] = TextAddress
                 params["parse_mode"] = parseMode
-                print(apiCall(reqPath, methodMsg, params).text)
+                apiCall(reqPath, methodMsg, params)
 
+                # Send venue
                 params = {}
                 params["chat_id"] = update["message"]["from"]["id"]
                 params["latitude"] = KantineLat
                 params["longitude"] = KantineLong
                 params["title"] = KantineTitle
                 params["address"] = KantineAddress
-                print(apiCall(reqPath, methodVenue, params).text)
+                apiCall(reqPath, methodVenue, params)
 
+                # Send phone number as contact
                 params = {}
                 params["chat_id"] = update["message"]["from"]["id"]
                 params["phone_number"] = KantineNumber
                 params["first_name"] = KantineTitle
-                print(apiCall(reqPath, methodContact, params).text)
-
-
-def str2bool(string_, default='raise'):
-    true = ['true', 't', '1', 'y', 'yes', 'enabled', 'enable', 'on']
-    false = ['false', 'f', '0', 'n', 'no', 'disabled', 'disable', 'off']
-    if string_.lower() in true:
-        return True
-    elif string_.lower() in false or (not default):
-        return False
-    else:
-        raise ValueError('The value \'{}\' cannot be mapped to boolean.'
-                         .format(string_))
-
-def formatPrice(number):
-    return format_currency(float(number), 'EUR', locale='de_DE')
+                apiCall(reqPath, methodContact, params)

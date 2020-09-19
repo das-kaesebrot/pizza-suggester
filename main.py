@@ -13,7 +13,7 @@ if __name__ == "__main__":
     pizzaPath = os.path.join(confighandler.get_script_path(),assetsfolder,pizzaFile)
     extrasPath = os.path.join(confighandler.get_script_path(),assetsfolder,extrasFile)
 
-    verbose = False
+    verbose = True
     config = confighandler.readConfig()
 
     bothandler.updatePoller(config, verbose, pizza.makeFullDict(pizzaPath, extrasPath))
