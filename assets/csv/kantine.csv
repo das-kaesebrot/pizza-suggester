@@ -1,41 +1,41 @@
 Nummer;Name;Preis;Zutaten;Vegetarisch
-0;Pizzabrot;3,5;Tomatensoße,Knoblauch;true
-1;Pizza;4,5;Tomatensoße,Käse;true
-2;Pizza;5,5;Tomatensoße,Käse,Salami;false
-3;Pizza;5,5;Tomatensoße,Käse,Peperoniwurst;false
-4;Pizza;5,5;Tomatensoße,Käse,Sardellen,Zwiebeln;false
+0;Pizzabrot;3.5;Tomatensoße,Knoblauch;true
+1;Pizza;4.5;Tomatensoße,Käse;true
+2;Pizza;5.5;Tomatensoße,Käse,Salami;false
+3;Pizza;5.5;Tomatensoße,Käse,Peperoniwurst;false
+4;Pizza;5.5;Tomatensoße,Käse,Sardellen,Zwiebeln;false
 5;Pizza;5;Tomatensoße,Käse,Champignons;true
-6;Pizza;6,5;Tomatensoße,Käse,Salami,Champignons;false
+6;Pizza;6.5;Tomatensoße,Käse,Salami,Champignons;false
 7;Pizza;7;Tomatensoße,Käse,Salami,Champignons,Paprika,Peperoni;false
 8;Pizza;7;Tomatensoße,Käse,Schinken,Champignons,Zwiebeln;false
-9;Pizza;7,5;Tomatensoße,Käse,Salami,Champignons,Paprika,Peperoni,Oliven,Sardellen,Zwiebeln;false
-10;Pizza;6,5;Tomatensoße,Käse,Peperoniwurst,Paprika,Zwiebeln;false
-11;Pizza;5,5;Tomatensoße,Käse,Schinken;false
-12;Pizza Bruschetta;9,5;Büffelmozzarella,Rucola,Kirschtomaten,Parmesan,Knoblauch;true
-13;Luciano Calzone;13,5;Parmaschinken,Parmesan,Kirschtomaten,Büffelmozzarella;false
+9;Pizza;7.5;Tomatensoße,Käse,Salami,Champignons,Paprika,Peperoni,Oliven,Sardellen,Zwiebeln;false
+10;Pizza;6.5;Tomatensoße,Käse,Peperoniwurst,Paprika,Zwiebeln;false
+11;Pizza;5.5;Tomatensoße,Käse,Schinken;false
+12;Pizza Bruschetta;9.5;Büffelmozzarella,Rucola,Kirschtomaten,Parmesan,Knoblauch;true
+13;Luciano Calzone;13.5;Parmaschinken,Parmesan,Kirschtomaten,Büffelmozzarella;false
 14;Pizza;5;Tomatensoße,Käse,Paprika,Zwiebeln;true
 15;Pizza;7;Tomatensoße,Käse,Champignons,Paprika,Peperoni,Zwiebeln;true
-16;Pizza;6,5;Tomatensoße,Käse,Schinken,Salami;false
+16;Pizza;6.5;Tomatensoße,Käse,Schinken,Salami;false
 17;Pizza;6;Tomatensoße,Käse,Peperoniwurst,Paprika;false
 18;Pizza;7;Tomatensoße,Käse,Salami,Schinken,Champignons;false
-19;Pizza;6,5;Tomatensoße,Käse,Schinken,Champignons;false
-20;Pizza;6,5;Tomatensoße,Käse,Thunfisch,Zwiebeln;false
-21;Pizza;8,5;Tomatensoße,Käse,Schinken,Salami,Champignons,Ei;false
-22;Pizza Calzone;7,5;Tomatensoße,Käse,Champignons,Schinken;false
+19;Pizza;6.5;Tomatensoße,Käse,Schinken,Champignons;false
+20;Pizza;6.5;Tomatensoße,Käse,Thunfisch,Zwiebeln;false
+21;Pizza;8.5;Tomatensoße,Käse,Schinken,Salami,Champignons,Ei;false
+22;Pizza Calzone;7.5;Tomatensoße,Käse,Champignons,Schinken;false
 23;Pizza Frutti di Mare;8;Tomatensoße,Käse,Meeresfrüchte,Garnelen,Kirschtomaten,Basilikum;false
 24;Pizza Quattro Stagioni;8;Tomatensoße,Käse,Schinken,Champignons,Paprika,Artischocken;false
 25;Pizza Rudi;8;Spinat,Broccoli,Aubergine,Paprika;true
-26;Pizza Hawaii;6,5;Tomatensoße,Käse,Ananas,Schinken;false
+26;Pizza Hawaii;6.5;Tomatensoße,Käse,Ananas,Schinken;false
 27;Pizza;7;Tomatensoße,Käse,Bolognesesauße,Zwiebeln;false
 28;Pizza Kantina;8;Tomatensoße,Käse,Garnelen,Kirschtomaten,Basilikum;false
-29;Pizza;7,5;Tomatensoße,Käse,Spinat,Schafskäse;true
+29;Pizza;7.5;Tomatensoße,Käse,Spinat,Schafskäse;true
 30;Pizza;6;Tomatensoße,Mozzarella,frisches Basilikum;true
-31;Pizza;7,5;Tomatensoße,Mozzarella,Kirschtomaten,frisches Basilikum;true
-32;Pizza;9,5;Tomatensoße,Käse,frischer Lachs,Lauchzwiebeln,Kirschtomaten;false
-33A;Pizza;8,5;Tomatensoße,Mozzarella,Rucola,Parmaschinken;false
-33B;Pizza;8,5;Tomatensoße,Mozzarella,Rucola,Parmesan;true
-34;Pizza;9,5;Tomatensoße,Mozzarella,Rucola,Parmesan,Parmaschinken;false
-35;Pizza Quattro Formaggi;7,5;Tomatensoße,Käse,Mozzarella,Gorgonzola,Parmesan;true
-36;Pizza Salsicca;8,5;Tomatensoße,Mozzarella,Rucola,Salsicca-Wurst pikante;false
-37;Pizza Sucuk;6,5;Tomatensoße,Käse,Sucuk,Kirschtomaten,Paprika;false
+31;Pizza;7.5;Tomatensoße,Mozzarella,Kirschtomaten,frisches Basilikum;true
+32;Pizza;9.5;Tomatensoße,Käse,frischer Lachs,Lauchzwiebeln,Kirschtomaten;false
+33A;Pizza;8.5;Tomatensoße,Mozzarella,Rucola,Parmaschinken;false
+33B;Pizza;8.5;Tomatensoße,Mozzarella,Rucola,Parmesan;true
+34;Pizza;9.5;Tomatensoße,Mozzarella,Rucola,Parmesan,Parmaschinken;false
+35;Pizza Quattro Formaggi;7.5;Tomatensoße,Käse,Mozzarella,Gorgonzola,Parmesan;true
+36;Pizza Salsicca;8.5;Tomatensoße,Mozzarella,Rucola,Salsicca-Wurst pikante;false
+37;Pizza Sucuk;6.5;Tomatensoße,Käse,Sucuk,Kirschtomaten,Paprika;false
 38;Pizza Rindersalami;6;Tomatensoße,Käse,Rindersalami;false

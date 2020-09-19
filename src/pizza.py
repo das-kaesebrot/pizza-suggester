@@ -42,8 +42,26 @@ def pizzaDictListFromCSV(filename):
         for row in reader:
             row["Zutaten"] = row["Zutaten"].split(",")
             pizzaList.append(row)
-
+            
     return pizzaList
+
+def extrasDictListFromCSV(filename):
+    extrasList = []
+    with open(os.path.join(filename),encoding='utf-8-sig') as f:
+        reader = csv.DictReader(f,delimiter=';')
+        for row in reader:
+            extrasList.append(row)
+
+    return extrasList
+
+def combineDicts(pizzaDict, extrasDict):
+    fullDict = {}
+    fullDict["pizza"] = pizzaDict
+    fullDict["extras"] = extrasDict
+    return fullDict
+
+def makeFullDict(file1, file2):
+    return combineDicts(pizzaDictListFromCSV(file1), extrasDictListFromCSV(file2))
 
 if __name__ == "__main__":
     for row in pizzaDictListFromCSV("assets/csv/kantine.csv"):
