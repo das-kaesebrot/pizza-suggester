@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 import requests
+from requests import Request, Session
 import json
 import time
 from pathlib import Path
@@ -17,7 +18,7 @@ def longPollUpdates(config, verbose, pDict):
 
     reqPath = baseURL + token
 
-    pollingTimeout = 120
+    pollingTimeout = 1000
     offset = None
  
     while True:
@@ -26,13 +27,16 @@ def longPollUpdates(config, verbose, pDict):
         if resp.status_code == 200:
             update_dict = json.loads(resp.text)
 
+            print(update_dict)
+
+            if (update_dict["result"]): offset = update_dict["result"][-1]["update_id"] + 1
+
             handleUpdate(update_dict)
-
-            offset = update_dict["result"][-1]["update_id"] + 1
-
+        """
         elif resp.status_code != 304:
             time.sleep(60)
             continue
+        """
         time.sleep(0.1)
 
 def apiCall(path, method, params):
@@ -42,26 +46,52 @@ def getBelagList(pizDict):
     belagList = []
     for row in pizDict:
         for entry in row["Zutaten"]:
-            if not entry in belagList:
+            if not ((entry in belagList) or (entry == "Tomatensoße") or (entry == "Käse")):
                 belagList.append(entry)
-    print(belagList)
-    return json.dumps(belagList)
+
+    return belagList
 
 def handleUpdate(update_dict):
 
     commandPizza = "/pizza"
-    methodPoll = "sendPoll"
-    question = "Bitte Beläge auswählen und dann Umfrage abschicken"
+    numberCells = 3
+    methodMsg = "sendMessage"
+    question = "Bitte Beläge auswählen und dann mit Button bestätigen"
 
     for update in update_dict["result"]:
-        if (update["message"]["text"] == commandPizza):
-            params = {}
+        if "message" in update.keys():
+            if (update["message"]["text"] == commandPizza):
+                keyboardButtonsAll = []
+                keyboardRow = []
 
-            params["chat_id"] = update["message"]["from"]["id"]
-            params["question"] = question
-            params["allows_multiple_answers"] = True
-            params["options"] = getBelagList(pizzaDict)
-            params["reply_to_message_id"] = update["message"]["from"]["id"]
+                belagList = getBelagList(pizzaDict)
+            
+                params = {}
+                counter = 0
+                params["chat_id"] = update["message"]["from"]["id"]
+                params["text"] = question
+                params["reply_to_message_id"] = update["message"]["message_id"]
+                
+                while (len(belagList) % numberCells) != 0:
+                    belagList.append("test")
 
-            print(apiCall(reqPath, methodPoll, params))
+                for belag in belagList:
+                    keyboardButton= {}
+                    keyboardButton["text"] = belag
+                    keyboardButton["callback_data"] = str(counter)
+                    keyboardRow.append(json.dumps(keyboardButton, ensure_ascii=False))
+                    counter+=1
+                    if (counter % numberCells) == 0:
+                        keyboardButtonsAll.append(keyboardRow)
+                        keyboardRow = []
+                
+                # keyboardRows = [keyboardButtons[x:x+2] for x in range(0, len(keyboardButtons), 2)]
+                inlineKeyboard = {}
+                inlineKeyboard["inline_keyboard"] = keyboardButtonsAll
+
+                params["reply_markup"] = str(json.dumps(inlineKeyboard, ensure_ascii=False))
+                
+                print(apiCall(reqPath, methodMsg, params).text)
+            
+
         # elif (update["message"] ):
