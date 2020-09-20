@@ -164,7 +164,7 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
     TextAddress = """{emojiPin} Hier die Daten:""".format(emojiPin = emojiPin)
 
 
-    ### MAIN HANDLING THREAD ###
+    ### MAIN UPDATE HANDLING THREAD ###
     for update in update_dict["result"]:
 
         # Check if update is a message
