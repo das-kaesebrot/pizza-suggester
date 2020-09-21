@@ -171,7 +171,7 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
 {TextEnd}""".format(emojiDie = emojiDie, TextEnd = TextEnd)
 
     TextStandard = """{emojiPizza} Hier ist deine Pizza:\n
-{{TextPizzaAndExtras}}\n
+{{TextPizza}}\n
 {TextEnd}""".format(emojiPizza = emojiPizza, TextEnd = TextEnd)
 
     TextAddress = """{emojiPin} Hier die Daten:""".format(emojiPin = emojiPin)
@@ -299,9 +299,9 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
                 params["first_name"] = KantineTitle
                 apiCall(reqPath, methodContact, params)
             
-             # Response for /carlos
+            # Response for /carlos
             elif (update["message"]["text"] == commandCarlos) and (update["message"]["from"]["id"] == 26699016):
-                pizzaNum = 3
+                pizzaNum = 3 # Number 3!!
                 pizza = pizzaDict[pizzaNum]
                 nummer = pizza["Nummer"]
                 name = pizza["Name"]
@@ -333,6 +333,6 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
 
                 params = {}
                 params["chat_id"] = update["message"]["from"]["id"]
-                params["text"] = TextStandard.format(TextPizzaAndExtras = TextPizzaAndExtras.format(nummer = nummer, name = name, zutaten = zutaten, preis = preis, vegetarisch = vegetarisch, extras = extras))
+                params["text"] = TextStandard.format(TextPizza = TextPizzaAndExtras.format(nummer = nummer, name = name, zutaten = zutaten, preis = preis, vegetarisch = vegetarisch, extras = extras))
                 params["parse_mode"] = parseMode
                 apiCall(reqPath, methodMsg, params)
