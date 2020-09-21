@@ -29,7 +29,7 @@ def updatePoller(config, verbose1, fullDict):
 
     reqPath = baseURL + token
 
-    pollingTimeout = 1000
+    pollingTimeout = 2000
     offset = None
  
     while True:
@@ -154,13 +154,13 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
 
     TextEnd = """Guten Appetit\\! {emojiFaceSavouringFood}{emojiForkKnife}""".format(emojiFaceSavouringFood = emojiFaceSavouringFood, emojiForkKnife = emojiForkKnife)
 
-    TextGeneric = """{emojiPizza} Hi {{firstName}}, hier sind deine Pizzen:\n
+    TextGeneric = """{emojiPizza} Hier sind deine Pizzen:\n
 {{TextPizza1}}\n
 {{TextPizza2}}\n
 {{TextPizza3}}\n
 {TextEnd}""".format(emojiPizza = emojiPizza, TextEnd = TextEnd)
 
-    TextRandom = """{emojiDie} Hi {{firstName}}, hier ist deine Zufallspizza:\n
+    TextRandom = """{emojiDie} Hier ist deine Zufallspizza:\n
 {{TextPizza}}\n
 {TextEnd}""".format(emojiDie = emojiDie, TextEnd = TextEnd)
 
@@ -171,7 +171,8 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
     for update in update_dict["result"]:
 
         # Check if update is a message and restrict only to myself
-        if ("message" in update.keys()) and (update["message"]["from"]["id"] == 412041295):
+        if ("message" in update.keys()):
+        # if ("message" in update.keys()) and (update["message"]["from"]["id"] == 412041295):
 
             # Response for /start or /help
             if (update["message"]["text"] == commandStart) or (update["message"]["text"] == commandHelp):
@@ -185,7 +186,7 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
             elif (update["message"]["text"] == commandDebug):
                 params = {}
                 params["chat_id"] = update["message"]["from"]["id"]
-                params["text"] = "Hi {}, leider funktioniert diese Funktion noch nicht\\. Ich arbeite dran, ok".format(update["message"]["from"]["first_name"])
+                params["text"] = "Hi, leider funktioniert diese Funktion noch nicht\\. Ich arbeite dran, ok"
                 params["parse_mode"] = parseMode
                 apiCall(reqPath, methodMsg, params)
 
@@ -232,7 +233,7 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
 
                 zutaten = ""
                 vegetarisch = ""
-                vorname = update["message"]["from"]["first_name"]
+                # vorname = update["message"]["from"]["first_name"]
 
                 preis = formatPrice(pizza["Preis"])
 
@@ -254,7 +255,7 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
                 elif "frischer" in zutaten:
                     zutaten = zutaten.replace("frischer", "frischem")
                 
-                TextRandomFull = TextRandom.format(firstName = vorname, TextPizza = TextPizza.format(nummer = nummer, name = name, zutaten = zutaten, preis = preis, vegetarisch = vegetarisch))
+                TextRandomFull = TextRandom.format(TextPizza = TextPizza.format(nummer = nummer, name = name, zutaten = zutaten, preis = preis, vegetarisch = vegetarisch))
 
                 params = {}
                 params["chat_id"] = update["message"]["from"]["id"]
