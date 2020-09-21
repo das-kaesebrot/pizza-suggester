@@ -144,7 +144,7 @@ Folgende Kommandos sind bei mir verfügbar:
 Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emojiPizza = emojiPizza, emojiDie = emojiDie, emojiPin = emojiPin, emojiRobot = emojiRobot)
 
 
-    TextPizza = """*Nummer {nummer}*
+    TextPizza = """__*Nummer {nummer}*__
 *{name}* mit {zutaten}
 *Preis:* {preis}{vegetarisch}"""
 
@@ -167,8 +167,8 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
     ### MAIN UPDATE HANDLING THREAD ###
     for update in update_dict["result"]:
 
-        # Check if update is a message
-        if "message" in update.keys():
+        # Check if update is a message and restrict only to myself
+        if ("message" in update.keys()) and (update["message"]["from"]["id"] == 412041295):
 
             # Response for /start or /help
             if (update["message"]["text"] == commandStart) or (update["message"]["text"] == commandHelp):

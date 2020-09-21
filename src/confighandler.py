@@ -2,9 +2,13 @@
 import configparser
 import os
 import sys
+from environs import Env
 from pathlib import Path
 
 def readConfig():
+    env = Env()
+    env.read_env()
+
     config = configparser.ConfigParser()
 
     # Generates a config file next to the script if doesn't exist
@@ -19,12 +23,14 @@ def readConfig():
                         }
         with open(configPathFull, 'w') as configfile:
             config.write(configfile)
-            # print("wrote config file to " + str(configPathFull))
     
     # Reads config file values
     else:
-        # print("Reading config file...\n")
         config.read(configPathFull)
+
+        if (config["TG_API"].get("token") == ""):
+            config["TG_API"]["token"] = env("TGBOTTOKEN")
+
         return config
 
 def get_script_path():
