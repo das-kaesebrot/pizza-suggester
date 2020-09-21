@@ -19,7 +19,7 @@ def updatePoller(config, verbose1, fullDict):
 
     verbose = verbose1
 
-    if verbose: print("Starting bot...\nPress [CTRL+C] to stop\n")
+    if verbose: print("[{}] Starting bot... Press [CTRL+C] to stop\n".format(getTime()))
 
     pizzaDict = fullDict["pizza"]
     extrasDict = fullDict["extras"]
@@ -36,30 +36,33 @@ def updatePoller(config, verbose1, fullDict):
         try:
             params = {"timeout": str(pollingTimeout), "offset": str(offset)}
             resp = apiCall(reqPath, "getUpdates", params)
+
             if resp.status_code == 200:
                 update_dict = json.loads(resp.text)
 
-                if verbose: print("[{}] {}\n".format(getTime(),update_dict))
+                if verbose: print("[{}] [Code {}] {}\n".format(getTime(), resp.status_code, update_dict))
 
                 if (update_dict["result"]): offset = update_dict["result"][-1]["update_id"] + 1
 
                 handleUpdate(update_dict)
-            """
+
+            elif resp.status_code == 404:
+                raise RuntimeError("API returned code 404. Did you set the bot token properly?")
+
             elif resp.status_code != 304:
                 time.sleep(60)
                 continue
-            """
+          
             time.sleep(0.1)
+        
         except KeyboardInterrupt:
-            break
-
-    if verbose: print("Bot stopped")
+            raise KeyboardInterrupt # lol
 
 
 def apiCall(path, method, params):
     resp = requests.get(path + "/" + method, params=params)
     if verbose:
-        print("[{}] {}\n".format(getTime(),json.loads(resp.text)))
+        print("[{}] [Code {}] {}\n".format(getTime(), resp.status_code, json.loads(resp.text)))
     return resp
 
 def getTime():
@@ -186,6 +189,7 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
                 params["parse_mode"] = parseMode
                 apiCall(reqPath, methodMsg, params)
 
+            # TEMP RESPONSE FOR /debug
             # Response for /pizza
             elif (update["message"]["text"] == commandPizza):
                 InlineKeyboardButtonsAll = []
