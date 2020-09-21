@@ -113,6 +113,7 @@ def handleUpdate(update_dict):
     commandRandom = "/zufall"
     commandAddress = "/kontakt"
     commandHelp = "/help"
+    commandCarlos = "/carlos"
 
     # Kantine data
     KantineLat = 49.9936668
@@ -151,6 +152,11 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
 *{name}* mit {zutaten}
 *Preis:* {preis}{vegetarisch}"""
 
+    TextPizzaAndExtras = """__*Nummer {nummer}*__
+*{name}* mit {zutaten}
+*Extras:* {extras}
+*Preis:* {preis}{vegetarisch}"""
+
 
     TextEnd = """Guten Appetit\\! {emojiFaceSavouringFood}{emojiForkKnife}""".format(emojiFaceSavouringFood = emojiFaceSavouringFood, emojiForkKnife = emojiForkKnife)
 
@@ -163,6 +169,10 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
     TextRandom = """{emojiDie} Hier ist deine Zufallspizza:\n
 {{TextPizza}}\n
 {TextEnd}""".format(emojiDie = emojiDie, TextEnd = TextEnd)
+
+    TextStandard = """{emojiPizza} Hier ist deine Pizza:\n
+{{TextPizzaAndExtras}}\n
+{TextEnd}""".format(emojiPizza = emojiPizza, TextEnd = TextEnd)
 
     TextAddress = """{emojiPin} Hier die Daten:""".format(emojiPin = emojiPin)
 
@@ -288,3 +298,41 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
                 params["phone_number"] = KantineNumber
                 params["first_name"] = KantineTitle
                 apiCall(reqPath, methodContact, params)
+            
+             # Response for /carlos
+            elif (update["message"]["text"] == commandCarlos) and (update["message"]["from"]["id"] == 26699016):
+                pizzaNum = 3
+                pizza = pizzaDict[pizzaNum]
+                nummer = pizza["Nummer"]
+                name = pizza["Name"]
+
+                zutaten = ""
+                vegetarisch = ""
+                extras = "Büffelmozzarella"
+                # vorname = update["message"]["from"]["first_name"]
+
+                preis = formatPrice(pizza["Preis"])
+
+                if (len(pizza["Zutaten"]) >= 2):
+                    zutaten += pizza["Zutaten"][0]
+                    for zutat in pizza["Zutaten"][1:-1]:
+                        zutaten = zutaten + ", " + zutat
+                    zutaten += " und " + pizza["Zutaten"][-1]
+                else:
+                    zutaten = "{} und {}".format(pizza["Zutaten"][0], pizza["Zutaten"][1])
+
+                if str2bool(pizza["Vegetarisch"]):
+                    vegetarisch = TextVegetarisch
+                else:
+                    vegetarisch = TextNichtVegetarisch
+
+                if "frisches" in zutaten:
+                    zutaten = zutaten.replace("frisches", "frischem")
+                elif "frischer" in zutaten:
+                    zutaten = zutaten.replace("frischer", "frischem")
+
+                params = {}
+                params["chat_id"] = update["message"]["from"]["id"]
+                params["text"] = TextStandard.format(TextPizzaAndExtras = TextPizzaAndExtras.format(nummer = nummer, name = name, zutaten = zutaten, preis = preis, vegetarisch = vegetarisch, extras = extras))
+                params["parse_mode"] = parseMode
+                apiCall(reqPath, methodMsg, params)
