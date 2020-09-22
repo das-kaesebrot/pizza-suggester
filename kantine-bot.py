@@ -8,17 +8,18 @@ from src import bothandler
 
 if __name__ == "__main__":
     try:
+        verbose = True
+        debug = True
+
         assetsfolder = "assets/csv"
         pizzaFile = "kantine.csv"
         extrasFile = "extras.csv"
 
         pizzaPath = os.path.join(confighandler.get_script_path(),assetsfolder,pizzaFile)
         extrasPath = os.path.join(confighandler.get_script_path(),assetsfolder,extrasFile)
-
-        verbose = True
         config = confighandler.readConfig()
 
-        bothandler.updatePoller(config, verbose, pizza.makeFullDict(pizzaPath, extrasPath))
+        bothandler.updatePoller(config, verbose, debug, pizza.makeFullDict(pizzaPath, extrasPath))
         
     except KeyboardInterrupt as e:
         print("\n[{}] [OK] [{}] {}".format(bothandler.getTime(), type(e).__name__, e))
