@@ -136,6 +136,20 @@ def handleUpdate(update_dict):
     emojiBacon = u'\U0001F953'
     emojiPig = u'\U0001F416'
     emojiRobot = u'\U0001F916'
+    
+    emojiRightArrow = u'\U000027A1'
+    emojiLeftArrow = u'\U00002B05'
+    emojiiOKButton = u'\U0001F197'
+
+    emojiKeycap1 = u'\U00000031'
+    emojiKeycap2 = u'\U00000032'
+    emojiKeycap3 = u'\U00000033'
+    emojiKeycap4 = u'\U00000034'
+    emojiKeycap5 = u'\U00000035'
+    emojiKeycap6 = u'\U00000036'
+    emojiKeycap7 = u'\U00000037'
+    emojiKeycap8 = u'\U00000038'
+    emojiKeycap9 = u'\U00000039'
 
     # Commands
     commandPizza = "/pizza" # TEMP SWITCH
@@ -160,10 +174,13 @@ def handleUpdate(update_dict):
     methodChatAction = "sendChatAction"
     parseMode = "MarkdownV2"
     numberCells = 2
-    numberRows = 2
+    numberRows = 3
 
     # Pre formatted strings
-    TextSelectToppings = "Bitte Beläge auswählen und dann mit Button bestätigen"
+    TextSelectToppings = "{emojiPizza} Bitte Beläge auswählen und dann mit Button bestätigen:".format(emojiPizza = emojiPizza)
+    TextButtonBestätigen = "{emojiiOKButton}".format(emojiiOKButton = emojiiOKButton)
+    TextButtonNext = "{emojiRightArrow}".format(emojiRightArrow = emojiRightArrow)
+    TextButtonPrevious = "{emojiLeftArrow}".format(emojiLeftArrow = emojiLeftArrow)
     TextNichtVegetarisch = "\n{} _Nicht vegetarisch_".format(emojiPig)
     TextVegetarisch = "\n{} _Vegetarisch_".format(emojiSeedling)
     TextStart = """Hi, ich bins\\! Der *KantineBot* {emojiRobot}{emojiSweatSmile}
@@ -243,7 +260,14 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
                 sendTyping(methodChatAction, from_id)
 
                 InlineKeyboardButtonsAll = []
+                InlineKeyboardButtonsShown = []
                 InlineKeyboardRow = []
+                buttonPrevious = {"text": TextButtonPrevious, "callback_data": "previous"}
+                buttonNext = {"text": TextButtonNext, "callback_data": "next"}
+                buttonCurrentSite = {"text": "Seite 1", "callback_data": "site"}
+                buttonConfirm = {"text": TextButtonBestätigen, "callback_data": "confirm"}
+
+                rowLast = [buttonPrevious, buttonNext, buttonCurrentSite, buttonConfirm]
             
                 params = paramsDefault
                 counter = 0
@@ -262,10 +286,15 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
                     if (counter % numberCells) == 0:
                         InlineKeyboardButtonsAll.append(InlineKeyboardRow)
                         InlineKeyboardRow = []
+
+                for x in range(numberRows):
+                    InlineKeyboardButtonsShown.append(InlineKeyboardButtonsAll[x])
                 
+                InlineKeyboardButtonsShown.append(rowLast)
+
                 # InlineKeyboardRows = [keyboardButtons[x:x+2] for x in range(0, len(keyboardButtons), 2)]
                 InlineKeyboardMarkup = {}
-                InlineKeyboardMarkup["inline_keyboard"] = InlineKeyboardButtonsAll
+                InlineKeyboardMarkup["inline_keyboard"] = InlineKeyboardButtonsShown
 
                 params["reply_markup"] = json.dumps(InlineKeyboardMarkup, ensure_ascii=False)
 
