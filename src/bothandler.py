@@ -138,8 +138,8 @@ def handleUpdate(update_dict):
     emojiRobot = u'\U0001F916'
 
     # Commands
-    commandPizza = "/debug" # TEMP SWITCH
-    commandDebug = "/pizza" # TEMP SWITCH
+    commandPizza = "/pizza" # TEMP SWITCH
+    commandDebug = "/debug" # TEMP SWITCH
     commandStart = "/start"
     commandRandom = "/zufall"
     commandAddress = "/kontakt"
@@ -229,8 +229,8 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
                 params["parse_mode"] = parseMode
                 apiCall(reqPath, methodMsg, params)
 
-            # TEMP Response for /pizza
-            elif (update["message"]["text"] == commandDebug):
+            # Response for /debug
+            elif (update["message"]["text"] == commandDebug) and False:
                 sendTyping(methodChatAction, from_id)
 
                 params = paramsDefault
@@ -238,7 +238,6 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
                 params["parse_mode"] = parseMode
                 apiCall(reqPath, methodMsg, params)
 
-            # TEMP RESPONSE FOR /debug
             # Response for /pizza
             elif (update["message"]["text"] == commandPizza):
                 sendTyping(methodChatAction, from_id)
