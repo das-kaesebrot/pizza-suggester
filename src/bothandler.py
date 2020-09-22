@@ -215,175 +215,162 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
 
         # Check if update is a message
         if ("message" in update.keys()):
+
+            from_id = update["message"]["from"]["id"]
+
+            paramsDefault = {"chat_id": from_id}
+
+            # Response for /start or /help
+            if (update["message"]["text"] == commandStart) or (update["message"]["text"] == commandHelp):
+                sendTyping(methodChatAction, from_id)
+
+                params = paramsDefault
+                params["text"] = TextStart
+                params["parse_mode"] = parseMode
+                apiCall(reqPath, methodMsg, params)
+
+            # TEMP Response for /pizza
+            elif (update["message"]["text"] == commandDebug):
+                sendTyping(methodChatAction, from_id)
+
+                params = paramsDefault
+                params["text"] = "Hi, leider funktioniert diese Funktion noch nicht\\. Ich arbeite dran, ok"
+                params["parse_mode"] = parseMode
+                apiCall(reqPath, methodMsg, params)
+
+            # TEMP RESPONSE FOR /debug
+            # Response for /pizza
+            elif (update["message"]["text"] == commandPizza):
+                sendTyping(methodChatAction, from_id)
+
+                InlineKeyboardButtonsAll = []
+                InlineKeyboardRow = []
             
-            if not (debug and not (update["message"]["from"]["id"] == 412041295)):
-
-                # Response for /start or /help
-                if (update["message"]["text"] == commandStart) or (update["message"]["text"] == commandHelp):
-                    sendTyping(methodChatAction, update["message"]["from"]["id"])
-
-                    params = {}
-                    params["chat_id"] = update["message"]["from"]["id"]
-                    params["text"] = TextStart
-                    params["parse_mode"] = parseMode
-                    apiCall(reqPath, methodMsg, params)
-
-                # TEMP Response for /pizza
-                elif (update["message"]["text"] == commandDebug):
-                    sendTyping(methodChatAction, update["message"]["from"]["id"])
-
-                    params = {}
-                    params["chat_id"] = update["message"]["from"]["id"]
-                    params["text"] = "Hi, leider funktioniert diese Funktion noch nicht\\. Ich arbeite dran, ok"
-                    params["parse_mode"] = parseMode
-                    apiCall(reqPath, methodMsg, params)
-
-                # TEMP RESPONSE FOR /debug
-                # Response for /pizza
-                elif (update["message"]["text"] == commandPizza):
-                    sendTyping(methodChatAction, update["message"]["from"]["id"])
-
-                    InlineKeyboardButtonsAll = []
-                    InlineKeyboardRow = []
+                params = paramsDefault
+                counter = 0
+                params["text"] = TextSelectToppings
                 
-                    params = {}
-                    counter = 0
-                    params["chat_id"] = update["message"]["from"]["id"]
-                    # params["text"] = "Test"
-                    params["text"] = TextSelectToppings
-                    
-                    # while (len(belagList) % numberCells) != 0:
-                        # belagList.append("test")
+                # while (len(belagList) % numberCells) != 0:
+                    # belagList.append("test")
 
-                    for belag in belagList:
-
-                        # TMP
-                        # break
-                    
-                        InlineKeyboardButton= {}
-                        InlineKeyboardButton["text"] = belag
-                        InlineKeyboardButton["callback_data"] = str(counter)
-                        InlineKeyboardRow.append(InlineKeyboardButton)
-                        counter+=1
-                        if (counter % numberCells) == 0:
-                            InlineKeyboardButtonsAll.append(InlineKeyboardRow)
-                            InlineKeyboardRow = []
-                    
-                    # InlineKeyboardRows = [keyboardButtons[x:x+2] for x in range(0, len(keyboardButtons), 2)]
-                    InlineKeyboardMarkup = {}
-                    InlineKeyboardMarkup["inline_keyboard"] = InlineKeyboardButtonsAll
-
-                    params["reply_markup"] = json.dumps(InlineKeyboardMarkup, ensure_ascii=False)
-
-                    print(InlineKeyboardMarkup)
-                    print(params)
-
-                    apiCall(reqPath, methodMsg, params)
-
-                # Response for /zufall
-                elif (update["message"]["text"] == commandRandom):
-                    sendTyping(methodChatAction, update["message"]["from"]["id"])
-
-                    pizzaNum = random.randint(0, len(pizzaDict)-1)
-                    pizza = pizzaDict[pizzaNum]
-                    nummer = pizza["Nummer"]
-                    name = pizza["Name"]
-
-                    zutaten = ""
-                    vegetarisch = ""
-                    # vorname = update["message"]["from"]["first_name"]
-
-                    preis = formatPrice(pizza["Preis"])
-
-                    if (len(pizza["Zutaten"]) >= 2):
-                        zutaten += pizza["Zutaten"][0]
-                        for zutat in pizza["Zutaten"][1:-1]:
-                            zutaten = zutaten + ", " + zutat
-                        zutaten += " und " + pizza["Zutaten"][-1]
-                    else:
-                        zutaten = "{} und {}".format(pizza["Zutaten"][0], pizza["Zutaten"][1])
-
-                    if str2bool(pizza["Vegetarisch"]):
-                        vegetarisch = TextVegetarisch
-                    else:
-                        vegetarisch = TextNichtVegetarisch
-
-                    if "frisches" in zutaten:
-                        zutaten = zutaten.replace("frisches", "frischem")
-                    elif "frischer" in zutaten:
-                        zutaten = zutaten.replace("frischer", "frischem")
-                    
-                    TextRandomFull = TextRandom.format(TextPizza = TextPizza.format(nummer = nummer, name = name, zutaten = zutaten, preis = preis, vegetarisch = vegetarisch))
-
-                    params = {}
-                    params["chat_id"] = update["message"]["from"]["id"]
-                    params["text"] = TextRandomFull
-                    params["parse_mode"] = parseMode
-                    apiCall(reqPath, methodMsg, params)
-
-                # Response for /kontakt
-                elif (update["message"]["text"] == commandAddress):
-                    sendTyping(methodChatAction, update["message"]["from"]["id"])
-
-                    # Send general info message
-                    params = {}
-                    params["chat_id"] = update["message"]["from"]["id"]
-                    params["text"] = TextAddress
-                    params["parse_mode"] = parseMode
-                    apiCall(reqPath, methodMsg, params)
-
-                    # Send venue
-                    params = {}
-                    params["chat_id"] = update["message"]["from"]["id"]
-                    params["latitude"] = KantineLat
-                    params["longitude"] = KantineLong
-                    params["title"] = KantineTitle
-                    params["address"] = KantineAddress
-                    apiCall(reqPath, methodVenue, params)
-
-                    # Send phone number as contact
-                    params = {}
-                    params["chat_id"] = update["message"]["from"]["id"]
-                    params["phone_number"] = KantineNumber
-                    params["first_name"] = KantineTitle
-                    apiCall(reqPath, methodContact, params)
+                for belag in belagList:
                 
-                # Response for /carlos
-                elif (update["message"]["text"] == commandCarlos) and (update["message"]["from"]["id"] == 26699016):
-                    sendTyping(methodChatAction, update["message"]["from"]["id"])
+                    InlineKeyboardButton= {}
+                    InlineKeyboardButton["text"] = belag
+                    InlineKeyboardButton["callback_data"] = str(counter)
+                    InlineKeyboardRow.append(InlineKeyboardButton)
+                    counter+=1
+                    if (counter % numberCells) == 0:
+                        InlineKeyboardButtonsAll.append(InlineKeyboardRow)
+                        InlineKeyboardRow = []
+                
+                # InlineKeyboardRows = [keyboardButtons[x:x+2] for x in range(0, len(keyboardButtons), 2)]
+                InlineKeyboardMarkup = {}
+                InlineKeyboardMarkup["inline_keyboard"] = InlineKeyboardButtonsAll
 
-                    pizzaNum = 3 # Number 3!!
-                    pizza = pizzaDict[pizzaNum]
-                    nummer = pizza["Nummer"]
-                    name = pizza["Name"]
+                params["reply_markup"] = json.dumps(InlineKeyboardMarkup, ensure_ascii=False)
 
-                    zutaten = ""
-                    vegetarisch = ""
-                    extras = "Büffelmozzarella"
-                    # vorname = update["message"]["from"]["first_name"]
+                apiCall(reqPath, methodMsg, params)
 
-                    preis = formatPrice(pizza["Preis"])
+            # Response for /zufall
+            elif (update["message"]["text"] == commandRandom):
+                sendTyping(methodChatAction, update["message"]["from"]["id"])
 
-                    if (len(pizza["Zutaten"]) >= 2):
-                        zutaten += pizza["Zutaten"][0]
-                        for zutat in pizza["Zutaten"][1:-1]:
-                            zutaten = zutaten + ", " + zutat
-                        zutaten += " und " + pizza["Zutaten"][-1]
-                    else:
-                        zutaten = "{} und {}".format(pizza["Zutaten"][0], pizza["Zutaten"][1])
+                pizzaNum = random.randint(0, len(pizzaDict)-1)
+                pizza = pizzaDict[pizzaNum]
+                nummer = pizza["Nummer"]
+                name = pizza["Name"]
 
-                    if str2bool(pizza["Vegetarisch"]):
-                        vegetarisch = TextVegetarisch
-                    else:
-                        vegetarisch = TextNichtVegetarisch
+                zutaten = ""
+                vegetarisch = ""
+                # vorname = update["message"]["from"]["first_name"]
 
-                    if "frisches" in zutaten:
-                        zutaten = zutaten.replace("frisches", "frischem")
-                    elif "frischer" in zutaten:
-                        zutaten = zutaten.replace("frischer", "frischem")
+                preis = formatPrice(pizza["Preis"])
 
-                    params = {}
-                    params["chat_id"] = update["message"]["from"]["id"]
-                    params["text"] = TextStandard.format(TextPizza = TextPizzaAndExtras.format(nummer = nummer, name = name, zutaten = zutaten, preis = preis, vegetarisch = vegetarisch, extras = extras))
-                    params["parse_mode"] = parseMode
-                    apiCall(reqPath, methodMsg, params)
+                if (len(pizza["Zutaten"]) >= 2):
+                    zutaten += pizza["Zutaten"][0]
+                    for zutat in pizza["Zutaten"][1:-1]:
+                        zutaten = zutaten + ", " + zutat
+                    zutaten += " und " + pizza["Zutaten"][-1]
+                else:
+                    zutaten = "{} und {}".format(pizza["Zutaten"][0], pizza["Zutaten"][1])
+
+                if str2bool(pizza["Vegetarisch"]):
+                    vegetarisch = TextVegetarisch
+                else:
+                    vegetarisch = TextNichtVegetarisch
+
+                if "frisches" in zutaten:
+                    zutaten = zutaten.replace("frisches", "frischem")
+                elif "frischer" in zutaten:
+                    zutaten = zutaten.replace("frischer", "frischem")
+                
+                TextRandomFull = TextRandom.format(TextPizza = TextPizza.format(nummer = nummer, name = name, zutaten = zutaten, preis = preis, vegetarisch = vegetarisch))
+
+                params = paramsDefault
+                params["text"] = TextRandomFull
+                params["parse_mode"] = parseMode
+                apiCall(reqPath, methodMsg, params)
+
+            # Response for /kontakt
+            elif (update["message"]["text"] == commandAddress):
+                sendTyping(methodChatAction, from_id)
+
+                # Send general info message
+                params = paramsDefault
+                params["text"] = TextAddress
+                params["parse_mode"] = parseMode
+                apiCall(reqPath, methodMsg, params)
+
+                # Send venue
+                params = paramsDefault
+                params["latitude"] = KantineLat
+                params["longitude"] = KantineLong
+                params["title"] = KantineTitle
+                params["address"] = KantineAddress
+                apiCall(reqPath, methodVenue, params)
+
+                # Send phone number as contact
+                params = paramsDefault
+                params["phone_number"] = KantineNumber
+                params["first_name"] = KantineTitle
+                apiCall(reqPath, methodContact, params)
+            
+            # Response for /carlos
+            elif (update["message"]["text"] == commandCarlos):
+                sendTyping(methodChatAction, from_id)
+
+                pizzaNum = 3 # Number 3!!
+                pizza = pizzaDict[pizzaNum]
+                nummer = pizza["Nummer"]
+                name = pizza["Name"]
+
+                zutaten = ""
+                vegetarisch = ""
+                extras = "Büffelmozzarella"
+                # vorname = update["message"]["from"]["first_name"]
+
+                preis = formatPrice(pizza["Preis"])
+
+                if (len(pizza["Zutaten"]) >= 2):
+                    zutaten += pizza["Zutaten"][0]
+                    for zutat in pizza["Zutaten"][1:-1]:
+                        zutaten = zutaten + ", " + zutat
+                    zutaten += " und " + pizza["Zutaten"][-1]
+                else:
+                    zutaten = "{} und {}".format(pizza["Zutaten"][0], pizza["Zutaten"][1])
+
+                if str2bool(pizza["Vegetarisch"]):
+                    vegetarisch = TextVegetarisch
+                else:
+                    vegetarisch = TextNichtVegetarisch
+
+                if "frisches" in zutaten:
+                    zutaten = zutaten.replace("frisches", "frischem")
+                elif "frischer" in zutaten:
+                    zutaten = zutaten.replace("frischer", "frischem")
+                
+                params = paramsDefault
+                params["text"] = TextStandard.format(TextPizza = TextPizzaAndExtras.format(nummer = nummer, name = name, zutaten = zutaten, preis = preis, vegetarisch = vegetarisch, extras = extras))
+                params["parse_mode"] = parseMode
+                apiCall(reqPath, methodMsg, params)
