@@ -1,5 +1,4 @@
-pyinstaller
-requests
-configparser
-babel
-environs
+requests==2.24.0
+configparser==5.0.0
+babel==2.8.0
+environs==8.0.0

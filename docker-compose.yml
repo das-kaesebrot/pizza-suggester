@@ -7,6 +7,6 @@ services:
     restart: on-failure
     environment:
         # INSERT YOUR BOT TOKEN HERE
-        - TGBOTTOKEN=
+        # - TGBOTTOKEN=
         # API base URL, defaults to https://api.telegram.org/bot
         # - API_BASEURL=
