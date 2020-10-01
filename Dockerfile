@@ -14,4 +14,4 @@ RUN apk del .build-deps
 
 ENV APP_ENV=docker
 
-ENTRYPOINT ["/usr/bin/python", "kantine-bot.py"]
+ENTRYPOINT ["/usr/bin/python3", "kantine-bot.py"]
