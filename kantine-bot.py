@@ -3,8 +3,9 @@ from pathlib import Path
 import os
 import sys
 from src import pizza
-from src import confighandler
+from src import envhandler
 from src import bothandler
+from src import utility
 
 if __name__ == "__main__":
     try:
@@ -15,9 +16,9 @@ if __name__ == "__main__":
         pizzaFile = "kantine.csv"
         extrasFile = "extras.csv"
 
-        pizzaPath = os.path.join(confighandler.get_script_path(),assetsfolder,pizzaFile)
-        extrasPath = os.path.join(confighandler.get_script_path(),assetsfolder,extrasFile)
-        config = confighandler.readConfig()
+        pizzaPath = os.path.join(utility.get_script_path(),assetsfolder,pizzaFile)
+        extrasPath = os.path.join(utility.get_script_path(),assetsfolder,extrasFile)
+        config = envhandler.readEnv()
 
         bothandler.updatePoller(config, verbose, debug, pizza.makeFullDict(pizzaPath, extrasPath))
         

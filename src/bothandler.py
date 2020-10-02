@@ -7,10 +7,10 @@ from requests import Request, Session
 from babel.numbers import format_currency
 from datetime import datetime
 from pathlib import Path
-from src import confighandler
+from src import envhandler
 from collections import Counter 
 
-def updatePoller(config, verboseCarry, debugCarry, fullDict):
+def updatePoller(env_vars, verboseCarry, debugCarry, fullDict):
     global baseURL
     global token
     global reqPath
@@ -29,8 +29,8 @@ def updatePoller(config, verboseCarry, debugCarry, fullDict):
     extrasDict = fullDict["extras"]
     belagList = getBelagList(pizzaDict)
 
-    baseURL = config['TG_API'].get('baseURL')
-    token = config['TG_API'].get('token')
+    baseURL = env_vars["BASEURL"]
+    token = env_vars["TOKEN"]
 
     reqPath = baseURL + token
 
