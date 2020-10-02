@@ -19,7 +19,9 @@ def updatePoller(env_vars, verboseCarry, debugCarry, fullDict):
     global verbose
     global debug
     global belagList
+    global repliesDict
 
+    repliesDict = {}
     debug = debugCarry
     verbose = verboseCarry
 
@@ -141,6 +143,8 @@ def handleUpdate(update_dict):
     emojiLeftArrow = u'\U00002B05'
     emojiiOKButton = u'\U0001F197'
 
+    emojiCheckMark = u'\U00002714'
+
     emojiKeycap1 = u'\U00000031'
     emojiKeycap2 = u'\U00000032'
     emojiKeycap3 = u'\U00000033'
@@ -172,6 +176,7 @@ def handleUpdate(update_dict):
     methodContact = "sendContact"
     methodVenue = "sendVenue"
     methodChatAction = "sendChatAction"
+    methodEditMsgReplyMarkup = "editMessageReplyMarkup"
     parseMode = "MarkdownV2"
     numberCells = 2
     numberRows = 3
@@ -230,6 +235,52 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
     ### MAIN UPDATE HANDLING THREAD ###
     for update in update_dict["result"]:
 
+        # Check if update is a callback query
+        if ("callback_query" in update.keys()):
+            from_id = update["callback_query"]["from"]["id"]
+            if (from_id in repliesDict.keys()):
+                selectedDict = repliesDict[from_id]
+                
+                if ("data" in update["callback_query"]):
+                    data = update["callback_query"]["data"]
+                    params = {}
+                    params["chat_id"]
+
+                    ### TODO: DO SOMETHING WITH THIS...LATER cba to program at the moment
+
+                    InlineKeyboardButtonsAll = []
+                    InlineKeyboardButtonsShown = []
+                    InlineKeyboardRow = []
+                    buttonPrevious = {"text": TextButtonPrevious, "callback_data": "previous"}
+                    buttonNext = {"text": TextButtonNext, "callback_data": "next"}
+                    buttonCurrentSite = {"text": "Seite 1", "callback_data": "page"}
+                    buttonConfirm = {"text": TextButtonBestätigen, "callback_data": "confirm"}
+
+                    rowLast = [buttonPrevious, buttonNext, buttonCurrentSite, buttonConfirm]
+
+                    if (counter % numberCells) == 0:
+                        InlineKeyboardButtonsAll.append(InlineKeyboardRow)
+                        InlineKeyboardRow = []
+
+                    #####
+                    
+                    if (data == "next"):
+                        pass
+                    elif (data == "previous"):
+                        if not (selectedDict["page"] == 0):
+                            selectedDict["page"] -= 1
+                    elif (data == "confirm"):
+                        pass
+                    else:
+                        if data in selectedDict["selected"]:
+                            
+                            selectedDict["selected"].remove(data)
+                        else:
+                            selectedDict["selected"].append(data)
+                        print(selectedDict["selected"])
+                    
+                    # apiCall()
+
         # Check if update is a message
         if ("message" in update.keys()):
 
@@ -257,6 +308,13 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
 
             # Response for /pizza
             elif (update["message"]["text"] == commandPizza):
+
+                tempDict = {}
+                # overwrite chat id so that the bot only handles one request per user at a time
+                tempDict["chat_id"] = update["message"]["chat"]["id"]
+                tempDict["page"] = 0
+                tempDict["selected"] = []
+
                 sendTyping(methodChatAction, from_id)
 
                 InlineKeyboardButtonsAll = []
@@ -264,7 +322,7 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
                 InlineKeyboardRow = []
                 buttonPrevious = {"text": TextButtonPrevious, "callback_data": "previous"}
                 buttonNext = {"text": TextButtonNext, "callback_data": "next"}
-                buttonCurrentSite = {"text": "Seite 1", "callback_data": "site"}
+                buttonCurrentSite = {"text": "Seite 1", "callback_data": "page"}
                 buttonConfirm = {"text": TextButtonBestätigen, "callback_data": "confirm"}
 
                 rowLast = [buttonPrevious, buttonNext, buttonCurrentSite, buttonConfirm]
@@ -299,6 +357,12 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
                 params["reply_markup"] = json.dumps(InlineKeyboardMarkup, ensure_ascii=False)
 
                 apiCall(reqPath, methodMsg, params)
+
+                tempDict["inline_keyboard"] = InlineKeyboardMarkup
+                tempDict["buttons_all"] = InlineKeyboardButtonsAll
+                tempDict["row_last"] = rowLast
+
+                repliesDict[from_id] = tempDict
 
             # Response for /zufall
             elif (update["message"]["text"] == commandRandom):
