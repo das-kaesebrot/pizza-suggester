@@ -1,6 +1,8 @@
-#! /usr/bin/env python3
 import os
 import sys
 
-def get_script_path():
+def getscrpath():
     return os.path.dirname(os.path.realpath(sys.argv[0]))
+
+def patthatcat(*purr):
+    return os.path.join(*purr) # :3 cute catto

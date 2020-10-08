@@ -1,4 +1,3 @@
-#! /usr/bin/env python3
 import os
 from os import environ
 from environs import Env

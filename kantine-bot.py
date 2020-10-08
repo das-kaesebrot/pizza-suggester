@@ -1,11 +1,10 @@
-#! /usr/bin/env python3
 from pathlib import Path
 import os
 import sys
 from src import pizza
 from src import envhandler
 from src import bothandler
-from src import utility
+from src import utility as u
 
 if __name__ == "__main__":
     try:
@@ -16,8 +15,8 @@ if __name__ == "__main__":
         pizzaFile = "kantine.csv"
         extrasFile = "extras.csv"
 
-        pizzaPath = os.path.join(utility.get_script_path(),assetsfolder,pizzaFile)
-        extrasPath = os.path.join(utility.get_script_path(),assetsfolder,extrasFile)
+        pizzaPath = u.patthatcat(u.getscrpath(),assetsfolder,pizzaFile)
+        extrasPath = u.patthatcat(u.getscrpath(),assetsfolder,extrasFile)
 
         bothandler.updatePoller(envhandler.readEnv(), verbose, debug, pizza.makeFullDict(pizzaPath, extrasPath))
         
