@@ -1,0 +1,14 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+requests = "==2.24.0"
+environs = "==8.0.0"
+Babel = "==2.8.0"
+
+[requires]
+python_version = "3.8"
