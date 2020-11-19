@@ -1,13 +1,15 @@
-import requests
 import random
 import json
 import time
+import telegram
 from requests import Request, Session
 from babel.numbers import format_currency
 from datetime import datetime
 from pathlib import Path
 from src import envhandler
 from collections import Counter 
+
+# https://github.com/python-telegram-bot/python-telegram-bot/wiki
 
 def updatePoller(env_vars, verboseCarry, debugCarry, fullDict):
     global baseURL
