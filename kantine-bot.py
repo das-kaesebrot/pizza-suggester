@@ -23,7 +23,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt as e:
         print("\n[{}] [OK] [{}] {}".format(bothandler.getTime(), type(e).__name__, e))
         sys.exit(0)
-    except Exception as e:
-        print("\n[{}] [ERROR] [{}] {}".format(bothandler.getTime(), type(e).__name__, e))
+    # except Exception as e:
+    #     print("\n[{}] [ERROR] [{}] {}".format(bothandler.getTime(), type(e).__name__, e))
     finally:
         print("Program stopped")
