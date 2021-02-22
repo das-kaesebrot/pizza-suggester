@@ -2,6 +2,7 @@ import random
 import json
 import time
 import telegram
+import requests
 from requests import Request, Session
 from babel.numbers import format_currency
 from datetime import datetime
@@ -242,10 +243,11 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
             if (from_id in repliesDict.keys()):
                 selectedDict = repliesDict[from_id]
                 
+                # TODO implement keyboard callback response
                 if ("data" in update["callback_query"]):
                     data = update["callback_query"]["data"]
                     params = {}
-                    params["chat_id"]
+                    params["chat_id"] = from_id
 
                     ### TODO: DO SOMETHING WITH THIS...LATER cba to program at the moment
 
@@ -254,33 +256,36 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
                     InlineKeyboardRow = []
                     buttonPrevious = {"text": TextButtonPrevious, "callback_data": "previous"}
                     buttonNext = {"text": TextButtonNext, "callback_data": "next"}
-                    buttonCurrentSite = {"text": "Seite 1", "callback_data": "page"}
+                    # TODO fix page tracking
+                    buttonCurrentSite = {"text": "Seite 1", "callback_data": {"page": 0}}
                     buttonConfirm = {"text": TextButtonBestätigen, "callback_data": "confirm"}
 
                     rowLast = [buttonPrevious, buttonNext, buttonCurrentSite, buttonConfirm]
 
-                    if (counter % numberCells) == 0:
-                        InlineKeyboardButtonsAll.append(InlineKeyboardRow)
-                        InlineKeyboardRow = []
+                    # if (counter % numberCells) == 0:
+                    #     InlineKeyboardButtonsAll.append(InlineKeyboardRow)
+                    #     InlineKeyboardRow = []
 
                     #####
                     
                     if (data == "next"):
+                        # if not (selectedDict["page"] == 0)
                         pass
                     elif (data == "previous"):
                         if not (selectedDict["page"] == 0):
                             selectedDict["page"] -= 1
                     elif (data == "confirm"):
                         pass
+                    elif (data == "page"):
+                        pass
                     else:
                         if data in selectedDict["selected"]:
-                            
                             selectedDict["selected"].remove(data)
                         else:
                             selectedDict["selected"].append(data)
                         print(selectedDict["selected"])
                     
-                    # apiCall()
+                    apiCall(reqPath, methodMsg, params)
 
         # Check if update is a message
         if ("message" in update.keys()):
@@ -312,6 +317,7 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
 
                 tempDict = {}
                 # overwrite chat id so that the bot only handles one request per user at a time
+                # TODO track corresponding requests...properly!
                 tempDict["chat_id"] = update["message"]["chat"]["id"]
                 tempDict["page"] = 0
                 tempDict["selected"] = []
@@ -323,7 +329,8 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
                 InlineKeyboardRow = []
                 buttonPrevious = {"text": TextButtonPrevious, "callback_data": "previous"}
                 buttonNext = {"text": TextButtonNext, "callback_data": "next"}
-                buttonCurrentSite = {"text": "Seite 1", "callback_data": "page"}
+                # TODO fix page tracking
+                buttonCurrentSite = {"text": "Seite 1", "callback_data": str({"page": 0})}
                 buttonConfirm = {"text": TextButtonBestätigen, "callback_data": "confirm"}
 
                 rowLast = [buttonPrevious, buttonNext, buttonCurrentSite, buttonConfirm]
