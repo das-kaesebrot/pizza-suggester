@@ -344,13 +344,13 @@ Probiere es bitte noch einmal:
 
                         repliesDict[from_id].pop(message_id)
 
-                        matches2 = []
+                        matches = []
 
                         for entry in pizzaDict:
                             if all(item in entry["Zutaten"] for item in belaegeFinal):
-                                matches2.append(entry)
+                                matches.append(entry)
 
-                        matches = sorted(matches2, key=lambda k: k['Preis'])
+                        matches = sorted(matches, key=lambda k: k['Preis'])[:3]
                         print(matches)
                         
                         params= {
