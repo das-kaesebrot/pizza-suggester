@@ -141,21 +141,25 @@ def handleUpdate(update_dict):
     emojiPig = u'\U0001F416'
     emojiRobot = u'\U0001F916'
     
-    emojiRightArrow = u'\U000027A1'
-    emojiLeftArrow = u'\U00002B05'
+    emojiRightArrow = u'\u27A1'
+    emojiLeftArrow = u'\u2B05'
     emojiiOKButton = u'\U0001F197'
 
-    emojiCheckMark = u'\U00002714'
+    emojiCheckMark = u'\u2714'
 
-    emojiKeycap1 = u'\U00000031'
-    emojiKeycap2 = u'\U00000032'
-    emojiKeycap3 = u'\U00000033'
-    emojiKeycap4 = u'\U00000034'
-    emojiKeycap5 = u'\U00000035'
-    emojiKeycap6 = u'\U00000036'
-    emojiKeycap7 = u'\U00000037'
-    emojiKeycap8 = u'\U00000038'
-    emojiKeycap9 = u'\U00000039'
+    emojiKeycap1 = u'\u0031'
+    emojiKeycap2 = u'\u0032'
+    emojiKeycap3 = u'\u0033'
+    emojiKeycap4 = u'\u0034'
+    emojiKeycap5 = u'\u0035'
+    emojiKeycap6 = u'\u0036'
+    emojiKeycap7 = u'\u0037'
+    emojiKeycap8 = u'\u0038'
+    emojiKeycap9 = u'\u0039'
+
+    checkMarkUnicode = u'\u2713'
+    rightArrowUnicode = u'\u2192'
+    leftArrowUnicode = u'\u2190'
 
     # Commands
     commandPizza = "/pizza" # TEMP SWITCH
@@ -184,13 +188,13 @@ def handleUpdate(update_dict):
     numberRows = 3
 
     # Pre formatted strings
-    TextSelectToppings = "{emojiPizza} Bitte Beläge auswählen und dann mit Button bestätigen:".format(emojiPizza = emojiPizza)
-    TextButtonBestätigen = "{emojiiOKButton}".format(emojiiOKButton = emojiiOKButton)
-    TextButtonNext = "{emojiRightArrow}".format(emojiRightArrow = emojiRightArrow)
-    TextButtonPrevious = "{emojiLeftArrow}".format(emojiLeftArrow = emojiLeftArrow)
-    TextNichtVegetarisch = "\n{} _Nicht vegetarisch_".format(emojiPig)
-    TextVegetarisch = "\n{} _Vegetarisch_".format(emojiSeedling)
-    TextStart = """Hi, ich bins\\! Der *KantineBot* {emojiRobot}{emojiSweatSmile}
+    TextSelectToppings = f"{emojiPizza} Bitte Beläge auswählen und dann mit Button bestätigen:"
+    TextButtonBestätigen = f"{checkMarkUnicode}"
+    TextButtonNext = f"{rightArrowUnicode}"
+    TextButtonPrevious = f"{leftArrowUnicode}"
+    TextNichtVegetarisch = f"\n{emojiPig} _Nicht vegetarisch_"
+    TextVegetarisch = f"\n{emojiSeedling} _Vegetarisch_"
+    TextStart = f"""Hi, ich bins\\! Der *KantineBot* {emojiRobot}{emojiSweatSmile}
 _by \\@das\\_kaesebrot_
 
 Folgende Kommandos sind bei mir verfügbar:
@@ -202,7 +206,7 @@ Folgende Kommandos sind bei mir verfügbar:
 
 {emojiRobot} /help \\- Informationen zum Bot
 
-Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emojiPizza = emojiPizza, emojiDie = emojiDie, emojiPin = emojiPin, emojiRobot = emojiRobot)
+Guten Appetit\\! {emojiPizza}"""
 
 
     TextPizza = """__*Nummer {nummer}*__
@@ -215,7 +219,7 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
 *Preis:* {preis}{vegetarisch}"""
 
 
-    TextEnd = """Guten Appetit\\! {emojiFaceSavouringFood}{emojiForkKnife}""".format(emojiFaceSavouringFood = emojiFaceSavouringFood, emojiForkKnife = emojiForkKnife)
+    TextEnd = f"""Guten Appetit\\! {emojiFaceSavouringFood}{emojiForkKnife}"""
 
     TextGeneric = """{emojiPizza} Hier sind deine Pizzen:\n
 {{TextPizza1}}\n
@@ -231,7 +235,7 @@ Guten Appetit\\! {emojiPizza}""".format(emojiSweatSmile = emojiSweatSmile, emoji
 {{TextPizza}}\n
 {TextEnd}""".format(emojiPizza = emojiPizza, TextEnd = TextEnd)
 
-    TextAddress = """{emojiPin} Hier die Daten:""".format(emojiPin = emojiPin)
+    TextAddress = f"""{emojiPin} Hier die Daten:"""
 
 
     ### MAIN UPDATE HANDLING THREAD ###
