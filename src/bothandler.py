@@ -351,7 +351,6 @@ Probiere es bitte noch einmal:
                                 matches.append(entry)
 
                         matches = sorted(matches, key=lambda k: k['Preis'])[:3]
-                        print(matches)
                         
                         params= {
                                 "chat_id": from_id
