@@ -39,8 +39,8 @@ def pizzaDictListFromCSV(filename):
         reader = csv.DictReader(f,delimiter=';')
         for row in reader:
             row["Zutaten"] = row["Zutaten"].split(",")
+            row["Preis"] = float(row["Preis"])
             pizzaList.append(row)
-            
     return pizzaList
 
 def extrasDictListFromCSV(filename):
