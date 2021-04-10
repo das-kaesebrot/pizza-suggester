@@ -3,12 +3,16 @@ import json
 import time
 import telegram
 import requests
+import random
+import collections
 from requests import Request, Session
 from babel.numbers import format_currency
 from datetime import datetime
 from pathlib import Path
 from src import envhandler
-from collections import Counter 
+from collections import Counter
+from collections import OrderedDict
+from operator import itemgetter
 
 # https://github.com/python-telegram-bot/python-telegram-bot/wiki
 
@@ -140,22 +144,14 @@ def handleUpdate(update_dict):
     emojiBacon = u'\U0001F953'
     emojiPig = u'\U0001F416'
     emojiRobot = u'\U0001F916'
+    emojiSOSSign = u'\U0001F198'
+    emojiWarningSign = u'\u26A0'
     
     emojiRightArrow = u'\u27A1'
     emojiLeftArrow = u'\u2B05'
     emojiiOKButton = u'\U0001F197'
 
     emojiCheckMark = u'\u2714'
-
-    emojiKeycap1 = u'\u0031'
-    emojiKeycap2 = u'\u0032'
-    emojiKeycap3 = u'\u0033'
-    emojiKeycap4 = u'\u0034'
-    emojiKeycap5 = u'\u0035'
-    emojiKeycap6 = u'\u0036'
-    emojiKeycap7 = u'\u0037'
-    emojiKeycap8 = u'\u0038'
-    emojiKeycap9 = u'\u0039'
 
     checkMarkUnicode = u'\u2713'
     rightArrowUnicode = u'\u2192'
@@ -194,7 +190,7 @@ def handleUpdate(update_dict):
     TextSelectedToppingsHeader = f"""Gewählte Beläge:
 {{Toppings}}"""
     TextSelectToppingsWithFeedBack = f"{emojiPizza} {TextSelectedToppingsHeader}"
-    TextFinalSelection = f"""{emojiPizza} Vielen Dank\\! Ich versuche nun\\, die günstigsten drei Pizzen mit den folgenden Belägen zu finden:
+    TextFinalSelection = f"""Vielen Dank! Ich versuche nun, die günstigsten drei Pizzen mit den folgenden Belägen zu finden:
 {{Toppings}}"""
     TextButtonBestätigen = f"{checkMarkUnicode}"
     TextButtonNext = f"{rightArrowUnicode}"
@@ -229,10 +225,13 @@ Guten Appetit\\! {emojiPizza}"""
     TextEnd = f"Guten Appetit\\! {emojiFaceSavouringFood}{emojiForkKnife}"
 
     TextGeneric = f"""{emojiPizza} Hier sind deine Pizzen:\n
-{{TextPizza1}}\n
-{{TextPizza2}}\n
-{{TextPizza3}}\n
-{TextEnd}"""
+{{TextPizzaMulti}}{TextEnd}"""
+
+    TextFail = f"""{emojiWarningSign} Es tut mir Leid\\, leider konnte ich keine passenden Pizzen finden\\.
+
+Probiere es bitte noch einmal:
+{emojiPizza} /pizza
+"""
 
     TextRandom = f"""{emojiDie} Hier ist deine Zufallspizza:\n
 {{TextPizza}}\n
@@ -283,15 +282,19 @@ Guten Appetit\\! {emojiPizza}"""
                     if (data == "next"):
                         if not (currPage == lastPage):
                             currPage += 1
-                            params["reply_markup"]["inline_keyboard"][-1][-2]["text"] = f"Seite {currPage+1}"
-                            params["reply_markup"]["inline_keyboard"][-1][-2]["callback_data"] = f"p{currPage}p"
-                            lastRow = params["reply_markup"]["inline_keyboard"][-1]
-                            params["reply_markup"]["inline_keyboard"] = []
-                            params["reply_markup"]["inline_keyboard"] = selectedDict["pages"][currPage]
-                            params["reply_markup"]["inline_keyboard"].append(lastRow) 
 
                         else:
                             paramsCallbackQueryAnswer["text"] = f"Du bist schon auf der letzten Seite!"
+
+                        params["reply_markup"]["inline_keyboard"][-1][-2]["text"] = f"Seite {currPage+1}"
+                        params["reply_markup"]["inline_keyboard"][-1][-2]["callback_data"] = f"p{currPage}p"
+                        lastRow = params["reply_markup"]["inline_keyboard"][-1]
+                        params["reply_markup"]["inline_keyboard"] = []
+                        params["reply_markup"]["inline_keyboard"] = selectedDict["pages"][currPage]
+                        params["reply_markup"]["inline_keyboard"].append(lastRow)
+
+                        if len(params["reply_markup"]["inline_keyboard"]) > numberRows+1:
+                            del params["reply_markup"]["inline_keyboard"][-1]
 
                         params["reply_markup"] = json.dumps(params.get("reply_markup"))
 
@@ -299,15 +302,20 @@ Guten Appetit\\! {emojiPizza}"""
                     elif (data == "previous"):
                         if not (currPage == 0):
                             currPage -= 1
-                            params["reply_markup"]["inline_keyboard"][-1][-2]["text"] = f"Seite {currPage+1}"
-                            params["reply_markup"]["inline_keyboard"][-1][-2]["callback_data"] = f"p{currPage}p"
-                            lastRow = params["reply_markup"]["inline_keyboard"][-1]
-                            params["reply_markup"]["inline_keyboard"] = []
-                            params["reply_markup"]["inline_keyboard"] = selectedDict["pages"][currPage]
-                            params["reply_markup"]["inline_keyboard"].append(lastRow)
 
                         else:
                             paramsCallbackQueryAnswer["text"] = f"Du bist schon auf der ersten Seite!"
+                        
+                        
+                        params["reply_markup"]["inline_keyboard"][-1][-2]["text"] = f"Seite {currPage+1}"
+                        params["reply_markup"]["inline_keyboard"][-1][-2]["callback_data"] = f"p{currPage}p"
+                        lastRow = params["reply_markup"]["inline_keyboard"][-1]
+                        params["reply_markup"]["inline_keyboard"] = []
+                        params["reply_markup"]["inline_keyboard"] = selectedDict["pages"][currPage]
+                        params["reply_markup"]["inline_keyboard"].append(lastRow)
+
+                        if len(params["reply_markup"]["inline_keyboard"]) > numberRows+1:
+                            del params["reply_markup"]["inline_keyboard"][-1]
 
                         params["reply_markup"] = json.dumps(params.get("reply_markup"))
 
@@ -322,15 +330,70 @@ Guten Appetit\\! {emojiPizza}"""
                             if not len(selectedDict["selected"]) == 1:
                                 if not x == len(selectedDict["selected"])-1:
                                     strToppings += ", "
-
+                        
+                        belaegeFinal = []
+                        for x in range(len(selectedDict["selected"])):
+                            entry = int(selectedDict["selected"][x])
+                            belaegeFinal.append(belagList[entry])
 
                         params["text"] = TextFinalSelection.format(Toppings=strToppings)
-                        params["parse_mode"] = parseMode
+                        # params["parse_mode"] = parseMode
                         params.pop("reply_markup")
 
                         apiCall(reqPath, methodEditMsg, params)
 
                         repliesDict[from_id].pop(message_id)
+
+                        matches2 = []
+
+                        for entry in pizzaDict:
+                            if all(item in entry["Zutaten"] for item in belaegeFinal):
+                                matches2.append(entry)
+
+                        matches = sorted(matches2, key=lambda k: k['Preis'])
+                        print(matches)
+                        
+                        params= {
+                                "chat_id": from_id
+                        }                       
+                        params["parse_mode"] = parseMode
+
+                        if len(matches) == 0:                            
+                            params["text"] = TextFail
+                            apiCall(reqPath, methodMsg, params)
+                        
+                        else:
+                            pizzaStr = ""
+
+                            for pizza in matches:
+                                zutaten = ""
+                                vegetarisch = ""
+
+                                preis = formatPrice(pizza["Preis"])
+
+                                if (len(pizza["Zutaten"]) >= 2):
+                                    zutaten += pizza["Zutaten"][0]
+                                    for zutat in pizza["Zutaten"][1:-1]:
+                                        zutaten = zutaten + ", " + zutat
+                                    zutaten += " und " + pizza["Zutaten"][-1]
+                                else:
+                                    zutaten = "{} und {}".format(pizza["Zutaten"][0], pizza["Zutaten"][1])
+
+                                if str2bool(pizza["Vegetarisch"]):
+                                    vegetarisch = TextVegetarisch
+                                else:
+                                    vegetarisch = TextNichtVegetarisch
+
+                                if "frisches" in zutaten:
+                                    zutaten = zutaten.replace("frisches", "frischem")
+                                elif "frischer" in zutaten:
+                                    zutaten = zutaten.replace("frischer", "frischem")
+                                
+                                pizzaStr += TextPizza.format(nummer = pizza["Nummer"], name = pizza["Name"], zutaten = zutaten, preis = preis, vegetarisch = vegetarisch)
+                                pizzaStr += "\n\n"
+                            
+                            params["text"] = TextGeneric.format(TextPizzaMulti = pizzaStr)
+                            apiCall(reqPath, methodMsg, params)
 
 
                     elif "p" == data[0] and "p" == data[-1]:
@@ -565,3 +628,12 @@ Guten Appetit\\! {emojiPizza}"""
                 params["text"] = TextStandard.format(TextPizza = TextPizzaAndExtras.format(nummer = nummer, name = name, zutaten = zutaten, preis = preis, vegetarisch = vegetarisch, extras = extras))
                 params["parse_mode"] = parseMode
                 apiCall(reqPath, methodMsg, params)
+            
+            elif "time" in update["message"]["text"].lower() or "zeit" in update["message"]["text"].lower():
+                params = paramsDefault
+                if random.randrange(2) == 1:
+                    params["text"] = "https://www.youtube.com/watch?v=TRgdA9_FsXM"
+                    apiCall(reqPath, methodMsg, params)
+                else:
+                    params["animation"] = "https://tenor.com/view/pizza-peter-parker-pizza-time-spiderman-smile-gif-5523507"
+                    apiCall(reqPath, "sendAnimation", params)
