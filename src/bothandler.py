@@ -183,6 +183,7 @@ def handleUpdate(update_dict):
     methodVenue = "sendVenue"
     methodChatAction = "sendChatAction"
     methodEditMsgReplyMarkup = "editMessageReplyMarkup"
+    methodAnswerCallbackQuery = "answerCallbackQuery"
     parseMode = "MarkdownV2"
     numberCells = 2
     numberRows = 3
@@ -219,23 +220,23 @@ Guten Appetit\\! {emojiPizza}"""
 *Preis:* {preis}{vegetarisch}"""
 
 
-    TextEnd = f"""Guten Appetit\\! {emojiFaceSavouringFood}{emojiForkKnife}"""
+    TextEnd = f"Guten Appetit\\! {emojiFaceSavouringFood}{emojiForkKnife}"
 
-    TextGeneric = """{emojiPizza} Hier sind deine Pizzen:\n
+    TextGeneric = f"""{emojiPizza} Hier sind deine Pizzen:\n
 {{TextPizza1}}\n
 {{TextPizza2}}\n
 {{TextPizza3}}\n
-{TextEnd}""".format(emojiPizza = emojiPizza, TextEnd = TextEnd)
+{TextEnd}"""
 
-    TextRandom = """{emojiDie} Hier ist deine Zufallspizza:\n
+    TextRandom = f"""{emojiDie} Hier ist deine Zufallspizza:\n
 {{TextPizza}}\n
-{TextEnd}""".format(emojiDie = emojiDie, TextEnd = TextEnd)
+{TextEnd}"""
 
-    TextStandard = """{emojiPizza} Hier ist deine Pizza:\n
+    TextStandard = f"""{emojiPizza} Hier ist deine Pizza:\n
 {{TextPizza}}\n
-{TextEnd}""".format(emojiPizza = emojiPizza, TextEnd = TextEnd)
+{TextEnd}"""
 
-    TextAddress = f"""{emojiPin} Hier die Daten:"""
+    TextAddress = f"{emojiPin} Hier die Daten:"
 
 
     ### MAIN UPDATE HANDLING THREAD ###
@@ -244,52 +245,74 @@ Guten Appetit\\! {emojiPizza}"""
         # Check if update is a callback query
         if ("callback_query" in update.keys()):
             from_id = update["callback_query"]["from"]["id"]
-            if (from_id in repliesDict.keys()):
-                selectedDict = repliesDict[from_id]
+            message_id = update["callback_query"]["message"]["message_id"]
+            
+            if from_id in repliesDict.keys():
+                selectedUser = repliesDict[from_id]
+
+                if not (message_id in selectedUser.keys()):
+                    break
                 
                 # TODO implement keyboard callback response
-                if ("data" in update["callback_query"]):
+                if "data" in update["callback_query"]:
+                    
+                    selectedDict = selectedUser[message_id]
+
                     data = update["callback_query"]["data"]
                     params = {}
                     params["chat_id"] = from_id
+                    params["message_id"] = update["callback_query"]["message"]["message_id"]
+                    params["reply_markup"] = update["callback_query"]["message"]["reply_markup"]
 
-                    ### TODO: DO SOMETHING WITH THIS...LATER cba to program at the moment
+                    paramsCallbackQueryAnswer = {
+                        "callback_query_id": update["callback_query"]["id"]
+                    }
+                 
+                    currPage = int(update["callback_query"]["message"]["reply_markup"]["inline_keyboard"][-1][-2]["callback_data"][-1])
+                    lastPage = len(selectedDict["pages"])-1
 
-                    InlineKeyboardButtonsAll = []
-                    InlineKeyboardButtonsShown = []
-                    InlineKeyboardRow = []
-                    buttonPrevious = {"text": TextButtonPrevious, "callback_data": "previous"}
-                    buttonNext = {"text": TextButtonNext, "callback_data": "next"}
-                    # TODO fix page tracking
-                    buttonCurrentSite = {"text": "Seite 1", "callback_data": {"page": 0}}
-                    buttonConfirm = {"text": TextButtonBestätigen, "callback_data": "confirm"}
-
-                    rowLast = [buttonPrevious, buttonNext, buttonCurrentSite, buttonConfirm]
-
-                    # if (counter % numberCells) == 0:
-                    #     InlineKeyboardButtonsAll.append(InlineKeyboardRow)
-                    #     InlineKeyboardRow = []
-
-                    #####
-                    
                     if (data == "next"):
-                        # if not (selectedDict["page"] == 0)
-                        pass
+                        if not (currPage == lastPage):
+                            currPage += 1
+                            params["reply_markup"]["inline_keyboard"][-1][-2]["text"] = f"Seite {currPage+1}"
+                            params["reply_markup"]["inline_keyboard"][-1][-2]["callback_data"] = f"p{currPage}"
+                            
+                            for 
+
+                        else:
+                            paramsCallbackQueryAnswer["text"] = f"Du bist schon auf der letzten Seite!"
+
                     elif (data == "previous"):
-                        if not (selectedDict["page"] == 0):
-                            selectedDict["page"] -= 1
+                        if not (currPage == 0):
+                            currPage -= 1
+                            params["reply_markup"]["inline_keyboard"][-1][-2]["text"] = f"Seite {currPage+1}"
+                            params["reply_markup"]["inline_keyboard"][-1][-2]["callback_data"] = f"p{currPage}"
+
+                        else:
+                            paramsCallbackQueryAnswer["text"] = f"Du bist schon auf der ersten Seite!"
+
                     elif (data == "confirm"):
-                        pass
-                    elif (data == "page"):
-                        pass
+                        paramsCallbackQueryAnswer["text"] = ""
+                        apiCall(reqPath, "deleteMessage", params)
+                        repliesDict[from_id].pop(message_id)
+
+
+                    elif "p" in data and len(data) == 2:
+                        paramsCallbackQueryAnswer["text"] = ""
+
+
                     else:
                         if data in selectedDict["selected"]:
                             selectedDict["selected"].remove(data)
                         else:
                             selectedDict["selected"].append(data)
-                        print(selectedDict["selected"])
                     
-                    apiCall(reqPath, methodMsg, params)
+                    params["reply_markup"] = json.dumps(params.get("reply_markup"))
+
+                    if not "text" in paramsCallbackQueryAnswer.keys():
+                        apiCall(reqPath, methodEditMsgReplyMarkup, params)
+
+                    apiCall(reqPath, methodAnswerCallbackQuery, paramsCallbackQueryAnswer)
 
         # Check if update is a message
         if ("message" in update.keys()):
@@ -322,8 +345,6 @@ Guten Appetit\\! {emojiPizza}"""
                 tempDict = {}
                 # overwrite chat id so that the bot only handles one request per user at a time
                 # TODO track corresponding requests...properly!
-                tempDict["chat_id"] = update["message"]["chat"]["id"]
-                tempDict["page"] = 0
                 tempDict["selected"] = []
 
                 sendTyping(methodChatAction, from_id)
@@ -334,7 +355,7 @@ Guten Appetit\\! {emojiPizza}"""
                 buttonPrevious = {"text": TextButtonPrevious, "callback_data": "previous"}
                 buttonNext = {"text": TextButtonNext, "callback_data": "next"}
                 # TODO fix page tracking
-                buttonCurrentSite = {"text": "Seite 1", "callback_data": str({"page": 0})}
+                buttonCurrentSite = {"text": "Seite 1", "callback_data": "p0"}
                 buttonConfirm = {"text": TextButtonBestätigen, "callback_data": "confirm"}
 
                 rowLast = [buttonPrevious, buttonNext, buttonCurrentSite, buttonConfirm]
@@ -359,6 +380,12 @@ Guten Appetit\\! {emojiPizza}"""
 
                 for x in range(numberRows):
                     InlineKeyboardButtonsShown.append(InlineKeyboardButtonsAll[x])
+
+                InlineKeyboardPages = []
+
+                for i in range(0, len(InlineKeyboardButtonsAll), numberRows):
+                    InlineKeyboardPages.append(InlineKeyboardButtonsAll[i:i+numberRows])
+
                 
                 InlineKeyboardButtonsShown.append(rowLast)
 
@@ -368,13 +395,17 @@ Guten Appetit\\! {emojiPizza}"""
 
                 params["reply_markup"] = json.dumps(InlineKeyboardMarkup, ensure_ascii=False)
 
-                apiCall(reqPath, methodMsg, params)
+                resp = json.loads(apiCall(reqPath, methodMsg, params).text)
 
-                tempDict["inline_keyboard"] = InlineKeyboardMarkup
-                tempDict["buttons_all"] = InlineKeyboardButtonsAll
-                tempDict["row_last"] = rowLast
-
-                repliesDict[from_id] = tempDict
+                # tempDict["inline_keyboard"] = InlineKeyboardMarkup
+                tempDict["pages"] = InlineKeyboardPages
+                # tempDict["row_last"] = rowLast
+                # tempDict["message_id"] = resp["result"]["message_id"]
+                
+                if from_id in repliesDict.keys():
+                    repliesDict[from_id][resp["result"]["message_id"]] = tempDict
+                else:
+                    repliesDict[from_id] = {resp["result"]["message_id"]: tempDict}
 
             # Response for /zufall
             elif (update["message"]["text"] == commandRandom):
