@@ -13,6 +13,6 @@ def readEnv():
     env_vars["TOKEN"] = os.getenv("TGBOTTOKEN")
     
     if (env_vars["TOKEN"] == None) or (env_vars["TOKEN"] == ""):
-        raise Exception("Bot token variable has not been set. Please set the environment variable and restart the program.")
+        raise Exception("Bot token variable has not been set. Please set the environment variable TGBOTTOKEN and restart.")
 
     return env_vars
