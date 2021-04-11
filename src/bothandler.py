@@ -158,8 +158,8 @@ def handleUpdate(update_dict):
     leftArrowUnicode = u'\u2190'
 
     # Commands
-    commandPizza = "/pizza" # TEMP SWITCH
-    commandDebug = "/debug" # TEMP SWITCH
+    commandPizza = "/pizza"
+    commandDebug = "/debug"
     commandStart = "/start"
     commandRandom = "/zufall"
     commandAddress = "/kontakt"
@@ -601,9 +601,9 @@ Probiere es bitte noch einmal:
                 zutaten = ""
                 vegetarisch = ""
                 extras = "Büffelmozzarella"
-                # vorname = update["message"]["from"]["first_name"]
 
                 preis = formatPrice(pizza["Preis"])
+
 
                 if (len(pizza["Zutaten"]) >= 2):
                     zutaten += pizza["Zutaten"][0]
@@ -612,6 +612,7 @@ Probiere es bitte noch einmal:
                     zutaten += " und " + pizza["Zutaten"][-1]
                 else:
                     zutaten = "{} und {}".format(pizza["Zutaten"][0], pizza["Zutaten"][1])
+
 
                 if str2bool(pizza["Vegetarisch"]):
                     vegetarisch = TextVegetarisch
@@ -623,6 +624,7 @@ Probiere es bitte noch einmal:
                 elif "frischer" in zutaten:
                     zutaten = zutaten.replace("frischer", "frischem")
                 
+
                 params = paramsDefault
                 params["text"] = TextStandard.format(TextPizza = TextPizzaAndExtras.format(nummer = nummer, name = name, zutaten = zutaten, preis = preis, vegetarisch = vegetarisch, extras = extras))
                 params["parse_mode"] = parseMode
