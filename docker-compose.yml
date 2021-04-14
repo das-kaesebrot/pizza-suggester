@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+  kantine-bot:
+    build:
+        context: .
+    restart: always
+    # environment:
+        # INSERT YOUR BOT TOKEN HERE
+        # - TGBOTTOKEN=
+        # API base URL, defaults to https://api.telegram.org/bot
+        # - API_BASEURL=
