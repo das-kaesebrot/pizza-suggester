@@ -1,7 +1,6 @@
 import random
 import json
 import time
-import telegram
 import requests
 import random
 import collections
