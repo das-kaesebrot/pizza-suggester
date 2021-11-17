@@ -10,3 +10,5 @@ services:
         # - TGBOTTOKEN=
         # API base URL, defaults to https://api.telegram.org/bot
         # - API_BASEURL=
+    ports:
+      - 127.0.0.1:8000:80
