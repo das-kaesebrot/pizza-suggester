@@ -29,7 +29,7 @@ if __name__ == "__main__":
         pizzaPath = u.patthatcat(u.getscrpath(),assetsfolder,pizzaFile)
         extrasPath = u.patthatcat(u.getscrpath(),assetsfolder,extrasFile)
         
-        app.run()
+        app.run(host='0.0.0.0', port=80)
         
     except KeyboardInterrupt as e:
         print("\n[{}] [OK] [{}] {}".format(bothandler.getTime(), type(e).__name__, e))
