@@ -1,5 +1,5 @@
 FROM python:3.8.6-alpine3.12
-WORKDIR /srv/musicbot
+WORKDIR /srv/kantinebot
 COPY . ./
 
 # Add build dependencies
@@ -17,10 +17,6 @@ RUN addgroup -S kantinebot \
 RUN apk del .build-deps
 
 ENV APP_ENV=docker
-
-# RUN mkdir /var/log/musicbot \
-  # && ln -sf /dev/stdout /var/log/musicbot/access.log \
-	# && ln -sf /dev/stderr /var/log/musicbot/error.log
 
 STOPSIGNAL SIGINT
 USER kantinebot
