@@ -7,7 +7,7 @@ RUN apk update && apk add --no-cache --virtual .build-deps \
   py3-pip
 
 # Install pip dependencies
-RUN pip3 install --no-cache-dir -r src/requirements
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 RUN addgroup -S kantinebot \
   && adduser -S kantinebot -G kantinebot -H \
