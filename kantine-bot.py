@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 import sys
+import json
 from src import pizza
 from src import envhandler
 from src import bothandler
@@ -29,7 +30,7 @@ if __name__ == "__main__":
         pizzaPath = u.patthatcat(u.getscrpath(),assetsfolder,pizzaFile)
         extrasPath = u.patthatcat(u.getscrpath(),assetsfolder,extrasFile)
         
-        app.run(host='0.0.0.0', port=80)
+        app.run(host='0.0.0.0', port=8000)
         
     except KeyboardInterrupt as e:
         print("\n[{}] [OK] [{}] {}".format(bothandler.getTime(), type(e).__name__, e))
