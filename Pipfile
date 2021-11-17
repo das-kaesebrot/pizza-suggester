@@ -9,7 +9,7 @@ pylint = "*"
 [packages]
 requests = "==2.24.0"
 environs = "==8.0.0"
-Babel = "==2.8.0"
+Babel = "==2.9.1"
 python-telegram-bot = "*"
 flask = "*"
 
