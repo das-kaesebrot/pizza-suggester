@@ -71,9 +71,37 @@ def updatePoller(env_vars, verboseCarry, debugCarry, fullDict):
         except KeyboardInterrupt:
             raise KeyboardInterrupt # lol
 
+def handleAndBootstrapVars(env_vars, verboseCarry, debugCarry, fullDict, update_dict):
+    global baseURL
+    global token
+    global reqPath
+    global pizzaDict
+    global extrasDict
+    global verbose
+    global debug
+    global belagList
+    global repliesDict
+
+    repliesDict = {}
+    debug = debugCarry
+    verbose = verboseCarry
+
+    if verbose: print("[{}] Handling update...\n".format(getTime()))
+
+    pizzaDict = fullDict["pizza"]
+    extrasDict = fullDict["extras"]
+    belagList = getBelagList(pizzaDict)
+
+    baseURL = env_vars["BASEURL"]
+    token = env_vars["TOKEN"]
+
+    reqPath = baseURL + token
+
+    handleUpdate(update_dict)
 
 def apiCall(path, method, params):
     resp = requests.get(path + "/" + method, params=params)
+    print(path + "/" + method)
     if verbose:
         print("[{}] [Code {}] {}\n".format(getTime(), resp.status_code, json.loads(resp.text)))
     return resp

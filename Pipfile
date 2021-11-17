@@ -11,6 +11,7 @@ requests = "==2.24.0"
 environs = "==8.0.0"
 Babel = "==2.8.0"
 python-telegram-bot = "*"
+flask = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.9"
