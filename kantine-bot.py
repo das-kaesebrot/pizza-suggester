@@ -23,16 +23,19 @@ if __name__ == "__main__":
         verbose = True
         debug = True
 
-        resp = requests.post(envhandler.readEnv()["BASEURL"] + envhandler.readEnv()["TOKEN"] + "/" + "deleteWebhook")
-        print("[{}] [Code {}] {}\n".format(bothandler.getTime(), resp.status_code, json.loads(resp.text)))
+        initWebhook = True
 
-        resp = requests.post(envhandler.readEnv()["BASEURL"] + envhandler.readEnv()["TOKEN"] + "/" + "setWebhook", params = {
-            "url": envhandler.readEnv()["HOOKSBASEURL"] + "/" + envhandler.readEnv()["TOKEN"]
-        })
-        print("[{}] [Code {}] {}\n".format(bothandler.getTime(), resp.status_code, json.loads(resp.text)))
+        if initWebhook:
+            resp = requests.post(envhandler.readEnv()["BASEURL"] + envhandler.readEnv()["TOKEN"] + "/" + "deleteWebhook")
+            print("[{}] [Code {}] {}\n".format(bothandler.getTime(), resp.status_code, json.loads(resp.text)))
 
-        resp = requests.post(envhandler.readEnv()["BASEURL"] + envhandler.readEnv()["TOKEN"] + "/" + "getWebhookInfo")
-        print("[{}] [Code {}] {}\n".format(bothandler.getTime(), resp.status_code, json.loads(resp.text)))
+            resp = requests.post(envhandler.readEnv()["BASEURL"] + envhandler.readEnv()["TOKEN"] + "/" + "setWebhook", params = {
+                "url": envhandler.readEnv()["HOOKSBASEURL"] + "/" + envhandler.readEnv()["TOKEN"]
+            })
+            print("[{}] [Code {}] {}\n".format(bothandler.getTime(), resp.status_code, json.loads(resp.text)))
+
+            resp = requests.post(envhandler.readEnv()["BASEURL"] + envhandler.readEnv()["TOKEN"] + "/" + "getWebhookInfo")
+            print("[{}] [Code {}] {}\n".format(bothandler.getTime(), resp.status_code, json.loads(resp.text)))
 
         assetsfolder = "assets/csv"
         pizzaFile = "kantine.csv"
