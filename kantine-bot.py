@@ -13,9 +13,8 @@ app = Flask(__name__)
 
 @app.route(f'/pizza-suggester/{envhandler.readEnv()["TOKEN"]}', methods=['POST'])
 def respond():
+    print("\n[{}] [OK] [{}] {}".format(bothandler.getTime(), "Received update", json.loads(request.data), indent=2))
     bothandler.handleAndBootstrapVars(envhandler.readEnv(), verbose, debug, pizza.makeFullDict(pizzaPath, extrasPath, json.loads(request.data)))
-    # bothandler.handleUpdate(envhandler.readEnv(), verbose, debug, pizza.makeFullDict(pizzaPath, extrasPath))
-    print(request.json)
     return Response(status=200)
 
 if __name__ == "__main__":
