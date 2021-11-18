@@ -5,9 +5,11 @@ services:
     build:
         context: .
     restart: always
-    # environment:
+    environment:
         # INSERT YOUR BOT TOKEN HERE
         # - TGBOTTOKEN=
+        # INSERT YOUR HOOKS BASE URL HERE
+        # - HOOKSBASEURL=https://example.com/hooks
         # API base URL, defaults to https://api.telegram.org/bot
         # - API_BASEURL=
     ports:
