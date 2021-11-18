@@ -15,7 +15,7 @@ app = Flask(__name__)
 @app.route(f'/pizza-suggester/{envhandler.readEnv()["TOKEN"]}', methods=['POST'])
 def respond():
     print("\n[{}] [OK] [{}] {}".format(bothandler.getTime(), "Received update", json.loads(request.data), indent=2))
-    bothandler.handleAndBootstrapVars(envhandler.readEnv(), verbose, debug, pizza.makeFullDict(pizzaPath, extrasPath), json.loads(request.data))
+    bothandler.handleAndBootstrapVars(envhandler.readEnv(), verbose, debug, pizza.makeFullDict(pizzaPath, extrasPath), json.loads(request.data), repliesDict)
     return Response(status=200)
 
 if __name__ == "__main__":
@@ -43,6 +43,9 @@ if __name__ == "__main__":
 
         pizzaPath = u.patthatcat(u.getscrpath(),assetsfolder,pizzaFile)
         extrasPath = u.patthatcat(u.getscrpath(),assetsfolder,extrasFile)
+        
+        global repliesDict
+        repliesDict = {}
         
         app.run(host='0.0.0.0', port=8000)
         
