@@ -70,7 +70,7 @@ def updatePoller(env_vars, verboseCarry, debugCarry, fullDict):
         except KeyboardInterrupt:
             raise KeyboardInterrupt # lol
 
-def handleAndBootstrapVars(env_vars, verboseCarry, debugCarry, fullDict, update_dict):
+def handleAndBootstrapVars(env_vars, verboseCarry, debugCarry, fullDict, update_dict, repliesDictCarry):
     global baseURL
     global token
     global reqPath
@@ -81,7 +81,7 @@ def handleAndBootstrapVars(env_vars, verboseCarry, debugCarry, fullDict, update_
     global belagList
     global repliesDict
 
-    repliesDict = {}
+    repliesDict = repliesDictCarry
     debug = debugCarry
     verbose = verboseCarry
 
