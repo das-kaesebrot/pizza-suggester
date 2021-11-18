@@ -100,7 +100,6 @@ def handleAndBootstrapVars(env_vars, verboseCarry, debugCarry, fullDict, update_
 
 def apiCall(path, method, params):
     resp = requests.get(path + "/" + method, params=params)
-    print(path + "/" + method)
     if verbose:
         print("[{}] [Code {}] {}\n".format(getTime(), resp.status_code, json.loads(resp.text)))
     return resp
