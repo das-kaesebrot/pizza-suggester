@@ -7,11 +7,11 @@ verify_ssl = true
 pylint = "*"
 
 [packages]
-requests = "==2.24.0"
-environs = "==8.0.0"
-Babel = "==2.9.1"
+requests = "==2.*"
+environs = "==8.*"
+Babel = "==2.9.*"
 python-telegram-bot = "*"
-flask = "==2.0.2"
+flask = "==2.*"
 
 [requires]
 python_version = "3.9"
