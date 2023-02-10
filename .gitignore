@@ -1,51 +1,7 @@
+# Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,windows,linux,macos,intellij,pycharm
+# Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,windows,linux,macos,intellij,pycharm
 
-# Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,macos,windows,linux,python,pycharm
-# Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,macos,windows,linux,python,pycharm
-
-### Linux ###
-*~
-
-# temporary files which can be created if a process still has a handle open of a deleted file
-.fuse_hidden*
-
-# KDE directory preferences
-.directory
-
-# Linux trash folder which might appear on any partition or disk
-.Trash-*
-
-# .nfs files are created when an open file is removed but is still being accessed
-.nfs*
-
-### macOS ###
-# General
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Icon must end with two \r
-Icon
-
-# Thumbnails
-._*
-
-# Files that might appear in the root of a volume
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
-
-# Directories potentially created on remote AFP share
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk
-
-### PyCharm ###
+### Intellij ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
@@ -55,6 +11,9 @@ Temporary Items
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+
+# AWS User-specific
+.idea/**/aws.xml
 
 # Generated files
 .idea/**/contentModel.xml
@@ -106,6 +65,9 @@ atlassian-ide-plugin.xml
 # Cursive Clojure plugin
 .idea/replstate.xml
 
+# SonarLint plugin
+.idea/sonarlint/
+
 # Crashlytics plugin (for Android Studio and IntelliJ)
 com_crashlytics_export_strings.xml
 crashlytics.properties
@@ -118,7 +80,7 @@ fabric.properties
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
 
-### PyCharm Patch ###
+### Intellij Patch ###
 # Comment Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-215987721
 
 # *.iml
@@ -148,141 +110,132 @@ fabric.properties
 # https://plugins.jetbrains.com/plugin/12206-codestream
 .idea/codestream.xml
 
-### Python ###
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+# Azure Toolkit for IntelliJ plugin
+# https://plugins.jetbrains.com/plugin/8053-azure-toolkit-for-intellij
+.idea/**/azureSettings.xml
 
-# C extensions
-*.so
+### Linux ###
+*~
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+# temporary files which can be created if a process still has a handle open of a deleted file
+.fuse_hidden*
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+# KDE directory preferences
+.directory
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+# Linux trash folder which might appear on any partition or disk
+.Trash-*
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-pytestdebug.log
+# .nfs files are created when an open file is removed but is still being accessed
+.nfs*
 
-# Translations
-*.mo
-*.pot
+### macOS ###
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
+# Icon must end with two \r
+Icon
 
-# Flask stuff:
-instance/
-.webassets-cache
 
-# Scrapy stuff:
-.scrapy
+# Thumbnails
+._*
 
-# Sphinx documentation
-docs/_build/
-doc/_build/
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
 
-# PyBuilder
-target/
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
 
-# Jupyter Notebook
-.ipynb_checkpoints
+### macOS Patch ###
+# iCloud generated files
+*.icloud
 
-# IPython
-profile_default/
-ipython_config.py
+### PyCharm ###
+# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
+# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
-# pyenv
-.python-version
+# User-specific stuff
 
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
+# AWS User-specific
 
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow
-__pypackages__/
+# Generated files
 
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
+# Sensitive or high-churn files
 
-# SageMath parsed files
-*.sage.py
+# Gradle
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+# Gradle and Maven with auto-import
+# When using Gradle or Maven with auto-import, you should exclude module files,
+# since they will be recreated, and may cause churn.  Uncomment if using
+# auto-import.
+# .idea/artifacts
+# .idea/compiler.xml
+# .idea/jarRepositories.xml
+# .idea/modules.xml
+# .idea/*.iml
+# .idea/modules
+# *.iml
+# *.ipr
 
-# Spyder project settings
-.spyderproject
-.spyproject
+# CMake
 
-# Rope project settings
-.ropeproject
+# Mongo Explorer plugin
 
-# mkdocs documentation
-/site
+# File-based project format
 
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+# IntelliJ
 
-# Pyre type checker
-.pyre/
+# mpeltonen/sbt-idea plugin
 
-# pytype static type analyzer
-.pytype/
+# JIRA plugin
+
+# Cursive Clojure plugin
+
+# SonarLint plugin
+
+# Crashlytics plugin (for Android Studio and IntelliJ)
+
+# Editor-based Rest Client
+
+# Android studio 3.1+ serialized cache file
+
+### PyCharm Patch ###
+# Comment Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-215987721
+
+# *.iml
+# modules.xml
+# .idea/misc.xml
+# *.ipr
+
+# Sonarlint plugin
+# https://plugins.jetbrains.com/plugin/7973-sonarlint
+
+# SonarQube Plugin
+# https://plugins.jetbrains.com/plugin/7238-sonarqube-community-plugin
+
+# Markdown Navigator plugin
+# https://plugins.jetbrains.com/plugin/7896-markdown-navigator-enhanced
+
+# Cache file creation bug
+# See https://youtrack.jetbrains.com/issue/JBR-2257
+
+# CodeStream plugin
+# https://plugins.jetbrains.com/plugin/12206-codestream
+
+# Azure Toolkit for IntelliJ plugin
+# https://plugins.jetbrains.com/plugin/8053-azure-toolkit-for-intellij
 
 ### VisualStudioCode ###
 .vscode/*
@@ -290,11 +243,18 @@ dmypy.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-*.code-workspace
+!.vscode/*.code-snippets
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
 
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
 .history
+.ionide
 
 ### Windows ###
 # Windows thumbnail cache files
@@ -322,5 +282,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,macos,windows,linux,python,pycharm
-
+# End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,windows,linux,macos,intellij,pycharm
