@@ -1,9 +1,7 @@
 package eu.kaesebrot.dev.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
-@Component
 @ConfigurationProperties(prefix = "telegrambot")
 public class TelegramBotProperties {
     private String botUsername;
