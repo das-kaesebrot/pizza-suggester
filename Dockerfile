@@ -1,5 +1,5 @@
-FROM python:3.8.6-alpine3.12
-WORKDIR /srv/musicbot
+FROM python:3.9.9-alpine3.14
+WORKDIR /srv/kantinebot
 COPY . ./
 
 # Add build dependencies
@@ -7,7 +7,7 @@ RUN apk update && apk add --no-cache --virtual .build-deps \
   py3-pip
 
 # Install pip dependencies
-RUN pip3 install --no-cache-dir -r src/requirements
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 RUN addgroup -S kantinebot \
   && adduser -S kantinebot -G kantinebot -H \
@@ -17,10 +17,6 @@ RUN addgroup -S kantinebot \
 RUN apk del .build-deps
 
 ENV APP_ENV=docker
-
-# RUN mkdir /var/log/musicbot \
-  # && ln -sf /dev/stdout /var/log/musicbot/access.log \
-	# && ln -sf /dev/stderr /var/log/musicbot/error.log
 
 STOPSIGNAL SIGINT
 USER kantinebot
