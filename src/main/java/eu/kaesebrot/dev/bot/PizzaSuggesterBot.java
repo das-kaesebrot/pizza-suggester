@@ -1,6 +1,7 @@
 package eu.kaesebrot.dev.bot;
 
 import eu.kaesebrot.dev.handler.IUpdateHandler;
+import eu.kaesebrot.dev.properties.TelegramBotProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,20 +19,18 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
     @Autowired
     private IUpdateHandler updateHandler;
 
+    private final TelegramBotProperties properties;
+
     Logger logger = LoggerFactory.getLogger(PizzaSuggesterBot.class);
 
-    public PizzaSuggesterBot(SetWebhook setWebhook, String botToken) {
-        super(setWebhook, botToken);
+    public PizzaSuggesterBot(TelegramBotProperties properties) {
+        super(new SetWebhook(properties.getWebhookUrl()), properties.getBotToken());
+        this.properties = properties;
     }
 
     @Override
     public String getBotUsername() {
-        return "KantineBot";
-    }
-
-    @Override
-    public String getBotToken() {
-        return botToken;
+        return properties.getBotUsername();
     }
 
     @Override
@@ -42,6 +41,6 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
     @Override
     public String getBotPath() {
-        return null;
+        return "/callback/${telegrambot.token}";
     }
 }
