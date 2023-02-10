@@ -1,5 +1,6 @@
 package eu.kaesebrot.dev;
 
+import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -7,6 +8,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class PizzaSuggesterTelegramBot {
 
     public static void main(String[] args) {
-        SpringApplication.run(PizzaSuggesterTelegramBot.class, args);
+        SpringApplication app = new SpringApplication(PizzaSuggesterTelegramBot.class);
+        app.setBannerMode(Banner.Mode.OFF);
+        app.run(args);
     }
 }
