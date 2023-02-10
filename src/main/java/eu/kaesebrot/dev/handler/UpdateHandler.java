@@ -43,7 +43,7 @@ public class UpdateHandler implements IUpdateHandler {
 
             if (messageText.length() > 1 && messageText.charAt(0) == '/') {
                 logger.debug("Update type: command");
-                messageText = messageText.substring(1, messageText.length());
+                messageText = messageText.substring(1);
 
                 var command = mapStringToBotCommand(messageText);
                 logger.debug("Mapped command string '{}' to enum type '{}'", messageText, command);
