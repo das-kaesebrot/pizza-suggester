@@ -18,6 +18,7 @@ public class UpdateHandler implements IUpdateHandler {
     // TODO replace with actual data
     private List<String> ingredientListDummy;
 
+    // TODO implement pizza object
     private List<List<List<InlineKeyboardButton>>> inlineKeyboardPages;
     private final int maxIngredientKeyboardRows = 3;
     private final int maxIngredientKeyboardColumns = 2;
@@ -67,10 +68,13 @@ public class UpdateHandler implements IUpdateHandler {
                         return reply;
 
                     case RANDOM:
+                        // TODO implement random pizza selection
                         break;
 
                     case HELP:
-                        break;
+                        // TODO set reply text for /help
+                        reply.setText("placeholder /help text");
+                        return reply;
 
                     case CARLOS:
                         break;
