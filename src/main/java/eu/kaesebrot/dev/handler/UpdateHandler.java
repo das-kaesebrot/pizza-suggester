@@ -61,7 +61,10 @@ public class UpdateHandler implements IUpdateHandler {
 
                 switch (command) {
                     case PIZZA:
-                        break;
+                        // TODO set reply text for pizza selection
+                        reply.setText("placeholder text for /pizza command");
+                        reply.setReplyMarkup(getInitialKeyboard());
+                        return reply;
 
                     case RANDOM:
                         break;
