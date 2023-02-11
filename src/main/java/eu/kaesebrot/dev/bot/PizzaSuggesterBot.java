@@ -5,7 +5,6 @@ import eu.kaesebrot.dev.properties.TelegramBotProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook;
@@ -14,8 +13,6 @@ import org.telegram.telegrambots.starter.SpringWebhookBot;
 
 @Component
 public class PizzaSuggesterBot extends SpringWebhookBot {
-    @Value("${telegrambot.token}")
-    private String botToken;
     @Autowired
     private IUpdateHandler updateHandler;
 
@@ -41,6 +38,6 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
     @Override
     public String getBotPath() {
-        return "/callback/${telegrambot.token}";
+        return "/callback/" + properties.getBotToken();
     }
 }
