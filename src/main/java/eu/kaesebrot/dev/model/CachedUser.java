@@ -6,6 +6,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.EnumSet;
 
 @Entity
 @Table(name = "cached_user")
@@ -15,7 +16,7 @@ public class CachedUser implements Serializable {
     private Long chatId;
 
     private boolean isAdmin;
-    private UserState userState;
+    private EnumSet<UserState> userState;
 
     @ManyToOne
     @JoinColumn(name = "venue_id")
@@ -32,7 +33,7 @@ public class CachedUser implements Serializable {
 
     public CachedUser() {
         this.isAdmin = false;
-        this.userState = UserState.FREE;
+        this.userState = EnumSet.noneOf(UserState.class);
     }
 
     public CachedUser(Long chatId) {
@@ -48,12 +49,18 @@ public class CachedUser implements Serializable {
         this.selectedVenue = selectedVenue;
     }
 
-    public void setState(UserState userState) {
-        this.userState = userState;
+    public void setState(EnumSet<UserState> userStateSet) {
+        this.userState = userStateSet;
+    }
+    public void addState(UserState userState) {
+        this.userState.add(userState);
+    }
+    public void removeState(UserState userState) {
+        this.userState.remove(userState);
     }
 
-    public void setFree() {
-        this.userState = UserState.FREE;
+    public void clearState() {
+        this.setState(EnumSet.noneOf(UserState.class));
     }
 
     public Long getChatId() {
@@ -68,8 +75,11 @@ public class CachedUser implements Serializable {
         return selectedVenue;
     }
 
-    public UserState getState() {
+    public EnumSet<UserState> getState() {
         return userState;
+    }
+    public boolean hasState(UserState state) {
+        return userState.contains(state);
     }
 
     public Timestamp getCreatedAt() {
