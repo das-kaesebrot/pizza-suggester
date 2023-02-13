@@ -5,6 +5,7 @@ import org.jvnet.hk2.annotations.Service;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 @Service
-public interface CachedUserRepository extends JpaRepository<CachedUser, String> {
+public interface CachedUserRepository extends JpaRepository<CachedUser, Long> {
 
+    CachedUser findOrAddUserByChatId(Long chatId);
 }
