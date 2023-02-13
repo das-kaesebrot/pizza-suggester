@@ -1,5 +1,6 @@
 package eu.kaesebrot.dev.handler;
 
+import eu.kaesebrot.dev.service.AdminService;
 import eu.kaesebrot.dev.service.CachedUserRepository;
 import eu.kaesebrot.dev.service.IngredientInlineKeyboardService;
 import eu.kaesebrot.dev.service.VenueRepository;
@@ -19,6 +20,7 @@ public class UpdateHandler implements IUpdateHandler {
     private final CachedUserRepository cachedUserRepository;
     private final VenueRepository venueRepository;
     private final IngredientInlineKeyboardService ingredientInlineKeyboardService;
+    private final AdminService adminService;
 
     public enum BotCommand {
         PIZZA,
@@ -31,10 +33,16 @@ public class UpdateHandler implements IUpdateHandler {
         ;
     }
 
-    public UpdateHandler(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, IngredientInlineKeyboardService ingredientInlineKeyboardService) {
+    public UpdateHandler(
+            CachedUserRepository cachedUserRepository,
+            VenueRepository venueRepository,
+            IngredientInlineKeyboardService ingredientInlineKeyboardService,
+            AdminService adminService)
+    {
         this.cachedUserRepository = cachedUserRepository;
         this.venueRepository = venueRepository;
         this.ingredientInlineKeyboardService = ingredientInlineKeyboardService;
+        this.adminService = adminService;
     }
 
     @Override
@@ -43,6 +51,7 @@ public class UpdateHandler implements IUpdateHandler {
 
         var message = update.getMessage();
         var callbackQuery = update.getCallbackQuery();
+        var user = cachedUserRepository.findOrAddUserByChatId(message.getChatId());
 
         var reply = new SendMessage();
         reply.setChatId(message.getChatId());
@@ -79,6 +88,11 @@ public class UpdateHandler implements IUpdateHandler {
                         reply.setText("placeholder /help text");
                         return reply;
 
+                    case ADMIN:
+                        reply.setText("Placeholder /admin text");
+                        reply.setReplyMarkup(adminService.getAdminMenu(user));
+                        return reply;
+
                     case CARLOS:
                         break;
                 }
@@ -103,6 +117,9 @@ public class UpdateHandler implements IUpdateHandler {
 
             case "carlos":
                 return BotCommand.CARLOS;
+
+            case "admin":
+                return BotCommand.ADMIN;
 
             default:
                 return BotCommand.UNKNOWN;
