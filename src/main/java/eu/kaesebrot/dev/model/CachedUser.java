@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 public class CachedUser implements Serializable {
     @Id
     @Column(updatable = false, nullable = false)
-    private String chatId;
+    private Long chatId;
 
     private boolean isAdmin;
 
@@ -33,7 +33,7 @@ public class CachedUser implements Serializable {
         this.isAdmin = false;
     }
 
-    public CachedUser(String chatId) {
+    public CachedUser(Long chatId) {
         this();
         this.chatId = chatId;
     }
