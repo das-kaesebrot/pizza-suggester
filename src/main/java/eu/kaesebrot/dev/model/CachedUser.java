@@ -15,6 +15,7 @@ public class CachedUser implements Serializable {
     private Long chatId;
 
     private boolean isAdmin;
+    private UserState userState;
 
     @ManyToOne
     @JoinColumn(name = "venue_id")
@@ -31,6 +32,7 @@ public class CachedUser implements Serializable {
 
     public CachedUser() {
         this.isAdmin = false;
+        this.userState = UserState.FREE;
     }
 
     public CachedUser(Long chatId) {
@@ -46,7 +48,15 @@ public class CachedUser implements Serializable {
         this.selectedVenue = selectedVenue;
     }
 
-    public String getChatId() {
+    public void setState(UserState userState) {
+        this.userState = userState;
+    }
+
+    public void setFree() {
+        this.userState = UserState.FREE;
+    }
+
+    public Long getChatId() {
         return chatId;
     }
 
@@ -56,6 +66,10 @@ public class CachedUser implements Serializable {
 
     public Venue getSelectedVenue() {
         return selectedVenue;
+    }
+
+    public UserState getState() {
+        return userState;
     }
 
     public Timestamp getCreatedAt() {
