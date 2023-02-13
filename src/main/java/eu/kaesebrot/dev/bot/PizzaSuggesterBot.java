@@ -1,6 +1,6 @@
 package eu.kaesebrot.dev.bot;
 
-import eu.kaesebrot.dev.handler.IUpdateHandler;
+import eu.kaesebrot.dev.handler.UpdateHandler;
 import eu.kaesebrot.dev.properties.TelegramBotProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,7 @@ import org.telegram.telegrambots.starter.SpringWebhookBot;
 @Component
 public class PizzaSuggesterBot extends SpringWebhookBot {
     @Autowired
-    private IUpdateHandler updateHandler;
+    private UpdateHandler updateHandler;
 
     private final TelegramBotProperties properties;
 
