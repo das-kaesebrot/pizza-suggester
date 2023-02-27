@@ -8,10 +8,14 @@ import eu.kaesebrot.dev.service.VenueRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.LeaveChat;
+import org.telegram.telegrambots.meta.api.methods.send.SendChatAction;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.starter.SpringWebhookBot;
 
 @Component
@@ -30,6 +34,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         ABOUT,
         ADMIN,
         CARLOS,
+        START,
         UNKNOWN
         ;
     }
@@ -64,56 +69,86 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
         var message = update.getMessage();
         var callbackQuery = update.getCallbackQuery();
-        var user = cachedUserRepository.findOrAddUserByChatId(message.getChatId());
 
         var reply = new SendMessage();
         reply.setChatId(message.getChatId());
         reply.setText("Unknown operation, use /help for help");
 
-        if (callbackQuery != null) {
-            logger.debug("Update type: callbackQuery");
-            // TODO handle callback
-        }
-
-        if (update.getMessage() != null) {
-            var messageText = message.getText();
-
-            if (messageText.length() > 1 && messageText.charAt(0) == '/') {
-                logger.debug("Update type: command");
-                messageText = messageText.substring(1);
-
-                var command = mapStringToBotCommand(messageText);
-                logger.debug("Mapped command string '{}' to enum type '{}'", messageText, command);
-
-                switch (command) {
-                    case PIZZA:
-                        // TODO set reply text for pizza selection
-                        reply.setText("placeholder text for /pizza command");
-                        // reply.setReplyMarkup(inlineKeyboardService.getInitialKeyboard(0L));
-                        return reply;
-
-                    case RANDOM:
-                        // TODO implement random pizza selection
-                        break;
-
-                    case HELP:
-                        // TODO set reply text for /help
-                        reply.setText("placeholder /help text");
-                        return reply;
-
-                    case ADMIN:
-                        reply.setText("Placeholder /admin text");
-                        reply.setReplyMarkup(adminService.getAdminMenu(user));
-                        return reply;
-
-                    case CARLOS:
-                        break;
-                }
-
+        try {
+            // don't handle if message doesn't come from a user
+            if (!message.isUserMessage()) {
+                var leave = new LeaveChat();
+                leave.setChatId(message.getChatId());
+                return leave;
             }
-        }
 
-        return reply;
+            // show as typing to the user
+            var typingAction = new SendChatAction();
+            typingAction.setAction(ActionType.TYPING);
+            typingAction.setChatId(message.getChatId());
+            execute(typingAction);
+
+            boolean isNew = cachedUserRepository.existsById(message.getChatId());
+
+            if (isNew) {
+                // early return to show veggie/meat preference selection and usage instructions
+            }
+
+            var user = cachedUserRepository.findOrAddUserByChatId(message.getChatId());
+
+            if (callbackQuery != null) {
+                logger.debug("Update type: callbackQuery");
+            }
+
+            if (update.getMessage() != null) {
+                var messageText = message.getText();
+
+                if (messageText.length() > 1 && messageText.startsWith("/")) {
+                    logger.debug("Update type: command");
+                    messageText = messageText.substring(1);
+
+                    var command = mapStringToBotCommand(messageText);
+                    logger.debug("Mapped command string '{}' to enum type '{}'", messageText, command);
+
+                    switch (command) {
+                        case START:
+                            // TODO implement start message
+                            break;
+
+                        case PIZZA:
+                            // TODO set reply text for pizza selection
+                            reply.setText("placeholder text for /pizza command");
+                            // reply.setReplyMarkup(inlineKeyboardService.getInitialKeyboard(0L));
+                            return reply;
+
+                        case RANDOM:
+                            // TODO implement random pizza selection
+                            break;
+
+                        case HELP:
+                            // TODO set reply text for /help
+                            reply.setText("placeholder /help text");
+                            return reply;
+
+                        case ADMIN:
+                            reply.setText("Placeholder /admin text");
+                            reply.setReplyMarkup(adminService.getAdminMenu(user));
+                            return reply;
+
+                        case CARLOS:
+                            break;
+                    }
+
+                }
+            }
+
+            return reply;
+
+        } catch (TelegramApiException e) {
+            logger.error("Exception encountered while handling an update", e);
+            reply.setText("Ups, etwas ist leider schiefgelaufen :(");
+            return reply;
+        }
     }
 
     private BotCommand mapStringToBotCommand(String str) {
@@ -124,7 +159,6 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
             case "zufall":
                 return BotCommand.RANDOM;
 
-            case "start":
             case "help":
                 return BotCommand.HELP;
 
@@ -133,6 +167,9 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
             case "admin":
                 return BotCommand.ADMIN;
+
+            case "start":
+                return BotCommand.START;
 
             default:
                 return BotCommand.UNKNOWN;
