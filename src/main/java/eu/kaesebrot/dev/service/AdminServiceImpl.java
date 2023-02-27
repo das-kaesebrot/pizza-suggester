@@ -24,10 +24,13 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public InlineKeyboardMarkup getAdminMenu(CachedUser user) {
         var keyboard = new InlineKeyboardMarkup();
-        if (!user.isAdmin()) {
-            keyboard.setKeyboard(getLimitedAdminMenu());
+
+        if (user.isAdmin()) {
+            keyboard.setKeyboard(getFullAdminMenu());
+            return keyboard;
         }
 
+        keyboard.setKeyboard(getLimitedAdminMenu());
         return keyboard;
     }
 
@@ -35,8 +38,17 @@ public class AdminServiceImpl implements AdminService {
         var buttonRedeemKey = new InlineKeyboardButton("Redeem admin key");
         buttonRedeemKey.setCallbackData("redeem");
         var buttonClose = new InlineKeyboardButton("Close");
-        buttonRedeemKey.setCallbackData("close");
+        buttonClose.setCallbackData("close");
 
         return List.of(List.of(buttonRedeemKey), List.of(buttonClose));
+    }
+
+    private List<List<InlineKeyboardButton>> getFullAdminMenu() {
+        var buttonVenues = new InlineKeyboardButton("Venues");
+        buttonVenues.setCallbackData("venues");
+        var buttonClose = new InlineKeyboardButton("Close");
+        buttonClose.setCallbackData("close");
+
+        return List.of(List.of(buttonVenues), List.of(buttonClose));
     }
 }
