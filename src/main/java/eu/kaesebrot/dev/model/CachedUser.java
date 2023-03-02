@@ -16,7 +16,7 @@ public class CachedUser implements Serializable {
     private Long chatId;
 
     private boolean isAdmin;
-    private boolean isVegetarian;
+    private UserDiet userDiet;
     private EnumSet<UserState> userState;
 
     @ManyToOne
@@ -46,12 +46,8 @@ public class CachedUser implements Serializable {
         this.isAdmin = isAdmin;
     }
 
-    public boolean isVegetarian() {
-        return isVegetarian;
-    }
-
-    public void setVegetarian(boolean vegetarian) {
-        isVegetarian = vegetarian;
+    public void setUserDiet(UserDiet diet) {
+        this.userDiet = diet;
     }
 
     public void setSelectedVenue(Venue selectedVenue) {
@@ -78,6 +74,10 @@ public class CachedUser implements Serializable {
 
     public boolean isAdmin() {
         return isAdmin;
+    }
+
+    public UserDiet getUserDiet() {
+        return userDiet;
     }
 
     public Venue getSelectedVenue() {
