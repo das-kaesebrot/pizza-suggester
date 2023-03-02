@@ -88,7 +88,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
             typingAction.setChatId(message.getChatId());
             execute(typingAction);
 
-            boolean isNew = cachedUserRepository.existsById(message.getChatId());
+            boolean isNew = !cachedUserRepository.existsById(message.getChatId());
 
             if (isNew) {
                 // early return to show veggie/meat preference selection and usage instructions
