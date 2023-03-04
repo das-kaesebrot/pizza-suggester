@@ -15,7 +15,7 @@ public abstract class CachedUserRepositoryImpl implements CachedUserRepository {
     }
 
     /**
-     * Always returns a CachedUser object.
+     * Always returns a CachedUser object. Creates a new user on the fly if it doesn't exist yet.
      * @param chatId to search by
      * @return The new or existing CachedUser
      */
