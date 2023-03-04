@@ -1,5 +1,6 @@
 package eu.kaesebrot.dev.bot;
 
+import eu.kaesebrot.dev.enums.BotCommand;
 import eu.kaesebrot.dev.properties.TelegramBotProperties;
 import eu.kaesebrot.dev.service.AdminService;
 import eu.kaesebrot.dev.service.CachedUserRepository;
@@ -26,19 +27,6 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
     private final IngredientInlineKeyboardService ingredientInlineKeyboardService;
     private final AdminService adminService;
     private final TelegramBotProperties properties;
-
-    public enum BotCommand {
-        PIZZA,
-        RANDOM,
-        HELP,
-        ABOUT,
-        ADMIN,
-        CARLOS,
-        START,
-        UNKNOWN
-        ;
-    }
-
     public PizzaSuggesterBot(TelegramBotProperties properties,
                              CachedUserRepository cachedUserRepository,
                              VenueRepository venueRepository,
@@ -107,7 +95,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                     logger.debug("Update type: command");
                     messageText = messageText.substring(1);
 
-                    var command = mapStringToBotCommand(messageText);
+                    var command = BotCommand.valueOf(messageText.toUpperCase());
                     logger.debug("Mapped command string '{}' to enum type '{}'", messageText, command);
 
                     switch (command) {
@@ -148,31 +136,6 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
             logger.error("Exception encountered while handling an update", e);
             reply.setText("Ups, etwas ist leider schiefgelaufen :(");
             return reply;
-        }
-    }
-
-    private BotCommand mapStringToBotCommand(String str) {
-        switch (str) {
-            case "pizza":
-                return BotCommand.PIZZA;
-
-            case "zufall":
-                return BotCommand.RANDOM;
-
-            case "help":
-                return BotCommand.HELP;
-
-            case "carlos":
-                return BotCommand.CARLOS;
-
-            case "admin":
-                return BotCommand.ADMIN;
-
-            case "start":
-                return BotCommand.START;
-
-            default:
-                return BotCommand.UNKNOWN;
         }
     }
 }

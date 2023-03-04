@@ -1,4 +1,4 @@
-package eu.kaesebrot.dev.model;
+package eu.kaesebrot.dev.enums;
 
 public enum UserState {
     FREE,

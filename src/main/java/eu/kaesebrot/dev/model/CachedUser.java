@@ -1,5 +1,7 @@
 package eu.kaesebrot.dev.model;
 
+import eu.kaesebrot.dev.enums.UserDiet;
+import eu.kaesebrot.dev.enums.UserState;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
