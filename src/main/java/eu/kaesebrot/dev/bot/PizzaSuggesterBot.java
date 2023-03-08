@@ -2,6 +2,7 @@ package eu.kaesebrot.dev.bot;
 
 import eu.kaesebrot.dev.enums.BotCommand;
 import eu.kaesebrot.dev.model.AdminKey;
+import eu.kaesebrot.dev.model.CachedUser;
 import eu.kaesebrot.dev.properties.TelegramBotProperties;
 import eu.kaesebrot.dev.service.*;
 import org.slf4j.Logger;
@@ -86,12 +87,20 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
             execute(typingAction);
 
             boolean isNew = !cachedUserRepository.existsById(message.getChatId());
+            CachedUser user = cachedUserRepository.findOrAddUserByChatId(message.getChatId());
 
+            // early return to show veggie/meat preference selection and usage instructions
             if (isNew) {
-                // early return to show veggie/meat preference selection and usage instructions
-            }
+                SendMessage venueSelection = new SendMessage();
+                venueSelection.setText("Placeholder venue selection text");
+                venueSelection.setReplyMarkup(userMenuService.getVenueSelection(user));
+                execute(venueSelection);
 
-            var user = cachedUserRepository.findOrAddUserByChatId(message.getChatId());
+                reply.setText("Placeholder diet selection text");
+                reply.setReplyMarkup(userMenuService.getDietSelection(user));
+
+                return reply;
+            }
 
             if (callbackQuery != null) {
                 logger.debug("Update type: callbackQuery");
