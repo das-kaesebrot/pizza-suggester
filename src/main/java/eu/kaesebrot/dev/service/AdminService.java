@@ -10,5 +10,6 @@ public interface AdminService {
     String CALLBACK_PREFIX = "admin";
     void handleAdminCallback(CachedUser user, CallbackQuery query, PizzaSuggesterBot bot) throws TelegramApiException;
     void handleKeyRedemption(CachedUser user, String key);
+    void handleCsvUpload(CachedUser user, String fileId, PizzaSuggesterBot bot) throws TelegramApiException;
     InlineKeyboardMarkup getAdminMenu(CachedUser user);
 }

@@ -5,6 +5,7 @@ import eu.kaesebrot.dev.model.AdminKey;
 import eu.kaesebrot.dev.model.CachedUser;
 import eu.kaesebrot.dev.properties.TelegramBotProperties;
 import eu.kaesebrot.dev.service.*;
+import eu.kaesebrot.dev.utils.CsvMimeTypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -106,6 +107,11 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                 logger.debug("Update type: callbackQuery");
                 if (callbackQuery.getData().startsWith(adminService.CALLBACK_PREFIX)) adminService.handleAdminCallback(callbackQuery, this);
                 else if (callbackQuery.getData().startsWith(userMenuService.CALLBACK_PREFIX)) userMenuService.handleUserMenuCallback(user, callbackQuery, this);
+            }
+
+            if (update.getMessage().hasDocument() && CsvMimeTypeUtil.MimeTypeCouldBeCsv(update.getMessage().getDocument().getMimeType()))
+            {
+                adminService.handleCsvUpload(user, update.getMessage().getDocument().getFileId(), this);
             }
 
             if (update.getMessage() != null) {

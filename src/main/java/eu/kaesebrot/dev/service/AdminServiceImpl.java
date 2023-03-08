@@ -3,9 +3,11 @@ package eu.kaesebrot.dev.service;
 import eu.kaesebrot.dev.bot.PizzaSuggesterBot;
 import eu.kaesebrot.dev.enums.UserState;
 import eu.kaesebrot.dev.model.CachedUser;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -13,6 +15,10 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -103,9 +109,39 @@ public class AdminServiceImpl implements AdminService {
         }
     }
 
-    private void handleButtonPressAdminKeyRedemption(long chatId) {
-        var user = cachedUserRepository.findOrAddUserByChatId(chatId);
+    @Override
+    public void handleCsvUpload(CachedUser user, String fileId, PizzaSuggesterBot bot) throws TelegramApiException {
 
+        List<List<String>> rows = new java.util.ArrayList<>(List.of());
+
+        logger.debug(String.format("Handling new document by %s: %s", user , fileId));
+        String filePath = bot.execute(new GetFile(fileId)).getFilePath();
+
+        var outputStream = new ByteArrayOutputStream();
+
+        try {
+            InputStream in = new URL(filePath).openStream();
+            IOUtils.copy(in, outputStream);
+
+            String csvContent = outputStream.toString(StandardCharsets.UTF_8);
+
+            try (BufferedReader br = new BufferedReader(new StringReader(csvContent))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    String[] values = line.split(",");
+
+                    rows.add(Arrays.asList(values));
+                }
+            }
+
+        } catch (IOException e) {
+            logger.error(String.format("Encountered an exception while handling file from path '%s'", filePath), e);
+            return;
+        }
+
+    }
+
+    private void handleButtonPressAdminKeyRedemption(CachedUser user) {
         user.addState(UserState.SENDING_ADMIN_KEY);
 
         cachedUserRepository.saveAndFlush(user);
