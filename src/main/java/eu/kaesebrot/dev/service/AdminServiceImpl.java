@@ -50,16 +50,17 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void handleAdminCallback(CallbackQuery query, PizzaSuggesterBot bot) throws TelegramApiException {
+    public void handleAdminCallback(CachedUser user, CallbackQuery query, PizzaSuggesterBot bot) throws TelegramApiException {
 
         switch (query.getData()) {
             case CALLBACK_ADMIN_VENUS:
                 // TODO handle button press of admin venues
                 break;
             case CALLBACK_ADMIN_REDEEM:
-                handleButtonPressAdminKeyRedemption(query.getFrom().getId());
+                handleButtonPressAdminKeyRedemption(user);
+
                 var reply = new SendMessage();
-                reply.setChatId(query.getFrom().getId());
+                reply.setChatId(user.getChatId());
                 reply.setText("Please send me the admin key now");
                 // delete the message the menu inline keyboard was attached to
                 bot.execute(new DeleteMessage(query.getFrom().getId().toString(), Integer.parseInt(query.getInlineMessageId())));
@@ -75,7 +76,6 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void handleKeyRedemption(CachedUser user, String key) {
-
         // don't handle if we're not expecting the user to send us a key
         if (!user.hasState(UserState.SENDING_ADMIN_KEY))
             return;

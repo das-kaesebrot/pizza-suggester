@@ -8,7 +8,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public interface AdminService {
     String CALLBACK_PREFIX = "admin";
-    void handleAdminCallback(CallbackQuery query, PizzaSuggesterBot bot) throws TelegramApiException;
+    void handleAdminCallback(CachedUser user, CallbackQuery query, PizzaSuggesterBot bot) throws TelegramApiException;
     void handleKeyRedemption(CachedUser user, String key);
     InlineKeyboardMarkup getAdminMenu(CachedUser user);
 }
