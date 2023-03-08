@@ -25,9 +25,9 @@ public class AdminServiceImpl implements AdminService {
     private final AdminKeyRepository adminKeyRepository;
     private HashMap<Long, List<Long>> menuChatMessagesForUser;
 
-    public final String CALLBACK_ADMIN_VENUS = "admin-edit-venues";
-    public final String CALLBACK_ADMIN_REDEEM = "admin-key-redeem";
-    public final String CALLBACK_ADMIN_CLOSE = "admin-close-menu";
+    public final String CALLBACK_ADMIN_VENUS = AdminService.CALLBACK_PREFIX + "-edit-venues";
+    public final String CALLBACK_ADMIN_REDEEM = AdminService.CALLBACK_PREFIX + "-key-redeem";
+    public final String CALLBACK_ADMIN_CLOSE = AdminService.CALLBACK_PREFIX + "-close-menu";
 
     public AdminServiceImpl(VenueRepository venueRepository, CachedUserRepository cachedUserRepository, AdminKeyRepository adminKeyRepository) {
         this.venueRepository = venueRepository;
