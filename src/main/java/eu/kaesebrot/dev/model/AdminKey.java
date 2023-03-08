@@ -39,6 +39,6 @@ public class AdminKey {
 
     @Override
     public String toString() {
-        return "AdminKey{" + key + "}";
+        return "AdminKey{" + key.toString().replace("-", "") + "}";
     }
 }

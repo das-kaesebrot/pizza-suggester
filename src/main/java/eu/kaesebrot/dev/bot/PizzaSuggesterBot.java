@@ -1,11 +1,9 @@
 package eu.kaesebrot.dev.bot;
 
 import eu.kaesebrot.dev.enums.BotCommand;
+import eu.kaesebrot.dev.model.AdminKey;
 import eu.kaesebrot.dev.properties.TelegramBotProperties;
-import eu.kaesebrot.dev.service.AdminService;
-import eu.kaesebrot.dev.service.CachedUserRepository;
-import eu.kaesebrot.dev.service.IngredientInlineKeyboardService;
-import eu.kaesebrot.dev.service.VenueRepository;
+import eu.kaesebrot.dev.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -24,12 +22,14 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
     Logger logger = LoggerFactory.getLogger(PizzaSuggesterBot.class);
     private final CachedUserRepository cachedUserRepository;
     private final VenueRepository venueRepository;
+    private final AdminKeyRepository adminKeyRepository;
     private final IngredientInlineKeyboardService ingredientInlineKeyboardService;
     private final AdminService adminService;
     private final TelegramBotProperties properties;
     public PizzaSuggesterBot(TelegramBotProperties properties,
                              CachedUserRepository cachedUserRepository,
                              VenueRepository venueRepository,
+                             AdminKeyRepository adminKeyRepository,
                              IngredientInlineKeyboardService ingredientInlineKeyboardService,
                              AdminService adminService)
     {
@@ -37,8 +37,16 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         this.properties = properties;
         this.cachedUserRepository = cachedUserRepository;
         this.venueRepository = venueRepository;
+        this.adminKeyRepository = adminKeyRepository;
         this.ingredientInlineKeyboardService = ingredientInlineKeyboardService;
         this.adminService = adminService;
+
+        // create an initial admin key if the repository is empty
+        if (adminKeyRepository.count() <= 0) {
+            var firstAdminKey = new AdminKey();
+            logger.info(String.format("Created an initial admin key, use this key to gain admin permissions to the bot: %s", firstAdminKey));
+            adminKeyRepository.saveAndFlush(firstAdminKey);
+        }
     }
 
     @Override
