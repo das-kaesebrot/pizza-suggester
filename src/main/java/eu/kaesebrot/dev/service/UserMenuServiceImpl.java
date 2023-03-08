@@ -6,6 +6,7 @@ import eu.kaesebrot.dev.enums.UserState;
 import eu.kaesebrot.dev.model.CachedUser;
 import eu.kaesebrot.dev.model.Venue;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -27,9 +28,35 @@ public class UserMenuServiceImpl implements UserMenuService{
     }
 
     @Override
-    public void handleUserMenuCallback(CallbackQuery query, PizzaSuggesterBot bot) throws TelegramApiException
+    public void handleUserMenuCallback(CachedUser user, CallbackQuery query, PizzaSuggesterBot bot) throws TelegramApiException
     {
+        if (query.getData().startsWith(CALLBACK_VENUE_PREFIX))
+        {
+            var selectedVenue = query.getData();
+            selectedVenue.replace(CALLBACK_VENUE_PREFIX, "");
 
+            long venueId = Long.parseLong(selectedVenue);
+            var venue = venueRepository.findById(venueId);
+
+            if (venue.isEmpty()) return;
+
+            user.setSelectedVenue(venue.get());
+            cachedUserRepository.saveAndFlush(user);
+
+            // delete the message the menu inline keyboard was attached to
+            bot.execute(new DeleteMessage(query.getFrom().getId().toString(), Integer.parseInt(query.getInlineMessageId())));
+        }
+        else if (query.getData().startsWith(CALLBACK_DIET_PREFIX))
+        {
+            var selectedDiet = query.getData();
+            selectedDiet.replace(CALLBACK_DIET_PREFIX, "");
+
+            user.setUserDiet(UserDiet.valueOf(selectedDiet.toUpperCase()));
+            cachedUserRepository.saveAndFlush(user);
+
+            // delete the message the menu inline keyboard was attached to
+            bot.execute(new DeleteMessage(query.getFrom().getId().toString(), Integer.parseInt(query.getInlineMessageId())));
+        }
     }
 
     @Override
@@ -73,7 +100,7 @@ public class UserMenuServiceImpl implements UserMenuService{
         for (Venue venue : venueRepository.findAll())
         {
             var button = new InlineKeyboardButton(venue.getName());
-            button.setCallbackData(CALLBACK_VENUE_PREFIX + "-" + venue.getName().toLowerCase());
+            button.setCallbackData(CALLBACK_VENUE_PREFIX + "-" + venue.getId());
             venueButtonRows.add(List.of(button));
         }
 

@@ -8,7 +8,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public interface UserMenuService {
     String CALLBACK_PREFIX = "usermenu";
-    void handleUserMenuCallback(CallbackQuery query, PizzaSuggesterBot bot) throws TelegramApiException;
+    void handleUserMenuCallback(CachedUser user, CallbackQuery query, PizzaSuggesterBot bot) throws TelegramApiException;
     InlineKeyboardMarkup getDietSelection(CachedUser user);
     InlineKeyboardMarkup getVenueSelection(CachedUser user);
 }
