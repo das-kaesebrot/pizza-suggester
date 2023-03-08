@@ -24,13 +24,15 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
     private final VenueRepository venueRepository;
     private final IngredientInlineKeyboardService ingredientInlineKeyboardService;
     private final AdminService adminService;
+    private final UserMenuService userMenuService;
     private final TelegramBotProperties properties;
     public PizzaSuggesterBot(TelegramBotProperties properties,
                              CachedUserRepository cachedUserRepository,
                              VenueRepository venueRepository,
                              AdminKeyRepository adminKeyRepository,
                              IngredientInlineKeyboardService ingredientInlineKeyboardService,
-                             AdminService adminService)
+                             AdminService adminService,
+                             UserMenuService userMenuService)
     {
         super(new SetWebhook(properties.getWebhookUrl()), properties.getBotToken());
         this.properties = properties;
@@ -38,6 +40,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         this.venueRepository = venueRepository;
         this.ingredientInlineKeyboardService = ingredientInlineKeyboardService;
         this.adminService = adminService;
+        this.userMenuService = userMenuService;
 
         // create an initial admin key if the repository is empty
         if (adminKeyRepository.count() <= 0) {
@@ -92,6 +95,8 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
             if (callbackQuery != null) {
                 logger.debug("Update type: callbackQuery");
+                if (callbackQuery.getData().startsWith(adminService.CALLBACK_PREFIX)) adminService.handleAdminCallback(callbackQuery, this);
+                else if (callbackQuery.getData().startsWith(userMenuService.CALLBACK_PREFIX)) userMenuService.handleUserMenuCallback(callbackQuery, this);
             }
 
             if (update.getMessage() != null) {
