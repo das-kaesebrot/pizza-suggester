@@ -105,8 +105,15 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
             if (callbackQuery != null) {
                 logger.debug("Update type: callbackQuery");
-                if (callbackQuery.getData().startsWith(adminService.CALLBACK_PREFIX)) adminService.handleAdminCallback(callbackQuery, this);
-                else if (callbackQuery.getData().startsWith(userMenuService.CALLBACK_PREFIX)) userMenuService.handleUserMenuCallback(user, callbackQuery, this);
+
+                if (callbackQuery.getData().startsWith(adminService.CALLBACK_PREFIX))
+                    adminService.handleAdminCallback(user, callbackQuery, this);
+
+                else if (callbackQuery.getData().startsWith(userMenuService.CALLBACK_PREFIX))
+                    userMenuService.handleUserMenuCallback(user, callbackQuery, this);
+
+                else
+                    return reply;
             }
 
             if (update.getMessage().hasDocument() && CsvMimeTypeUtil.MimeTypeCouldBeCsv(update.getMessage().getDocument().getMimeType()))
