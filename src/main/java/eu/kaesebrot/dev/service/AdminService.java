@@ -7,6 +7,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public interface AdminService {
+    String CALLBACK_PREFIX = "admin";
     void handleAdminCallback(CallbackQuery query, PizzaSuggesterBot bot) throws TelegramApiException;
+    void handleKeyRedemption(CachedUser user, String key);
     InlineKeyboardMarkup getAdminMenu(CachedUser user);
 }

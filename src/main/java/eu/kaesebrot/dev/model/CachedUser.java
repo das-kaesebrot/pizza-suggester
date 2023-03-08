@@ -16,14 +16,16 @@ public class CachedUser implements Serializable {
     @Id
     @Column(updatable = false, nullable = false)
     private Long chatId;
-
-    private boolean isAdmin;
     private UserDiet userDiet;
     private EnumSet<UserState> userState;
 
     @ManyToOne
     @JoinColumn(name = "venue_id")
     private Venue selectedVenue;
+
+    @OneToOne(cascade = {CascadeType.ALL})
+    @JoinColumn(name = "adminkey_id")
+    private AdminKey adminKey;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
@@ -35,17 +37,12 @@ public class CachedUser implements Serializable {
 
 
     public CachedUser() {
-        this.isAdmin = false;
         this.userState = EnumSet.noneOf(UserState.class);
     }
 
     public CachedUser(Long chatId) {
         this();
         this.chatId = chatId;
-    }
-
-    public void setAdminStatus(boolean isAdmin) {
-        this.isAdmin = isAdmin;
     }
 
     public void setUserDiet(UserDiet diet) {
@@ -74,8 +71,16 @@ public class CachedUser implements Serializable {
         return chatId;
     }
 
+    public void setAdminKey(AdminKey adminKey) {
+        if (adminKey.hasBeenClaimed()) {
+            throw new RuntimeException("Admin key has already been claimed");
+        }
+
+        this.adminKey = adminKey;
+    }
+
     public boolean isAdmin() {
-        return isAdmin;
+        return adminKey != null;
     }
 
     public UserDiet getUserDiet() {

@@ -10,7 +10,7 @@ public class AdminKey {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID key;
 
-    @OneToOne
+    @OneToOne(mappedBy = "adminKey")
     private CachedUser claimant;
 
     public AdminKey() {
@@ -26,15 +26,6 @@ public class AdminKey {
 
     public boolean hasBeenClaimed() {
         return !(claimant == null);
-    }
-
-    public void setClaimedBy(CachedUser claimant) {
-        if (hasBeenClaimed()) {
-            throw new RuntimeException("Admin key has already been claimed");
-        }
-
-        this.claimant = claimant;
-        this.claimant.setAdminStatus(true);
     }
 
     @Override

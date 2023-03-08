@@ -3,6 +3,8 @@ package eu.kaesebrot.dev.service;
 import eu.kaesebrot.dev.bot.PizzaSuggesterBot;
 import eu.kaesebrot.dev.enums.UserState;
 import eu.kaesebrot.dev.model.CachedUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
@@ -13,20 +15,24 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class AdminServiceImpl implements AdminService {
+    Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);
     private final VenueRepository venueRepository;
     private final CachedUserRepository cachedUserRepository;
+    private final AdminKeyRepository adminKeyRepository;
     private HashMap<Long, List<Long>> menuChatMessagesForUser;
 
     public final String CALLBACK_ADMIN_VENUS = "admin-edit-venues";
     public final String CALLBACK_ADMIN_REDEEM = "admin-key-redeem";
     public final String CALLBACK_ADMIN_CLOSE = "admin-close-menu";
 
-    public AdminServiceImpl(VenueRepository venueRepository, CachedUserRepository cachedUserRepository) {
+    public AdminServiceImpl(VenueRepository venueRepository, CachedUserRepository cachedUserRepository, AdminKeyRepository adminKeyRepository) {
         this.venueRepository = venueRepository;
         this.cachedUserRepository = cachedUserRepository;
+        this.adminKeyRepository = adminKeyRepository;
         menuChatMessagesForUser = new HashMap<>();
     }
 
@@ -64,6 +70,36 @@ public class AdminServiceImpl implements AdminService {
                 break;
             default:
                 throw new IllegalArgumentException(String.format("Unknown callback data for admin menu! Given data: %s, CallbackQuery: %s", query.getData(), query));
+        }
+    }
+
+    @Override
+    public void handleKeyRedemption(CachedUser user, String key) {
+
+        // don't handle if we're not expecting the user to send us a key
+        if (!user.hasState(UserState.SENDING_ADMIN_KEY))
+            return;
+
+        var adminKeyOptional = adminKeyRepository
+                .findById(
+                        UUID.fromString(key.replaceAll(
+                                "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})",
+                                "$1-$2-$3-$4-$5")));
+
+        if (adminKeyOptional.isEmpty()) {
+            logger.error(String.format("Couldn't find admin key %s in repository", key));
+            return;
+        }
+
+        var adminKey = adminKeyOptional.get();
+
+        try {
+            user.setAdminKey(adminKey);
+            user.removeState(UserState.SENDING_ADMIN_KEY);
+            cachedUserRepository.saveAndFlush(user);
+        } catch (RuntimeException e) {
+            logger.error(String.format("Encountered an exception while redeeming admin key for user %s", user), e);
+            throw e;
         }
     }
 

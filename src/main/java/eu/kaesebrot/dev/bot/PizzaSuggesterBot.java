@@ -22,7 +22,6 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
     Logger logger = LoggerFactory.getLogger(PizzaSuggesterBot.class);
     private final CachedUserRepository cachedUserRepository;
     private final VenueRepository venueRepository;
-    private final AdminKeyRepository adminKeyRepository;
     private final IngredientInlineKeyboardService ingredientInlineKeyboardService;
     private final AdminService adminService;
     private final TelegramBotProperties properties;
@@ -37,7 +36,6 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         this.properties = properties;
         this.cachedUserRepository = cachedUserRepository;
         this.venueRepository = venueRepository;
-        this.adminKeyRepository = adminKeyRepository;
         this.ingredientInlineKeyboardService = ingredientInlineKeyboardService;
         this.adminService = adminService;
 
@@ -98,6 +96,11 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
             if (update.getMessage() != null) {
                 var messageText = message.getText();
+
+                // if the incoming string is 32 chars long, we can assume it is a UUID
+                if (messageText.length() == 32) {
+                    adminService.handleKeyRedemption(user, messageText);
+                }
 
                 if (messageText.length() > 1 && messageText.startsWith("/")) {
                     logger.debug("Update type: command");
