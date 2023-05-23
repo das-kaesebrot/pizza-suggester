@@ -18,7 +18,7 @@ public class CachedUser implements Serializable {
     private Long chatId;
     private UserDiet userDiet;
     private EnumSet<UserState> userState;
-
+    private String languageTag;
     @ManyToOne
     @JoinColumn(name = "venue_id")
     private Venue selectedVenue;
@@ -51,6 +51,10 @@ public class CachedUser implements Serializable {
 
     public void setSelectedVenue(Venue selectedVenue) {
         this.selectedVenue = selectedVenue;
+    }
+
+    public void setLanguageTag(String languageTag) {
+        this.languageTag = languageTag;
     }
 
     public void setState(EnumSet<UserState> userStateSet) {
@@ -89,6 +93,10 @@ public class CachedUser implements Serializable {
 
     public Venue getSelectedVenue() {
         return selectedVenue;
+    }
+
+    public String getLanguageTag() {
+        return languageTag;
     }
 
     public EnumSet<UserState> getState() {
