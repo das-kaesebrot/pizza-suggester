@@ -9,8 +9,8 @@ import eu.kaesebrot.dev.utils.CsvMimeTypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.LeaveChat;
 import org.telegram.telegrambots.meta.api.methods.send.SendChatAction;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -100,7 +100,12 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                 venueSelection.setReplyMarkup(userMenuService.getVenueSelection(user));
                 execute(venueSelection);
 
-                reply.setText("Placeholder diet selection text");
+                SendMessage dietSelection = new SendMessage();
+                dietSelection.setText(localizationService.getString("select.diet"));
+                dietSelection.setReplyMarkup(userMenuService.getDietSelection(user));
+                execute(dietSelection);
+
+                reply.setText(localizationService.getString("select.disclaimer"));
                 reply.setReplyMarkup(userMenuService.getDietSelection(user));
 
                 return reply;
