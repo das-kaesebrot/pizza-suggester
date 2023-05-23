@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.LeaveChat;
-import org.telegram.telegrambots.meta.api.methods.send.SendChatAction;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -83,12 +82,6 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                 leave.setChatId(message.getChatId());
                 return leave;
             }
-
-            // show as typing to the user
-            var typingAction = new SendChatAction();
-            typingAction.setAction(ActionType.TYPING);
-            typingAction.setChatId(message.getChatId());
-            execute(typingAction);
 
             boolean isNew = !cachedUserRepository.existsById(message.getChatId());
             CachedUser user = cachedUserRepository.findOrAddUserByChatId(message.getChatId());
