@@ -80,7 +80,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
             if (!message.isUserMessage()) {
                 var leave = new LeaveChat();
                 leave.setChatId(message.getChatId());
-                return leave;
+                return leave; // mommy taught me not to talk to strangers!
             }
 
             boolean isNew = !cachedUserRepository.existsById(message.getChatId());
