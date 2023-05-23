@@ -44,6 +44,7 @@ public class UserMenuServiceImpl implements UserMenuService{
             if (venue.isEmpty()) return;
 
             user.setSelectedVenue(venue.get());
+            user.removeState(UserState.SELECTING_VENUE);
             cachedUserRepository.saveAndFlush(user);
 
             // delete the message the menu inline keyboard was attached to
@@ -55,6 +56,7 @@ public class UserMenuServiceImpl implements UserMenuService{
             selectedDiet = selectedDiet.replace(CALLBACK_DIET_PREFIX, "");
 
             user.setUserDiet(UserDiet.valueOf(selectedDiet.toUpperCase()));
+            user.removeState(UserState.SELECTING_DIET);
             cachedUserRepository.saveAndFlush(user);
 
             // delete the message the menu inline keyboard was attached to
