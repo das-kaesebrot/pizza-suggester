@@ -1,6 +1,7 @@
 package eu.kaesebrot.dev.bot;
 
 import eu.kaesebrot.dev.enums.BotCommand;
+import eu.kaesebrot.dev.enums.UserState;
 import eu.kaesebrot.dev.model.AdminKey;
 import eu.kaesebrot.dev.model.CachedUser;
 import eu.kaesebrot.dev.properties.TelegramBotProperties;
@@ -136,6 +137,16 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
                     var command = BotCommand.valueOf(messageText.toUpperCase());
                     logger.debug("Mapped command string '{}' to enum type '{}'", messageText, command);
+
+                    if (
+                            command != BotCommand.ADMIN
+                            && (user.hasState(UserState.SELECTING_DIET)
+                                || user.hasState(UserState.SELECTING_VENUE))
+                    )
+                    {
+                        reply.setText(localizationService.getString("error.finishselection"));
+                        return reply;
+                    }
 
                     switch (command) {
                         case START:
