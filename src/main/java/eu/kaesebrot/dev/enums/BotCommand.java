@@ -8,6 +8,7 @@ public enum BotCommand {
     ADMIN,
     CARLOS,
     START,
+    CONTACT,
     UNKNOWN
     ;
 }
