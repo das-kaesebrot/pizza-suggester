@@ -1,5 +1,6 @@
 FROM python:3.9.9-alpine3.14
-WORKDIR /srv/kantinebot
+ENV WORKDIR_APP=/srv/kantinebot
+WORKDIR ${WORKDIR_APP}
 COPY . ./
 
 # Add build dependencies
@@ -20,4 +21,4 @@ ENV APP_ENV=docker
 
 STOPSIGNAL SIGINT
 USER kantinebot
-ENTRYPOINT ["python3", "kantine-bot.py"]
+CMD ["gunicorn", "-w", "1", "-b", "0.0.0.0:8000", "kantine-bot:app"]

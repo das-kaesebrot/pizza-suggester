@@ -12,6 +12,7 @@ environs = "==8.*"
 Babel = "==2.9.*"
 python-telegram-bot = "*"
 flask = "==2.*"
+gunicorn = "==20.1.*"
 
 [requires]
 python_version = "3.9"
