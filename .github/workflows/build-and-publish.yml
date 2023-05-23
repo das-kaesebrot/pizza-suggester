@@ -7,6 +7,10 @@ on:
     paths:
       - '**.py'
       - '.github/workflows/build-and-publish.yml'
+      - 'requirements.txt'
+      - 'Pipfile'
+      - 'Pipfile.lock'
+      - 'entrypoint.sh'
 
 env:
   IMAGE_NAME: daskaesebrot/dt-version-gen
