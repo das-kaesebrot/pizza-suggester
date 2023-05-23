@@ -17,12 +17,12 @@ app = Flask(__name__)
 verbose = True
 debug = True
 
-assetsfolder = "assets/csv"
+assetsfolder = os.path.join(os.getenv('WORKDIR_APP', '/srv/kantinebot'), 'assets/csv')
 pizzaFile = "kantine.csv"
 extrasFile = "extras.csv"
 
-pizzaPath = u.patthatcat(u.getscrpath(),assetsfolder,pizzaFile)
-extrasPath = u.patthatcat(u.getscrpath(),assetsfolder,extrasFile)
+pizzaPath = u.patthatcat(assetsfolder, pizzaFile)
+extrasPath = u.patthatcat(assetsfolder, extrasFile)
 
 def bootstrap():
     try:
