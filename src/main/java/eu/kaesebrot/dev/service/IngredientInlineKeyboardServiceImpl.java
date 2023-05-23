@@ -9,6 +9,8 @@ import java.util.*;
 
 @Service
 public class IngredientInlineKeyboardServiceImpl implements IngredientInlineKeyboardService {
+    private static final int maxIngredientKeyboardRows = 3;
+    private static final int maxIngredientKeyboardColumns = 2;
     private final VenueRepository venueRepository;
     private final LocalizationService localizationService;
     private HashMap<Long, List<List<List<InlineKeyboardButton>>>> venueInlineKeyboards;
