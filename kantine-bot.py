@@ -1,8 +1,11 @@
+#!/usr/bin/env python3
+
 from pathlib import Path
 import os
 import sys
 import json
 import requests
+import uvicorn
 from src import pizza
 from src import envhandler
 from src import bothandler
@@ -47,7 +50,7 @@ if __name__ == "__main__":
         global repliesDict
         repliesDict = {}
         
-        app.run(host='0.0.0.0', port=8000)
+        uvicorn.run(app, host='0.0.0.0', port=8000)
         
     except KeyboardInterrupt as e:
         print("\n[{}] [OK] [{}] {}".format(bothandler.getTime(), type(e).__name__, e))
