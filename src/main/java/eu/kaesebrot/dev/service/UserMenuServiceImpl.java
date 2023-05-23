@@ -17,14 +17,17 @@ import java.util.List;
 
 @Service
 public class UserMenuServiceImpl implements UserMenuService{
-    private final String CALLBACK_DIET_PREFIX = CALLBACK_PREFIX + "-diet";
-    private final String CALLBACK_VENUE_PREFIX = CALLBACK_PREFIX + "-venue";
+    private static final String CALLBACK_DIET_PREFIX = CALLBACK_PREFIX + "-diet";
+    private static final String CALLBACK_VENUE_PREFIX = CALLBACK_PREFIX + "-venue";
+    private static final String DIET_MESSAGES_PREFIX = "label.diet";
     private final CachedUserRepository cachedUserRepository;
     private final VenueRepository venueRepository;
+    private final LocalizationService localizationService;
 
-    public UserMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository) {
+    public UserMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, LocalizationService localizationService) {
         this.cachedUserRepository = cachedUserRepository;
         this.venueRepository = venueRepository;
+        this.localizationService = localizationService;
     }
 
     @Override
@@ -74,7 +77,7 @@ public class UserMenuServiceImpl implements UserMenuService{
 
         for (UserDiet diet : UserDiet.values())
         {
-            var button = new InlineKeyboardButton(diet.name());
+            var button = new InlineKeyboardButton(localizationService.getString(DIET_MESSAGES_PREFIX + "." + diet.name().toLowerCase()));
             button.setCallbackData(CALLBACK_DIET_PREFIX + "-" + diet.name().toLowerCase());
             dietButtonRows.add(List.of(button));
         }

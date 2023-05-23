@@ -28,13 +28,15 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
     private final AdminService adminService;
     private final UserMenuService userMenuService;
     private final TelegramBotProperties properties;
+    private final LocalizationService localizationService;
     public PizzaSuggesterBot(TelegramBotProperties properties,
                              CachedUserRepository cachedUserRepository,
                              VenueRepository venueRepository,
                              AdminKeyRepository adminKeyRepository,
                              IngredientInlineKeyboardService ingredientInlineKeyboardService,
                              AdminService adminService,
-                             UserMenuService userMenuService)
+                             UserMenuService userMenuService,
+                             LocalizationService localizationService)
     {
         super(new SetWebhook(properties.getWebhookUrl()), properties.getBotToken());
         this.properties = properties;
@@ -43,6 +45,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         this.ingredientInlineKeyboardService = ingredientInlineKeyboardService;
         this.adminService = adminService;
         this.userMenuService = userMenuService;
+        this.localizationService = localizationService;
 
         // create an initial admin key if the repository is empty
         if (adminKeyRepository.count() <= 0) {
@@ -71,7 +74,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
         var reply = new SendMessage();
         reply.setChatId(message.getChatId());
-        reply.setText("Unknown operation, use /help for help");
+        reply.setText(localizationService.getString("error.unknownop"));
 
         try {
             // don't handle if message doesn't come from a user
@@ -93,7 +96,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
             // early return to show veggie/meat preference selection and usage instructions
             if (isNew) {
                 SendMessage venueSelection = new SendMessage();
-                venueSelection.setText("Placeholder venue selection text");
+                venueSelection.setText(localizationService.getString("select.venue"));
                 venueSelection.setReplyMarkup(userMenuService.getVenueSelection(user));
                 execute(venueSelection);
 
@@ -138,26 +141,24 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
                     switch (command) {
                         case START:
-                            // TODO implement start message
-                            break;
+                        case HELP:
+                            reply.setText(localizationService.getString("reply.help"));
+                            reply.setParseMode(ParseMode.MARKDOWNV2);
+                            return reply;
 
                         case PIZZA:
                             // TODO set reply text for pizza selection
-                            reply.setText("placeholder text for /pizza command");
+                            reply.setText(localizationService.getString("error.notimplemented"));
                             // reply.setReplyMarkup(inlineKeyboardService.getInitialKeyboard(0L));
                             return reply;
 
                         case RANDOM:
                             // TODO implement random pizza selection
-                            break;
-
-                        case HELP:
-                            // TODO set reply text for /help
-                            reply.setText("placeholder /help text");
+                            reply.setText(localizationService.getString("error.notimplemented"));
                             return reply;
 
                         case ADMIN:
-                            reply.setText("Placeholder /admin text");
+                            reply.setText(localizationService.getString("reply.admin"));
                             reply.setReplyMarkup(adminService.getAdminMenu(user));
                             return reply;
 
@@ -172,7 +173,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
         } catch (TelegramApiException e) {
             logger.error("Exception encountered while handling an update", e);
-            reply.setText("Ups, etwas ist leider schiefgelaufen :(");
+            reply.setText(localizationService.getString("error.generic"));
             return reply;
         }
     }

@@ -10,14 +10,13 @@ import java.util.*;
 @Service
 public class IngredientInlineKeyboardServiceImpl implements IngredientInlineKeyboardService {
     private final VenueRepository venueRepository;
-
-    private final int maxIngredientKeyboardRows = 3;
-    private final int maxIngredientKeyboardColumns = 2;
+    private final LocalizationService localizationService;
     private HashMap<Long, List<List<List<InlineKeyboardButton>>>> venueInlineKeyboards;
     private HashMap<Long, List<String>> venueIngredients;
 
-    public IngredientInlineKeyboardServiceImpl(VenueRepository venueRepository) {
+    public IngredientInlineKeyboardServiceImpl(VenueRepository venueRepository, LocalizationService localizationService) {
         this.venueRepository = venueRepository;
+        this.localizationService = localizationService;
     }
 
     @Override
@@ -123,7 +122,7 @@ public class IngredientInlineKeyboardServiceImpl implements IngredientInlineKeyb
         buttonLeft.setCallbackData("previous");
         var buttonRight = new InlineKeyboardButton("\u2190");
         buttonRight.setCallbackData("next");
-        var buttonPageInfo = new InlineKeyboardButton("Seite " + pageNumber);
+        var buttonPageInfo = new InlineKeyboardButton(localizationService.getString("label.page") + " " + pageNumber);
         buttonLeft.setCallbackData("invalid");
         var buttonConfirm = new InlineKeyboardButton("\u2713");
         buttonRight.setCallbackData("confirm");
