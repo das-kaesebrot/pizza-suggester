@@ -5,7 +5,6 @@ import os
 import sys
 import json
 import requests
-import uvicorn
 from src import pizza
 from src import envhandler
 from src import bothandler
@@ -15,17 +14,18 @@ from flask import Flask, request, Response
 
 app = Flask(__name__)
 
-@app.route(f'/pizza-suggester/{envhandler.readEnv()["TOKEN"]}', methods=['POST'])
-def respond():
-    print("\n[{}] [OK] [{}] {}".format(bothandler.getTime(), "Received update", json.loads(request.data), indent=2))
-    bothandler.handleAndBootstrapVars(envhandler.readEnv(), verbose, debug, pizza.makeFullDict(pizzaPath, extrasPath), json.loads(request.data), repliesDict)
-    return Response(status=200)
+verbose = True
+debug = True
 
-if __name__ == "__main__":
+assetsfolder = "assets/csv"
+pizzaFile = "kantine.csv"
+extrasFile = "extras.csv"
+
+pizzaPath = u.patthatcat(u.getscrpath(),assetsfolder,pizzaFile)
+extrasPath = u.patthatcat(u.getscrpath(),assetsfolder,extrasFile)
+
+def bootstrap():
     try:
-        verbose = True
-        debug = True
-
         initWebhook = True
 
         if initWebhook:
@@ -39,18 +39,10 @@ if __name__ == "__main__":
 
             resp = requests.post(envhandler.readEnv()["BASEURL"] + envhandler.readEnv()["TOKEN"] + "/" + "getWebhookInfo")
             print("[{}] [Code {}] {}\n".format(bothandler.getTime(), resp.status_code, json.loads(resp.text)))
-
-        assetsfolder = "assets/csv"
-        pizzaFile = "kantine.csv"
-        extrasFile = "extras.csv"
-
-        pizzaPath = u.patthatcat(u.getscrpath(),assetsfolder,pizzaFile)
-        extrasPath = u.patthatcat(u.getscrpath(),assetsfolder,extrasFile)
         
         global repliesDict
         repliesDict = {}
         
-        uvicorn.run(app, host='0.0.0.0', port=8000)
         
     except KeyboardInterrupt as e:
         print("\n[{}] [OK] [{}] {}".format(bothandler.getTime(), type(e).__name__, e))
@@ -58,4 +50,12 @@ if __name__ == "__main__":
     except Exception as e:
         print("\n[{}] [ERROR] [{}] {}".format(bothandler.getTime(), type(e).__name__, e))
     finally:
-        print("Program stopped")
+        print("Bootstrap completed")
+        
+bootstrap()
+
+@app.route(f'/pizza-suggester/{envhandler.readEnv()["TOKEN"]}', methods=['POST'])
+def respond():
+    print("\n[{}] [OK] [{}] {}".format(bothandler.getTime(), "Received update", json.loads(request.data), indent=2))
+    bothandler.handleAndBootstrapVars(envhandler.readEnv(), verbose, debug, pizza.makeFullDict(pizzaPath, extrasPath), json.loads(request.data), repliesDict)
+    return Response(status=200)
