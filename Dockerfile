@@ -20,4 +20,4 @@ ENV APP_ENV=docker
 
 STOPSIGNAL SIGINT
 USER kantinebot
-ENTRYPOINT ["python3", "kantine-bot.py"]
+CMD ["gunicorn", "-w", "1", "-b", "0.0.0.0:8000", "kantine-bot:app"]
