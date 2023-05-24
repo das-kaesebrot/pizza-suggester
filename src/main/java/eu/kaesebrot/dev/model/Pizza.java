@@ -1,5 +1,6 @@
 package eu.kaesebrot.dev.model;
 
+import eu.kaesebrot.dev.enums.UserDiet;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -27,7 +28,7 @@ public class Pizza implements Serializable {
     private Set<String> ingredients;
 
     @Column(nullable = false)
-    private boolean isVegeterian;
+    private UserDiet minimumUserDiet;
 
     @ManyToOne
     @JoinColumn(name = "venue_id")
@@ -50,11 +51,11 @@ public class Pizza implements Serializable {
         this.venue = venue;
     }
 
-    public Pizza(String menuNumber, BigDecimal price, Set<String> ingredients, boolean isVegeterian, Venue venue) {
+    public Pizza(String menuNumber, BigDecimal price, Set<String> ingredients, UserDiet minimumUserDiet, Venue venue) {
         this.menuNumber = menuNumber;
         this.price = price;
         this.ingredients = ingredients;
-        this.isVegeterian = isVegeterian;
+        this.minimumUserDiet = minimumUserDiet;
         this.venue = venue;
     }
 
@@ -70,8 +71,8 @@ public class Pizza implements Serializable {
         this.ingredients = ingredients;
     }
 
-    public void setVegeterian(boolean vegeterian) {
-        isVegeterian = vegeterian;
+    public void setMinimumUserDiet(UserDiet diet) {
+        minimumUserDiet = diet;
     }
 
     public Long getId() {
@@ -90,8 +91,8 @@ public class Pizza implements Serializable {
         return ingredients;
     }
 
-    public boolean isVegeterian() {
-        return isVegeterian;
+    public UserDiet getMinimumUserDiet() {
+        return minimumUserDiet;
     }
 
     public Venue getVenue() {
