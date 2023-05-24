@@ -95,7 +95,7 @@ public class UserMenuServiceImpl implements UserMenuService{
         user.addState(UserState.SELECTING_VENUE);
         cachedUserRepository.save(user);
 
-        return getDietSelection();
+        return getVenueSelection();
     }
 
     private InlineKeyboardMarkup getVenueSelection() {
