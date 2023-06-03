@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class UserMenuServiceImpl implements UserMenuService{
+public class UserMenuServiceImpl implements UserMenuService {
     private static final String CALLBACK_DIET_PREFIX = CALLBACK_PREFIX + "-diet";
     private static final String CALLBACK_VENUE_PREFIX = CALLBACK_PREFIX + "-venue";
     private static final String DIET_MESSAGES_PREFIX = "label.diet";
