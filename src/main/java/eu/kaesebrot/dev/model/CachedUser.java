@@ -19,7 +19,7 @@ public class CachedUser implements Serializable {
     private UserDiet userDiet;
     private EnumSet<UserState> userState;
     private String languageTag;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venue_id")
     private Venue selectedVenue;
 
