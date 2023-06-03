@@ -1,12 +1,13 @@
 package eu.kaesebrot.dev.properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "telegrambot")
 public class TelegramBotProperties {
     private String botUsername;
     private String botToken;
-    private String webhookUrl;
+    private String webhookBaseUrl;
     private String primaryLocale;
 
     public String getBotUsername() {
@@ -25,12 +26,17 @@ public class TelegramBotProperties {
         this.botToken = botToken;
     }
 
-    public String getWebhookUrl() {
-        return webhookUrl;
+    public String getWebhookBaseUrl() {
+        return webhookBaseUrl;
     }
 
-    public void setWebhookUrl(String webhookUrl) {
-        this.webhookUrl = webhookUrl;
+    public String getFullWebhookUrl() {
+        var cleanBaseUrl = StringUtils.stripEnd(webhookBaseUrl, "/");
+        return String.format("%s/callback/%s", cleanBaseUrl, botToken);
+    }
+
+    public void setWebhookBaseUrl(String webhookBaseUrl) {
+        this.webhookBaseUrl = webhookBaseUrl;
     }
 
     public String getPrimaryLocale() {
