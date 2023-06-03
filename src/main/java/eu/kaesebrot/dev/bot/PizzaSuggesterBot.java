@@ -52,8 +52,8 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         // create an initial admin key if the repository is empty
         if (adminKeyRepository.count() <= 0) {
             var firstAdminKey = new AdminKey();
-            logger.info(String.format("Created an initial admin key, use this key to gain admin permissions to the bot: %s", firstAdminKey));
             adminKeyRepository.saveAndFlush(firstAdminKey);
+            logger.info(String.format("Created an initial admin key, use this key to gain admin permissions to the bot: %s", firstAdminKey));
         }
     }
 
@@ -85,6 +85,8 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                 leave.setChatId(message.getChatId());
                 return leave; // mommy taught me not to talk to strangers!
             }
+
+            //logger.debug("User has language tag: {}", update.getMessage().getChatId())
 
             boolean isNew = !cachedUserRepository.existsById(message.getChatId());
             CachedUser user = cachedUserRepository.findOrAddUserByChatId(message.getChatId());
