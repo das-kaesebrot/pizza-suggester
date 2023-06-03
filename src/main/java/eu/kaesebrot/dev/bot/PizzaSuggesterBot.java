@@ -84,6 +84,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         Long chatId;
 
         if (!update.hasMessage() && !update.hasCallbackQuery()) {
+            logger.error(String.format("Got an invalid update: %s", update.toString()));
             throw new RuntimeException("Can't handle update!");
         }
 
