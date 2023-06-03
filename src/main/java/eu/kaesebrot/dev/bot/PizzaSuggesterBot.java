@@ -22,6 +22,7 @@ import org.telegram.telegrambots.starter.SpringWebhookBot;
 @Component
 public class PizzaSuggesterBot extends SpringWebhookBot {
     Logger logger = LoggerFactory.getLogger(PizzaSuggesterBot.class);
+    private final CachedUserService cachedUserService;
     private final CachedUserRepository cachedUserRepository;
     private final VenueRepository venueRepository;
     private final IngredientInlineKeyboardService ingredientInlineKeyboardService;
@@ -30,6 +31,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
     private final TelegramBotProperties properties;
     private final LocalizationService localizationService;
     public PizzaSuggesterBot(TelegramBotProperties properties,
+                             CachedUserService cachedUserService,
                              CachedUserRepository cachedUserRepository,
                              VenueRepository venueRepository,
                              AdminKeyRepository adminKeyRepository,
@@ -39,6 +41,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                              LocalizationService localizationService) throws TelegramApiException {
         super(new SetWebhook(properties.getWebhookBaseUrl()), properties.getBotToken());
         this.properties = properties;
+        this.cachedUserService = cachedUserService;
         this.cachedUserRepository = cachedUserRepository;
         this.venueRepository = venueRepository;
         this.ingredientInlineKeyboardService = ingredientInlineKeyboardService;

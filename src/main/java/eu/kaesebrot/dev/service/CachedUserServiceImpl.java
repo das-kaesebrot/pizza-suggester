@@ -7,11 +7,14 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @Service
-public abstract class CachedUserRepositoryImpl implements CachedUserRepository {
+public class CachedUserServiceImpl implements CachedUserService {
 
     private final ReadWriteLock lock;
-    public CachedUserRepositoryImpl() {
+    private final CachedUserRepository cachedUserRepository;
+
+    public CachedUserServiceImpl(CachedUserRepository cachedUserRepository) {
         this.lock = new ReentrantReadWriteLock();
+        this.cachedUserRepository = cachedUserRepository;
     }
 
     /**
@@ -21,7 +24,7 @@ public abstract class CachedUserRepositoryImpl implements CachedUserRepository {
      */
     @Override
     public CachedUser findOrAddUserByChatId(Long chatId) {
-        var userOptional = this.findById(chatId);
+        var userOptional = cachedUserRepository.findById(chatId);
 
         if (userOptional.isPresent()) {
             return userOptional.get();
@@ -31,7 +34,7 @@ public abstract class CachedUserRepositoryImpl implements CachedUserRepository {
         try {
             lock.writeLock().lock();
             user = new CachedUser(chatId);
-            user = this.save(user);
+            user = cachedUserRepository.save(user);
         }
         finally {
             lock.writeLock().unlock();
