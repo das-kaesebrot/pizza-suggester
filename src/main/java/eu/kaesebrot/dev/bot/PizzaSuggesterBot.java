@@ -36,9 +36,8 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                              IngredientInlineKeyboardService ingredientInlineKeyboardService,
                              AdminService adminService,
                              UserMenuService userMenuService,
-                             LocalizationService localizationService)
-    {
-        super(new SetWebhook(properties.getWebhookUrl()), properties.getBotToken());
+                             LocalizationService localizationService) throws TelegramApiException {
+        super(new SetWebhook(properties.getWebhookBaseUrl()), properties.getBotToken());
         this.properties = properties;
         this.cachedUserRepository = cachedUserRepository;
         this.venueRepository = venueRepository;
@@ -46,6 +45,9 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         this.adminService = adminService;
         this.userMenuService = userMenuService;
         this.localizationService = localizationService;
+
+        // set webhook url on startup
+        this.setWebhook(this.getSetWebhook());
 
         // create an initial admin key if the repository is empty
         if (adminKeyRepository.count() <= 0) {
