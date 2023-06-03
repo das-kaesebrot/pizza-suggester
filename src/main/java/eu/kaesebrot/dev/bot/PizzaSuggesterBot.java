@@ -19,6 +19,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.starter.SpringWebhookBot;
 
+import java.io.IOException;
+
 @Component
 public class PizzaSuggesterBot extends SpringWebhookBot {
     Logger logger = LoggerFactory.getLogger(PizzaSuggesterBot.class);
@@ -200,7 +202,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
             return reply;
 
-        } catch (TelegramApiException e) {
+        } catch (TelegramApiException | IOException e) {
             logger.error("Exception encountered while handling an update", e);
             reply.setText(localizationService.getString("error.generic"));
             return reply;
