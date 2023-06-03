@@ -78,21 +78,34 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         var callbackQuery = update.getCallbackQuery();
 
         var reply = new SendMessage();
-        reply.setChatId(message.getChatId());
+
+        Long chatId;
+
+        if (!update.hasMessage() && !update.hasCallbackQuery()) {
+            throw new RuntimeException("Can't handle update!");
+        }
+
+        if (message != null) {
+            chatId = message.getChatId();
+        } else {
+            chatId = callbackQuery.getFrom().getId();
+        }
+
+        reply.setChatId(chatId);
         reply.setText(localizationService.getString("error.unknownop"));
 
         try {
             // don't handle if message doesn't come from a user
-            if (!message.isUserMessage()) {
+            if (update.hasMessage() && !message.isUserMessage()) {
                 var leave = new LeaveChat();
-                leave.setChatId(message.getChatId());
+                leave.setChatId(chatId);
                 return leave; // mommy taught me not to talk to strangers!
             }
 
             //logger.debug("User has language tag: {}", update.getMessage().getChatId())
 
-            boolean isNew = !cachedUserRepository.existsById(message.getChatId());
-            CachedUser user = cachedUserRepository.findOrAddUserByChatId(message.getChatId());
+            boolean isNew = !cachedUserRepository.existsById(chatId);
+            CachedUser user = cachedUserService.findOrAddUserByChatId(chatId);
 
             // early return to show veggie/meat preference selection and usage instructions
             if (isNew) {
