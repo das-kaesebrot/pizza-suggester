@@ -67,7 +67,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
     @Override
     public String getBotPath() {
-        return "/callback/" + properties.getBotToken();
+        return "/" + properties.getBotToken();
     }
 
     @Override
