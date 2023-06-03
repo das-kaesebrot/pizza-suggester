@@ -131,8 +131,9 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
             if (callbackQuery != null) {
                 logger.debug("Update type: callbackQuery");
 
-                if (callbackQuery.getData().startsWith(adminService.CALLBACK_PREFIX))
-                    adminService.handleAdminCallback(user, callbackQuery, this);
+                if (callbackQuery.getData().startsWith(adminService.CALLBACK_PREFIX)) {
+                    return adminService.handleAdminCallback(user, callbackQuery, this);
+                }
 
                 else if (callbackQuery.getData().startsWith(userMenuService.CALLBACK_PREFIX))
                     userMenuService.handleUserMenuCallback(user, callbackQuery, this);
@@ -143,7 +144,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
             if (update.getMessage().hasDocument() && CsvMimeTypeUtil.MimeTypeCouldBeCsv(update.getMessage().getDocument().getMimeType()))
             {
-                adminService.handleCsvUpload(user, update.getMessage().getDocument().getFileId(), this);
+                return adminService.handleCsvUpload(user, update.getMessage().getDocument().getFileId(), this);
             }
 
             if (update.getMessage() != null) {
@@ -151,7 +152,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
                 // if the incoming string is 32 chars long, we can assume it is a UUID
                 if (messageText.length() == 32) {
-                    adminService.handleKeyRedemption(user, messageText);
+                    return adminService.handleKeyRedemption(user, messageText);
                 }
 
                 if (messageText.length() > 1 && messageText.startsWith("/")) {

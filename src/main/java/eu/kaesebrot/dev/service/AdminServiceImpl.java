@@ -7,6 +7,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
@@ -29,16 +30,18 @@ public class AdminServiceImpl implements AdminService {
     private final VenueRepository venueRepository;
     private final CachedUserRepository cachedUserRepository;
     private final AdminKeyRepository adminKeyRepository;
+    private final LocalizationService localizationService;
     private HashMap<Long, List<Long>> menuChatMessagesForUser;
 
     public final String CALLBACK_ADMIN_VENUS = AdminService.CALLBACK_PREFIX + "-edit-venues";
     public final String CALLBACK_ADMIN_REDEEM = AdminService.CALLBACK_PREFIX + "-key-redeem";
     public final String CALLBACK_ADMIN_CLOSE = AdminService.CALLBACK_PREFIX + "-close-menu";
 
-    public AdminServiceImpl(VenueRepository venueRepository, CachedUserRepository cachedUserRepository, AdminKeyRepository adminKeyRepository) {
+    public AdminServiceImpl(VenueRepository venueRepository, CachedUserRepository cachedUserRepository, AdminKeyRepository adminKeyRepository, LocalizationService localizationService) {
         this.venueRepository = venueRepository;
         this.cachedUserRepository = cachedUserRepository;
         this.adminKeyRepository = adminKeyRepository;
+        this.localizationService = localizationService;
         menuChatMessagesForUser = new HashMap<>();
     }
 
@@ -56,35 +59,51 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void handleAdminCallback(CachedUser user, CallbackQuery query, PizzaSuggesterBot bot) throws TelegramApiException {
+    public BotApiMethod<?> handleAdminCallback(CachedUser user, CallbackQuery query, PizzaSuggesterBot bot) throws TelegramApiException {
+
+        var reply = new SendMessage();
+        reply.setChatId(user.getChatId());
 
         switch (query.getData()) {
             case CALLBACK_ADMIN_VENUS:
                 // TODO handle button press of admin venues
-                break;
+                reply.setText(localizationService.getString("error.notimplemented"));
+
+                return reply;
+
             case CALLBACK_ADMIN_REDEEM:
                 handleButtonPressAdminKeyRedemption(user);
 
-                var reply = new SendMessage();
-                reply.setChatId(user.getChatId());
-                reply.setText("Please send me the admin key now");
+                reply.setText(localizationService.getString("admin.sendkey"));
+
                 // delete the message the menu inline keyboard was attached to
-                bot.execute(new DeleteMessage(query.getFrom().getId().toString(), Integer.parseInt(query.getInlineMessageId())));
+                bot.execute(new DeleteMessage(query.getFrom().getId().toString(), query.getMessage().getMessageId()));
                 bot.execute(reply);
+
+                return reply;
+
             case CALLBACK_ADMIN_CLOSE:
                 // delete the message the menu inline keyboard was attached to
-                bot.execute(new DeleteMessage(query.getFrom().getId().toString(), Integer.parseInt(query.getInlineMessageId())));
-                break;
+                bot.execute(new DeleteMessage(query.getFrom().getId().toString(), query.getMessage().getMessageId()));
+
+                reply.setText(localizationService.getString("admin.closed"));
+
+                return reply;
+
             default:
                 throw new IllegalArgumentException(String.format("Unknown callback data for admin menu! Given data: %s, CallbackQuery: %s", query.getData(), query));
         }
     }
 
     @Override
-    public void handleKeyRedemption(CachedUser user, String key) {
+    public BotApiMethod<?> handleKeyRedemption(CachedUser user, String key) {
+        var reply = new SendMessage();
+        reply.setChatId(user.getChatId());
+        reply.setText(localizationService.getString("admin.keyredeemed"));
+
         // don't handle if we're not expecting the user to send us a key
         if (!user.hasState(UserState.SENDING_ADMIN_KEY))
-            return;
+            throw new RuntimeException(String.format("No admin key expected!"));
 
         var adminKeyOptional = adminKeyRepository
                 .findById(
@@ -93,8 +112,7 @@ public class AdminServiceImpl implements AdminService {
                                 "$1-$2-$3-$4-$5")));
 
         if (adminKeyOptional.isEmpty()) {
-            logger.error(String.format("Couldn't find admin key %s in repository", key));
-            return;
+            throw new RuntimeException(String.format("Couldn't find admin key %s in repository", key));
         }
 
         var adminKey = adminKeyOptional.get();
@@ -107,10 +125,15 @@ public class AdminServiceImpl implements AdminService {
             logger.error(String.format("Encountered an exception while redeeming admin key for user %s", user), e);
             throw e;
         }
+
+        return reply;
     }
 
     @Override
-    public void handleCsvUpload(CachedUser user, String fileId, PizzaSuggesterBot bot) throws TelegramApiException {
+    public BotApiMethod<?> handleCsvUpload(CachedUser user, String fileId, PizzaSuggesterBot bot) throws TelegramApiException, IOException {
+        var reply = new SendMessage();
+        reply.setChatId(user.getChatId());
+        reply.setText(localizationService.getString("admin.csvuploadsuccess"));
 
         List<List<String>> rows = new java.util.ArrayList<>(List.of());
 
@@ -136,9 +159,10 @@ public class AdminServiceImpl implements AdminService {
 
         } catch (IOException e) {
             logger.error(String.format("Encountered an exception while handling file from path '%s'", filePath), e);
-            return;
+            throw e;
         }
 
+        return reply;
     }
 
     private void handleButtonPressAdminKeyRedemption(CachedUser user) {
