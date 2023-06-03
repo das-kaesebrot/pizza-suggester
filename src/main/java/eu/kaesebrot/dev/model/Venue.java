@@ -17,7 +17,7 @@ public class Venue implements Serializable {
     private Long version;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 

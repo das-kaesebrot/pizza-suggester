@@ -9,7 +9,7 @@ import java.net.URL;
 @Table(name = "venue_info")
 public class VenueInfo implements Serializable {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 

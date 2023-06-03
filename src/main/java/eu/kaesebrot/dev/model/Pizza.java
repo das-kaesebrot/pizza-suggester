@@ -14,7 +14,7 @@ import java.util.Set;
 @Table(name = "pizza")
 public class Pizza implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false, nullable = false)
     private Long id;
 
