@@ -7,8 +7,10 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -19,10 +21,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Stream;
 
 @Service
 public class AdminServiceImpl implements AdminService {
@@ -30,17 +30,23 @@ public class AdminServiceImpl implements AdminService {
     private final VenueRepository venueRepository;
     private final CachedUserRepository cachedUserRepository;
     private final AdminKeyRepository adminKeyRepository;
+    private final UserMenuService userMenuService;
     private final LocalizationService localizationService;
     private HashMap<Long, List<Long>> menuChatMessagesForUser;
 
     public final String CALLBACK_ADMIN_VENUS = AdminService.CALLBACK_PREFIX + "-edit-venues";
     public final String CALLBACK_ADMIN_REDEEM = AdminService.CALLBACK_PREFIX + "-key-redeem";
+    public final String CALLBACK_ADMIN_CHANGE_PERSONAL_VENUE = AdminService.CALLBACK_PREFIX + "-change-personal-venue";
+    public final String CALLBACK_ADMIN_CHANGE_DIET = AdminService.CALLBACK_PREFIX + "-change-diet";
+    public final String CALLBACK_ADMIN_ABOUT_ME = AdminService.CALLBACK_PREFIX + "-about-me";
+    public final String CALLBACK_ADMIN_FORGET_ME = AdminService.CALLBACK_PREFIX + "-forget-me";
     public final String CALLBACK_ADMIN_CLOSE = AdminService.CALLBACK_PREFIX + "-close-menu";
 
-    public AdminServiceImpl(VenueRepository venueRepository, CachedUserRepository cachedUserRepository, AdminKeyRepository adminKeyRepository, LocalizationService localizationService) {
+    public AdminServiceImpl(VenueRepository venueRepository, CachedUserRepository cachedUserRepository, AdminKeyRepository adminKeyRepository, UserMenuService userMenuService, LocalizationService localizationService) {
         this.venueRepository = venueRepository;
         this.cachedUserRepository = cachedUserRepository;
         this.adminKeyRepository = adminKeyRepository;
+        this.userMenuService = userMenuService;
         this.localizationService = localizationService;
         menuChatMessagesForUser = new HashMap<>();
     }
@@ -49,50 +55,81 @@ public class AdminServiceImpl implements AdminService {
     public InlineKeyboardMarkup getAdminMenu(CachedUser user) {
         var keyboard = new InlineKeyboardMarkup();
 
+        List<List<InlineKeyboardButton>> baseButtons;
+
         if (user.isAdmin()) {
-            keyboard.setKeyboard(getFullAdminMenu());
-            return keyboard;
+            baseButtons = getFullAdminMenu();
+        } else {
+            baseButtons = getLimitedAdminMenu();
         }
 
-        keyboard.setKeyboard(getLimitedAdminMenu());
+        var keyboardButtons = Stream.concat(baseButtons.stream(), getCommonButtons().stream()).toList();
+
+        keyboard.setKeyboard(keyboardButtons);
         return keyboard;
     }
 
     @Override
     public BotApiMethod<?> handleAdminCallback(CachedUser user, CallbackQuery query, PizzaSuggesterBot bot) throws TelegramApiException {
 
-        var reply = new SendMessage();
-        reply.setChatId(user.getChatId());
+        AnswerCallbackQuery reply = new AnswerCallbackQuery(query.getId());
 
         switch (query.getData()) {
             case CALLBACK_ADMIN_VENUS:
                 // TODO handle button press of admin venues
                 reply.setText(localizationService.getString("error.notimplemented"));
-
-                return reply;
+                break;
 
             case CALLBACK_ADMIN_REDEEM:
                 handleButtonPressAdminKeyRedemption(user);
 
-                reply.setText(localizationService.getString("admin.sendkey"));
+                var redeemReply = new SendMessage();
+                redeemReply.setChatId(user.getChatId());
+                redeemReply.setText(localizationService.getString("admin.sendkey"));
 
                 // delete the message the menu inline keyboard was attached to
                 bot.execute(new DeleteMessage(query.getFrom().getId().toString(), query.getMessage().getMessageId()));
-                bot.execute(reply);
-
-                return reply;
+                return redeemReply;
 
             case CALLBACK_ADMIN_CLOSE:
                 // delete the message the menu inline keyboard was attached to
                 bot.execute(new DeleteMessage(query.getFrom().getId().toString(), query.getMessage().getMessageId()));
 
                 reply.setText(localizationService.getString("admin.closed"));
+                break;
 
-                return reply;
+            case CALLBACK_ADMIN_CHANGE_DIET:
+                // delete the message the menu inline keyboard was attached to
+                bot.execute(new DeleteMessage(query.getFrom().getId().toString(), query.getMessage().getMessageId()));
+
+                bot.execute(userMenuService.getDietSelection(user));
+                break;
+
+            case CALLBACK_ADMIN_CHANGE_PERSONAL_VENUE:
+                // delete the message the menu inline keyboard was attached to
+                bot.execute(new DeleteMessage(query.getFrom().getId().toString(), query.getMessage().getMessageId()));
+
+                bot.execute(userMenuService.getVenueSelection(user));
+                break;
+
+            case CALLBACK_ADMIN_ABOUT_ME:
+                var sendMessage = new SendMessage(user.getChatId().toString(), getAboutData(user));
+                sendMessage.setParseMode(ParseMode.MARKDOWNV2);
+
+                bot.execute(sendMessage);
+                break;
+
+            case CALLBACK_ADMIN_FORGET_ME:
+                cachedUserRepository.delete(user);
+
+                bot.execute(new SendMessage(user.getChatId().toString(), localizationService.getString("reply.forgetme")));
+                break;
 
             default:
                 throw new IllegalArgumentException(String.format("Unknown callback data for admin menu! Given data: %s, CallbackQuery: %s", query.getData(), query));
         }
+
+        return reply;
     }
 
     @Override
@@ -171,21 +208,54 @@ public class AdminServiceImpl implements AdminService {
         cachedUserRepository.saveAndFlush(user);
     }
 
-    private List<List<InlineKeyboardButton>> getLimitedAdminMenu() {
-        var buttonRedeemKey = new InlineKeyboardButton("Redeem admin key");
-        buttonRedeemKey.setCallbackData(CALLBACK_ADMIN_REDEEM);
-        var buttonClose = new InlineKeyboardButton("Close");
-        buttonClose.setCallbackData(CALLBACK_ADMIN_CLOSE);
+    private String getAboutData(CachedUser user) {
+        var createdAt = user.getCreatedAt().toString().replace("-", "\\-").replace(".", "\\.");
+        var modifiedAt = user.getModifiedAt().toString().replace("-", "\\-").replace(".", "\\.");
+        var userState = user.getState().toString().replace("_", "\\_");
 
-        return List.of(List.of(buttonRedeemKey), List.of(buttonClose));
+        return String.format("__*User %s*__\nAdmin: %s\nDiet: %s\nSelected venue: %s\nUser states: %s\nFirst seen: _%s_\nLast modified: _%s_", user.getChatId(), user.isAdmin(), user.getUserDiet(), user.getSelectedVenue(), userState, createdAt, modifiedAt);
+    }
+
+    private List<List<InlineKeyboardButton>> getLimitedAdminMenu() {
+        var buttonRedeemKey = new InlineKeyboardButton(localizationService.getString("admin.redeemkey"));
+        buttonRedeemKey.setCallbackData(CALLBACK_ADMIN_REDEEM);
+
+        return List.of(List.of(buttonRedeemKey));
     }
 
     private List<List<InlineKeyboardButton>> getFullAdminMenu() {
-        var buttonVenues = new InlineKeyboardButton("Venues");
+        var buttonVenues = new InlineKeyboardButton(localizationService.getString("admin.venues"));
         buttonVenues.setCallbackData(CALLBACK_ADMIN_VENUS);
-        var buttonClose = new InlineKeyboardButton("Close");
+
+        return List.of(List.of(buttonVenues));
+    }
+
+    private List<List<InlineKeyboardButton>> getCommonButtons() {
+        var buttonDiet = new InlineKeyboardButton(localizationService.getString("admin.changediet"));
+        buttonDiet.setCallbackData(CALLBACK_ADMIN_CHANGE_DIET);
+
+        var buttonPersonalVenue = new InlineKeyboardButton(localizationService.getString("admin.changevenue"));
+        buttonPersonalVenue.setCallbackData(CALLBACK_ADMIN_CHANGE_PERSONAL_VENUE);
+
+        var buttonAboutMe = new InlineKeyboardButton(localizationService.getString("admin.aboutme"));
+        buttonAboutMe.setCallbackData(CALLBACK_ADMIN_ABOUT_ME);
+
+        var buttonForgetMe = new InlineKeyboardButton(localizationService.getString("admin.forgetme"));
+        buttonForgetMe.setCallbackData(CALLBACK_ADMIN_FORGET_ME);
+
+        return List.of(
+                List.of(buttonDiet),
+                List.of(buttonPersonalVenue),
+                List.of(buttonAboutMe),
+                List.of(buttonForgetMe),
+                List.of(getCloseButton())
+        );
+    }
+
+    private InlineKeyboardButton getCloseButton() {
+        var buttonClose = new InlineKeyboardButton(localizationService.getString("label.close"));
         buttonClose.setCallbackData(CALLBACK_ADMIN_CLOSE);
 
-        return List.of(List.of(buttonVenues), List.of(buttonClose));
+        return buttonClose;
     }
 }
