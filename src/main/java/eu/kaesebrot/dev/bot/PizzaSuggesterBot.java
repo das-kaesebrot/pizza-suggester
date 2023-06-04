@@ -148,7 +148,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                 return adminService.handleCsvUpload(user, update.getMessage().getDocument().getFileId(), this);
             }
 
-            if (update.getMessage() != null) {
+            if (update.hasMessage()) {
                 var messageText = message.getText();
 
                 // if the incoming string is 32 chars long, we can assume it is a UUID
