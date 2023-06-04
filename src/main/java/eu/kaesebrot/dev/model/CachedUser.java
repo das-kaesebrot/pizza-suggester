@@ -28,11 +28,11 @@ public class CachedUser implements Serializable {
     private AdminKey adminKey;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
+    @Column(nullable = false)
     private Timestamp createdAt;
 
     @UpdateTimestamp
-    @Column(name = "modified_at", nullable = false)
+    @Column(nullable = false)
     private Timestamp modifiedAt;
 
 

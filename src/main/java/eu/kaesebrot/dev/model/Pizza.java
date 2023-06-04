@@ -18,16 +18,12 @@ public class Pizza implements Serializable {
     @Column(updatable = false, nullable = false)
     private Long id;
 
-    @Column(nullable = false)
     private String menuNumber;
 
-    @Column(nullable = false)
     private BigDecimal price;
-    @Column(nullable = false)
     @ElementCollection
     private Set<String> ingredients;
 
-    @Column(nullable = false)
     private UserDiet minimumUserDiet;
 
     @ManyToOne
@@ -35,11 +31,11 @@ public class Pizza implements Serializable {
     private Venue venue;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
+    @Column(nullable = false)
     private Timestamp createdAt;
 
     @UpdateTimestamp
-    @Column(name = "modified_at", nullable = false)
+    @Column(nullable = false)
     private Timestamp modifiedAt;
 
     public Pizza() {

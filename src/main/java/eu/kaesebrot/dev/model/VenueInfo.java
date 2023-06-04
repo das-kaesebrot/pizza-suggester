@@ -10,16 +10,15 @@ import java.net.URL;
 public class VenueInfo implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", updatable = false, nullable = false)
+    @Column(updatable = false, nullable = false)
     private Long id;
 
-    @Column(nullable = false)
     private double longitude;
-    @Column(nullable = false)
+
     private double latitude;
-    @Column(nullable = false)
+
     private String phoneNumber;
-    @Column(nullable = false)
+
     private URL url;
 
     public VenueInfo() {
