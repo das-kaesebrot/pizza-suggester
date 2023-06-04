@@ -41,7 +41,7 @@ public class UserMenuServiceImpl implements UserMenuService {
         if (query.getData().startsWith(CALLBACK_VENUE_PREFIX))
         {
             var selectedVenue = query.getData();
-            selectedVenue = selectedVenue.replace(CALLBACK_VENUE_PREFIX, "");
+            selectedVenue = selectedVenue.replace(String.format("%s-", CALLBACK_VENUE_PREFIX), "");
 
             long venueId = Long.parseLong(selectedVenue);
             var venue = venueRepository.findById(venueId);
@@ -59,7 +59,7 @@ public class UserMenuServiceImpl implements UserMenuService {
         else if (query.getData().startsWith(CALLBACK_DIET_PREFIX))
         {
             var selectedDiet = query.getData();
-            selectedDiet = selectedDiet.replace(CALLBACK_DIET_PREFIX, "");
+            selectedDiet = selectedDiet.replace(String.format("%s-", CALLBACK_DIET_PREFIX), "");
 
             user.setUserDiet(UserDiet.valueOf(selectedDiet.toUpperCase()));
             user.removeState(UserState.SELECTING_DIET);
