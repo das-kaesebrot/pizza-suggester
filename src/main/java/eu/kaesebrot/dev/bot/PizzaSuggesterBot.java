@@ -132,8 +132,9 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                     return adminService.handleAdminCallback(user, callbackQuery, this);
                 }
 
-                else if (callbackQuery.getData().startsWith(userMenuService.CALLBACK_PREFIX))
-                    userMenuService.handleUserMenuCallback(user, callbackQuery, this);
+                else if (callbackQuery.getData().startsWith(userMenuService.CALLBACK_PREFIX)) {
+                    return userMenuService.handleUserMenuCallback(user, callbackQuery, this);
+                }
 
                 else
                     return reply;
