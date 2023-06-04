@@ -112,18 +112,15 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
             // early return to show veggie/meat preference selection and usage instructions
             if (isNew) {
-                SendMessage venueSelection = new SendMessage();
-                venueSelection.setText(localizationService.getString("select.venue"));
-                venueSelection.setReplyMarkup(userMenuService.getVenueSelection(user));
-                execute(venueSelection);
+                execute(new SendMessage(user.getChatId().toString(), localizationService.getString("reply.firstrun")));
 
-                SendMessage dietSelection = new SendMessage();
-                dietSelection.setText(localizationService.getString("select.diet"));
-                dietSelection.setReplyMarkup(userMenuService.getDietSelection(user));
-                execute(dietSelection);
+                if (!venueRepository.findAll().isEmpty()) {
+                    execute(userMenuService.getVenueSelection(user));
+                }
+
+                execute(userMenuService.getDietSelection(user));
 
                 reply.setText(localizationService.getString("select.disclaimer"));
-                reply.setReplyMarkup(userMenuService.getDietSelection(user));
 
                 return reply;
             }
