@@ -27,9 +27,9 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
     private final CachedUserService cachedUserService;
     private final CachedUserRepository cachedUserRepository;
     private final VenueRepository venueRepository;
-    private final IngredientMenuService ingredientMenuService;
     private final AdminService adminService;
     private final UserMenuService userMenuService;
+    private final CallbackHandlingService callbackHandlingService;
     private final TelegramBotProperties properties;
     private final LocalizationService localizationService;
     public PizzaSuggesterBot(TelegramBotProperties properties,
@@ -37,18 +37,17 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                              CachedUserRepository cachedUserRepository,
                              VenueRepository venueRepository,
                              AdminKeyRepository adminKeyRepository,
-                             IngredientMenuService ingredientMenuService,
                              AdminService adminService,
                              UserMenuService userMenuService,
-                             LocalizationService localizationService) throws TelegramApiException {
+                             CallbackHandlingService callbackHandlingService, LocalizationService localizationService) throws TelegramApiException {
         super(new SetWebhook(properties.getWebhookBaseUrl()), properties.getBotToken());
         this.properties = properties;
         this.cachedUserService = cachedUserService;
         this.cachedUserRepository = cachedUserRepository;
         this.venueRepository = venueRepository;
-        this.ingredientMenuService = ingredientMenuService;
         this.adminService = adminService;
         this.userMenuService = userMenuService;
+        this.callbackHandlingService = callbackHandlingService;
         this.localizationService = localizationService;
 
         // set webhook url on startup
@@ -128,16 +127,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
             if (callbackQuery != null) {
                 logger.debug("Update type: callbackQuery");
 
-                if (callbackQuery.getData().startsWith(adminService.CALLBACK_PREFIX)) {
-                    return adminService.handleAdminCallback(user, callbackQuery, this);
-                }
-
-                else if (callbackQuery.getData().startsWith(userMenuService.CALLBACK_PREFIX)) {
-                    return userMenuService.handleUserMenuCallback(user, callbackQuery, this);
-                }
-
-                else
-                    return reply;
+                return callbackHandlingService.handleCallback(user, callbackQuery, this);
             }
 
             if (!update.hasMessage())
