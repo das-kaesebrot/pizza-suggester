@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -52,9 +51,6 @@ public class UserMenuServiceImpl implements UserMenuService {
             user.setSelectedVenue(venue.get());
             user.removeState(UserState.SELECTING_VENUE);
             cachedUserRepository.saveAndFlush(user);
-
-            // delete the message the menu inline keyboard was attached to
-            bot.execute(new DeleteMessage(query.getFrom().getId().toString(), query.getMessage().getMessageId()));
         }
         else if (query.getData().startsWith(CALLBACK_DIET_PREFIX))
         {
@@ -65,8 +61,6 @@ public class UserMenuServiceImpl implements UserMenuService {
             user.removeState(UserState.SELECTING_DIET);
             cachedUserRepository.saveAndFlush(user);
 
-            // delete the message the menu inline keyboard was attached to
-            bot.execute(new DeleteMessage(query.getFrom().getId().toString(), query.getMessage().getMessageId()));
             bot.execute(new SendMessage(query.getFrom().getId().toString(), String.format("%s: %s", localizationService.getString("select.dietsuccess"), localizationService.getString(DIET_MESSAGES_PREFIX + "." + selectedDiet.toLowerCase()))));
         }
 

@@ -12,7 +12,6 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -86,29 +85,17 @@ public class AdminServiceImpl implements AdminService {
                 var redeemReply = new SendMessage();
                 redeemReply.setChatId(user.getChatId());
                 redeemReply.setText(localizationService.getString("admin.sendkey"));
-
-                // delete the message the menu inline keyboard was attached to
-                bot.execute(new DeleteMessage(query.getFrom().getId().toString(), query.getMessage().getMessageId()));
                 return redeemReply;
 
             case CALLBACK_ADMIN_CLOSE:
-                // delete the message the menu inline keyboard was attached to
-                bot.execute(new DeleteMessage(query.getFrom().getId().toString(), query.getMessage().getMessageId()));
-
                 reply.setText(localizationService.getString("admin.closed"));
                 break;
 
             case CALLBACK_ADMIN_CHANGE_DIET:
-                // delete the message the menu inline keyboard was attached to
-                bot.execute(new DeleteMessage(query.getFrom().getId().toString(), query.getMessage().getMessageId()));
-
                 bot.execute(userMenuService.getDietSelection(user));
                 break;
 
             case CALLBACK_ADMIN_CHANGE_PERSONAL_VENUE:
-                // delete the message the menu inline keyboard was attached to
-                bot.execute(new DeleteMessage(query.getFrom().getId().toString(), query.getMessage().getMessageId()));
-
                 bot.execute(userMenuService.getVenueSelection(user));
                 break;
 
@@ -130,6 +117,17 @@ public class AdminServiceImpl implements AdminService {
         }
 
         return reply;
+    }
+
+    @Override
+    public boolean deleteCallbackMenuAfterHandling(CallbackQuery query) {
+        switch (query.getData()) {
+            case CALLBACK_ADMIN_ABOUT_ME:
+                return false;
+
+            default:
+                return true;
+        }
     }
 
     @Override

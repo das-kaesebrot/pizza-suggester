@@ -15,4 +15,5 @@ public interface AdminService {
     BotApiMethod<?> handleKeyRedemption(CachedUser user, String key);
     BotApiMethod<?> handleCsvUpload(CachedUser user, String fileId, PizzaSuggesterBot bot) throws TelegramApiException, IOException;
     InlineKeyboardMarkup getAdminMenu(CachedUser user);
+    boolean deleteCallbackMenuAfterHandling(CallbackQuery query);
 }
