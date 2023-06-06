@@ -8,17 +8,18 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import java.util.*;
 
 @Service
-public class IngredientInlineKeyboardServiceImpl implements IngredientInlineKeyboardService {
+public class IngredientMenuServiceImpl implements IngredientMenuService {
     private static final int maxIngredientKeyboardRows = 3;
     private static final int maxIngredientKeyboardColumns = 2;
+    private static final String CALLBACK_PREFIX = "ingredients";
     private final VenueRepository venueRepository;
-    private final LocalizationService localizationService;
+    private final InlineKeyboardService inlineKeyboardService;
     private HashMap<Long, List<List<List<InlineKeyboardButton>>>> venueInlineKeyboards;
     private HashMap<Long, List<String>> venueIngredients;
 
-    public IngredientInlineKeyboardServiceImpl(VenueRepository venueRepository, LocalizationService localizationService) {
+    public IngredientMenuServiceImpl(VenueRepository venueRepository, LocalizationService localizationService, InlineKeyboardService inlineKeyboardService) {
         this.venueRepository = venueRepository;
-        this.localizationService = localizationService;
+        this.inlineKeyboardService = inlineKeyboardService;
     }
 
     @Override
@@ -34,35 +35,19 @@ public class IngredientInlineKeyboardServiceImpl implements IngredientInlineKeyb
         var listOfPagesInVenue = new ArrayList<List<List<InlineKeyboardButton>>>();
         var ingredientList = getVenueIngredients(venueId);
 
-        int pagesNeeded = ingredientList.size() / (maxIngredientKeyboardColumns * maxIngredientKeyboardRows);
+        var listOfIngredientButtons = new ArrayList<InlineKeyboardButton>();
 
-        if (ingredientList.size() % (maxIngredientKeyboardColumns * maxIngredientKeyboardRows) != 0) {
-            pagesNeeded++;
+        for (int index = 0; index < ingredientList.size(); index++) {
+            var button = new InlineKeyboardButton(ingredientList.get(index));
+            button.setCallbackData(String.format("%s-%d", CALLBACK_PREFIX, index));
+
+            listOfIngredientButtons.add(button);
         }
 
-        for (int page = 0; page < pagesNeeded; page++) {
-            var pageRows = new ArrayList<List<InlineKeyboardButton>>();
-
-            for (int rowCounter = 0; rowCounter < maxIngredientKeyboardRows; rowCounter++) {
-                var row = new ArrayList<InlineKeyboardButton>();
-
-                for (int columnCounter = 0; columnCounter < maxIngredientKeyboardColumns; columnCounter++) {
-                    var ingredientIndex = getIngredientIndexAtPageColumnAndRow(page, columnCounter, rowCounter);
-                    var button = new InlineKeyboardButton(ingredientList.get(ingredientIndex));
-                    button.setCallbackData(String.valueOf(ingredientIndex));
-
-                    row.add(button);
-                }
-
-                pageRows.add(row);
-            }
-
-            pageRows.add(getLastRow(page));
-
-            listOfPagesInVenue.add(pageRows);
-        }
-
-        venueInlineKeyboards.put(venueId, listOfPagesInVenue);
+        venueInlineKeyboards.put(venueId,
+                inlineKeyboardService.getPagedInlineKeyboardButtons(
+                        listOfIngredientButtons, maxIngredientKeyboardColumns, maxIngredientKeyboardRows,
+                        true, CALLBACK_PREFIX, true));
     }
 
     @Override
@@ -93,13 +78,6 @@ public class IngredientInlineKeyboardServiceImpl implements IngredientInlineKeyb
         return venueInlineKeyboards.get(venueId).get(pageNumber.orElse(0));
     }
 
-    private int getIngredientIndexAtPageColumnAndRow(int pageNumber, int column, int row) {
-        int pageOffset = maxIngredientKeyboardColumns * maxIngredientKeyboardRows * pageNumber;
-        int indexWithOffset = column + row + pageOffset;
-
-        return indexWithOffset;
-    }
-
     private List<String> getVenueIngredients(Long venueId) {
         var venue = venueRepository.findById(venueId).get();
 
@@ -114,21 +92,5 @@ public class IngredientInlineKeyboardServiceImpl implements IngredientInlineKeyb
         }
 
         return venueIngredients.get(venue.getId());
-    }
-
-    private List<InlineKeyboardButton> getLastRow(int pageNumber) {
-        // make sure the page number is 1-based instead of 0-based
-        pageNumber++;
-
-        var buttonLeft = new InlineKeyboardButton("\u2190");
-        buttonLeft.setCallbackData("previous");
-        var buttonRight = new InlineKeyboardButton("\u2190");
-        buttonRight.setCallbackData("next");
-        var buttonPageInfo = new InlineKeyboardButton(localizationService.getString("label.page") + " " + pageNumber);
-        buttonLeft.setCallbackData("invalid");
-        var buttonConfirm = new InlineKeyboardButton("\u2713");
-        buttonRight.setCallbackData("confirm");
-
-        return List.of(buttonLeft, buttonRight, buttonPageInfo, buttonConfirm);
     }
 }
