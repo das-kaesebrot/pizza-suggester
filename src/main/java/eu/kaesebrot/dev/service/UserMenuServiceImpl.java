@@ -67,15 +67,20 @@ public class UserMenuServiceImpl implements UserMenuService {
         return reply;
     }
 
-    public InlineKeyboardMarkup getDietSelectionMarkup(CachedUser user)
-    {
+    @Override
+    public SendMessage getDietSelection(CachedUser user) {
+        SendMessage dietSelection = new SendMessage();
+        dietSelection.setChatId(user.getChatId());
+        dietSelection.setText(localizationService.getString("select.diet"));
+        dietSelection.setReplyMarkup(getDietSelectionMarkup());
+
         user.addState(UserState.SELECTING_DIET);
         cachedUserRepository.save(user);
 
-        return getDietSelection();
+        return dietSelection;
     }
 
-    private InlineKeyboardMarkup getDietSelection() {
+    private InlineKeyboardMarkup getDietSelectionMarkup() {
         var dietButtonRows = new ArrayList<List<InlineKeyboardButton>>();
         var keyboard = new InlineKeyboardMarkup();
 
@@ -91,35 +96,20 @@ public class UserMenuServiceImpl implements UserMenuService {
         return keyboard;
     }
 
-    public InlineKeyboardMarkup getVenueSelectionMarkup(CachedUser user)
-    {
-        user.addState(UserState.SELECTING_VENUE);
-        cachedUserRepository.save(user);
-
-        return getVenueSelection();
-    }
-
-    @Override
-    public SendMessage getDietSelection(CachedUser user) {
-        SendMessage dietSelection = new SendMessage();
-        dietSelection.setChatId(user.getChatId());
-        dietSelection.setText(localizationService.getString("select.diet"));
-        dietSelection.setReplyMarkup(getDietSelectionMarkup(user));
-
-        return dietSelection;
-    }
-
     @Override
     public SendMessage getVenueSelection(CachedUser user) {
         SendMessage venueSelection = new SendMessage();
         venueSelection.setChatId(user.getChatId());
         venueSelection.setText(localizationService.getString("select.venue"));
-        venueSelection.setReplyMarkup(getVenueSelectionMarkup(user));
+        venueSelection.setReplyMarkup(getVenueSelectionMarkup());
+
+        user.addState(UserState.SELECTING_VENUE);
+        cachedUserRepository.save(user);
 
         return venueSelection;
     }
 
-    private InlineKeyboardMarkup getVenueSelection() {
+    private InlineKeyboardMarkup getVenueSelectionMarkup() {
         var venueButtonRows = new ArrayList<List<InlineKeyboardButton>>();
         var keyboard = new InlineKeyboardMarkup();
 
