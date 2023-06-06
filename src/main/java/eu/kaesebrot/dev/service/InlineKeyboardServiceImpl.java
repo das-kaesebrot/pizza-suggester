@@ -1,6 +1,6 @@
 package eu.kaesebrot.dev.service;
 
-import org.jvnet.hk2.annotations.Service;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.ArrayList;
