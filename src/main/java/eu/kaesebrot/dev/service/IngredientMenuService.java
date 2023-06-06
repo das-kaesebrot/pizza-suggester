@@ -4,7 +4,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 
 import java.util.Optional;
 
-public interface IngredientInlineKeyboardService {
+public interface IngredientMenuService {
     void regenerateInlineKeyboardPageCache();
     void regenerateInlineKeyboardPageCache(Long venueId);
     InlineKeyboardMarkup getInitialKeyboard(Long venueId);
