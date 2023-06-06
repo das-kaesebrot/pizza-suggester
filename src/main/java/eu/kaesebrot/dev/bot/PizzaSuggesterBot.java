@@ -27,7 +27,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
     private final CachedUserService cachedUserService;
     private final CachedUserRepository cachedUserRepository;
     private final VenueRepository venueRepository;
-    private final IngredientInlineKeyboardService ingredientInlineKeyboardService;
+    private final IngredientMenuService ingredientMenuService;
     private final AdminService adminService;
     private final UserMenuService userMenuService;
     private final TelegramBotProperties properties;
@@ -37,7 +37,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                              CachedUserRepository cachedUserRepository,
                              VenueRepository venueRepository,
                              AdminKeyRepository adminKeyRepository,
-                             IngredientInlineKeyboardService ingredientInlineKeyboardService,
+                             IngredientMenuService ingredientMenuService,
                              AdminService adminService,
                              UserMenuService userMenuService,
                              LocalizationService localizationService) throws TelegramApiException {
@@ -46,7 +46,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         this.cachedUserService = cachedUserService;
         this.cachedUserRepository = cachedUserRepository;
         this.venueRepository = venueRepository;
-        this.ingredientInlineKeyboardService = ingredientInlineKeyboardService;
+        this.ingredientMenuService = ingredientMenuService;
         this.adminService = adminService;
         this.userMenuService = userMenuService;
         this.localizationService = localizationService;
