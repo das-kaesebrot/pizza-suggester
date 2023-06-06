@@ -30,13 +30,8 @@ public class TelegramBotProperties {
         return webhookBaseUrl;
     }
 
-    public String getFullWebhookUrl() {
-        var cleanBaseUrl = StringUtils.stripEnd(webhookBaseUrl, "/");
-        return String.format("%s/callback/%s", cleanBaseUrl, botToken);
-    }
-
     public void setWebhookBaseUrl(String webhookBaseUrl) {
-        this.webhookBaseUrl = webhookBaseUrl;
+        this.webhookBaseUrl = StringUtils.stripEnd(webhookBaseUrl, "/");
     }
 
     public String getPrimaryLocale() {
