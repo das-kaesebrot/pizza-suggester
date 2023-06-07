@@ -6,6 +6,7 @@ import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.repository.AdminKeyRepository;
 import eu.kaesebrot.dev.pizzabot.repository.CachedUserRepository;
 import eu.kaesebrot.dev.pizzabot.repository.VenueRepository;
+import eu.kaesebrot.dev.pizzabot.service.InlineKeyboardService;
 import eu.kaesebrot.dev.pizzabot.service.LocalizationService;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -34,41 +35,51 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     private final CachedUserRepository cachedUserRepository;
     private final AdminKeyRepository adminKeyRepository;
     private final UserMenuService userMenuService;
+    private final InlineKeyboardService inlineKeyboardService;
     private final LocalizationService localizationService;
-    private HashMap<Long, List<Long>> menuChatMessagesForUser;
 
-    public final String CALLBACK_ADMIN_VENUS = AdminMenuService.CALLBACK_PREFIX + "-edit-venues";
-    public final String CALLBACK_ADMIN_REDEEM = AdminMenuService.CALLBACK_PREFIX + "-key-redeem";
-    public final String CALLBACK_ADMIN_CHANGE_PERSONAL_VENUE = AdminMenuService.CALLBACK_PREFIX + "-change-personal-venue";
-    public final String CALLBACK_ADMIN_CHANGE_DIET = AdminMenuService.CALLBACK_PREFIX + "-change-diet";
-    public final String CALLBACK_ADMIN_ABOUT_ME = AdminMenuService.CALLBACK_PREFIX + "-about-me";
-    public final String CALLBACK_ADMIN_FORGET_ME = AdminMenuService.CALLBACK_PREFIX + "-forget-me";
-    public final String CALLBACK_ADMIN_CLOSE = AdminMenuService.CALLBACK_PREFIX + "-close-menu";
+    public final String CALLBACK_ADMIN_VENUS = "edit-venues";
+    public final String CALLBACK_ADMIN_REDEEM = "key-redeem";
+    public final String CALLBACK_ADMIN_CHANGE_PERSONAL_VENUE = "change-personal-venue";
+    public final String CALLBACK_ADMIN_CHANGE_DIET = "change-diet";
+    public final String CALLBACK_ADMIN_ABOUT_ME = "about-me";
+    public final String CALLBACK_ADMIN_FORGET_ME = "forget-me";
+    public final String CALLBACK_ADMIN_GENERATE_KEY = "gen-key";
 
-    public AdminMenuServiceImpl(VenueRepository venueRepository, CachedUserRepository cachedUserRepository, AdminKeyRepository adminKeyRepository, UserMenuService userMenuService, LocalizationService localizationService) {
+    List<List<List<InlineKeyboardButton>>> pagedSuperAdminMenu;
+    List<List<List<InlineKeyboardButton>>> pagedFullAdminMenu;
+    List<List<List<InlineKeyboardButton>>> pagedLimitedAdminMenu;
+
+    public AdminMenuServiceImpl(VenueRepository venueRepository, CachedUserRepository cachedUserRepository, AdminKeyRepository adminKeyRepository, UserMenuService userMenuService, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService) {
         this.venueRepository = venueRepository;
         this.cachedUserRepository = cachedUserRepository;
         this.adminKeyRepository = adminKeyRepository;
         this.userMenuService = userMenuService;
+        this.inlineKeyboardService = inlineKeyboardService;
         this.localizationService = localizationService;
-        menuChatMessagesForUser = new HashMap<>();
     }
 
     @Override
     public InlineKeyboardMarkup getAdminMenu(CachedUser user) {
+        return getAdminMenu(user, 0);
+    }
+
+    @Override
+    public InlineKeyboardMarkup getAdminMenu(CachedUser user, long zeroBasedPage) {
         var keyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> buttons;
 
-        List<List<InlineKeyboardButton>> baseButtons;
+        regenerateMenuCaches();
 
-        if (user.isAdmin()) {
-            baseButtons = getFullAdminMenu();
+        if (user.isSuperAdmin()) {
+            buttons = pagedSuperAdminMenu.get((int) zeroBasedPage);
+        } else if (user.isAdmin()) {
+            buttons = pagedFullAdminMenu.get((int) zeroBasedPage);
         } else {
-            baseButtons = getLimitedAdminMenu();
+            buttons = pagedLimitedAdminMenu.get((int) zeroBasedPage);
         }
 
-        var keyboardButtons = Stream.concat(baseButtons.stream(), getCommonButtons().stream()).toList();
-
-        keyboard.setKeyboard(keyboardButtons);
+        keyboard.setKeyboard(buttons);
         return keyboard;
     }
 
@@ -77,8 +88,11 @@ public class AdminMenuServiceImpl implements AdminMenuService {
 
         AnswerCallbackQuery reply = new AnswerCallbackQuery(query.getId());
 
-        switch (query.getData()) {
+        var sanitizedData = stripCallbackPrefix(query.getData());
+
+        switch (sanitizedData) {
             case CALLBACK_ADMIN_VENUS:
+            case CALLBACK_ADMIN_GENERATE_KEY:
                 // TODO handle button press of admin venues
                 reply.setText(localizationService.getString("error.notimplemented"));
                 break;
@@ -90,10 +104,6 @@ public class AdminMenuServiceImpl implements AdminMenuService {
                 redeemReply.setChatId(user.getChatId());
                 redeemReply.setText(localizationService.getString("admin.sendkey"));
                 return redeemReply;
-
-            case CALLBACK_ADMIN_CLOSE:
-                reply.setText(localizationService.getString("admin.closed"));
-                break;
 
             case CALLBACK_ADMIN_CHANGE_DIET:
                 bot.execute(userMenuService.getDietSelection(user));
@@ -116,6 +126,11 @@ public class AdminMenuServiceImpl implements AdminMenuService {
                 bot.execute(new SendMessage(user.getChatId().toString(), localizationService.getString("reply.forgetme")));
                 break;
 
+
+            case InlineKeyboardService.CALLBACK_NAVIGATION_CLOSE:
+                reply.setText(localizationService.getString("admin.closed"));
+                break;
+
             default:
                 throw new IllegalArgumentException(String.format("Unknown callback data for admin menu! Given data: %s, CallbackQuery: %s", query.getData(), query));
         }
@@ -125,8 +140,11 @@ public class AdminMenuServiceImpl implements AdminMenuService {
 
     @Override
     public boolean canCallbackMenuBeDeletedAfterHandling(CallbackQuery query) {
-        switch (query.getData()) {
+        switch (stripCallbackPrefix(query.getData())) {
             case CALLBACK_ADMIN_ABOUT_ME:
+            case InlineKeyboardService.CALLBACK_NAVIGATION_FORWARD:
+            case InlineKeyboardService.CALLBACK_NAVIGATION_BACK:
+            case InlineKeyboardService.CALLBACK_NAVIGATION_PAGE:
                 return false;
 
             default:
@@ -218,46 +236,59 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         return String.format("__*User %s*__\nAdmin: %s\nDiet: %s\nSelected venue: %s\nUser states: %s\nFirst seen: _%s_\nLast modified: _%s_", user.getChatId(), user.isAdmin(), user.getUserDiet(), user.getSelectedVenue(), userState, createdAt, modifiedAt);
     }
 
-    private List<List<InlineKeyboardButton>> getLimitedAdminMenu() {
+    private Stream<InlineKeyboardButton> getLimitedAdminMenu() {
         var buttonRedeemKey = new InlineKeyboardButton(localizationService.getString("admin.redeemkey"));
-        buttonRedeemKey.setCallbackData(CALLBACK_ADMIN_REDEEM);
+        buttonRedeemKey.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_REDEEM));
 
-        return List.of(List.of(buttonRedeemKey));
+        return Stream.concat(Stream.of(buttonRedeemKey), getCommonButtons());
     }
 
-    private List<List<InlineKeyboardButton>> getFullAdminMenu() {
+    private Stream<InlineKeyboardButton> getFullAdminMenu() {
         var buttonVenues = new InlineKeyboardButton(localizationService.getString("admin.venues"));
-        buttonVenues.setCallbackData(CALLBACK_ADMIN_VENUS);
+        buttonVenues.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_VENUS));
 
-        return List.of(List.of(buttonVenues));
+        return Stream.concat(Stream.of(buttonVenues), getCommonButtons());
     }
 
-    private List<List<InlineKeyboardButton>> getCommonButtons() {
+    private Stream<InlineKeyboardButton> getSuperAdminMenu() {
+        var buttonGenerateAdminKey = new InlineKeyboardButton(localizationService.getString("admin.genkey"));
+        buttonGenerateAdminKey.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_GENERATE_KEY));
+
+        return Stream.concat(Stream.of(buttonGenerateAdminKey), getFullAdminMenu());
+    }
+
+    private Stream<InlineKeyboardButton> getCommonButtons() {
         var buttonDiet = new InlineKeyboardButton(localizationService.getString("admin.changediet"));
-        buttonDiet.setCallbackData(CALLBACK_ADMIN_CHANGE_DIET);
+        buttonDiet.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_CHANGE_DIET));
 
         var buttonPersonalVenue = new InlineKeyboardButton(localizationService.getString("admin.changevenue"));
-        buttonPersonalVenue.setCallbackData(CALLBACK_ADMIN_CHANGE_PERSONAL_VENUE);
+        buttonPersonalVenue.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_CHANGE_PERSONAL_VENUE));
 
         var buttonAboutMe = new InlineKeyboardButton(localizationService.getString("admin.aboutme"));
-        buttonAboutMe.setCallbackData(CALLBACK_ADMIN_ABOUT_ME);
+        buttonAboutMe.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_ABOUT_ME));
 
         var buttonForgetMe = new InlineKeyboardButton(localizationService.getString("admin.forgetme"));
-        buttonForgetMe.setCallbackData(CALLBACK_ADMIN_FORGET_ME);
+        buttonForgetMe.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_FORGET_ME));
 
-        return List.of(
-                List.of(buttonDiet),
-                List.of(buttonPersonalVenue),
-                List.of(buttonAboutMe),
-                List.of(buttonForgetMe),
-                List.of(getCloseButton())
-        );
+        return Stream.of(buttonDiet, buttonPersonalVenue ,buttonAboutMe, buttonForgetMe);
     }
 
-    private InlineKeyboardButton getCloseButton() {
-        var buttonClose = new InlineKeyboardButton(localizationService.getString("label.close"));
-        buttonClose.setCallbackData(CALLBACK_ADMIN_CLOSE);
+    private void regenerateMenuCaches() {
+        if (pagedSuperAdminMenu == null || pagedSuperAdminMenu.isEmpty())
+            pagedSuperAdminMenu = inlineKeyboardService.getPagedInlineKeyboardButtons(getSuperAdminMenu().toList(), MENU_COLUMNS, MENU_ROWS, true, CALLBACK_PREFIX, false, true);
 
-        return buttonClose;
+        if (pagedFullAdminMenu == null || pagedFullAdminMenu.isEmpty())
+            pagedFullAdminMenu = inlineKeyboardService.getPagedInlineKeyboardButtons(getFullAdminMenu().toList(), MENU_COLUMNS, MENU_ROWS, true, CALLBACK_PREFIX, false, true);
+
+        if (pagedLimitedAdminMenu == null || pagedLimitedAdminMenu.isEmpty())
+            pagedLimitedAdminMenu = inlineKeyboardService.getPagedInlineKeyboardButtons(getLimitedAdminMenu().toList(), MENU_COLUMNS, MENU_ROWS, true, CALLBACK_PREFIX, false, true);
+    }
+
+    private String stripCallbackPrefix(String data) {
+        return data.replace(String.format("%s-", CALLBACK_PREFIX), "");
+    }
+
+    private String prependCallbackPrefix(String data) {
+        return String.format("%s-%s", CALLBACK_PREFIX, data);
     }
 }

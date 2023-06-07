@@ -10,7 +10,11 @@ import java.io.IOException;
 
 public interface AdminMenuService extends MenuService {
     String CALLBACK_PREFIX = "admin";
+    public final Long MENU_COLUMNS = 1L;
+    public final Long MENU_ROWS = 3L;
+
     BotApiMethod<?> handleKeyRedemption(CachedUser user, String key);
     BotApiMethod<?> handleCsvUpload(CachedUser user, String fileId, PizzaSuggesterBot bot) throws TelegramApiException, IOException;
     InlineKeyboardMarkup getAdminMenu(CachedUser user);
+    InlineKeyboardMarkup getAdminMenu(CachedUser user, long zeroBasedPage);
 }
