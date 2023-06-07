@@ -2,6 +2,9 @@ package eu.kaesebrot.dev.service;
 
 import eu.kaesebrot.dev.bot.PizzaSuggesterBot;
 import eu.kaesebrot.dev.model.CachedUser;
+import eu.kaesebrot.dev.service.menu.AdminMenuService;
+import eu.kaesebrot.dev.service.menu.MenuService;
+import eu.kaesebrot.dev.service.menu.UserMenuService;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
@@ -10,30 +13,32 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Service
 public class CallbackHandlingServiceImpl implements CallbackHandlingService {
-    private final AdminService adminService;
+    private final AdminMenuService adminMenuService;
     private final UserMenuService userMenuService;
 
-    public CallbackHandlingServiceImpl(AdminService adminService, UserMenuService userMenuService) {
-        this.adminService = adminService;
+    public CallbackHandlingServiceImpl(AdminMenuService adminMenuService, UserMenuService userMenuService) {
+        this.adminMenuService = adminMenuService;
         this.userMenuService = userMenuService;
     }
 
     @Override
     public BotApiMethod<?> handleCallback(CachedUser user, CallbackQuery query, PizzaSuggesterBot bot) throws TelegramApiException {
         BotApiMethod<?> reply;
-        boolean deleteAfterHandling = true;
 
-        if (query.getData().startsWith(adminService.CALLBACK_PREFIX)) {
-            reply = adminService.handleAdminCallback(user, query, bot);
-            deleteAfterHandling = adminService.deleteCallbackMenuAfterHandling(query);
+        MenuService handlingService;
+
+        if (query.getData().startsWith(adminMenuService.CALLBACK_PREFIX)) {
+            handlingService = adminMenuService;
         } else if (query.getData().startsWith(userMenuService.CALLBACK_PREFIX)) {
-            reply = userMenuService.handleUserMenuCallback(user, query, bot);
+            handlingService = userMenuService;
         } else {
             throw new RuntimeException(String.format("Can't map callback data to service: %s", query.getData()));
         }
 
+        reply = handlingService.handleCallback(user, query, bot);
+
         // delete the message the menu inline keyboard was attached to after handling
-        if (deleteAfterHandling)
+        if (handlingService.canCallbackMenuBeDeletedAfterHandling(query))
             bot.execute(deleteCallbackMessage(query));
 
         return reply;

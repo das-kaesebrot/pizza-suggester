@@ -9,6 +9,8 @@ import eu.kaesebrot.dev.repository.AdminKeyRepository;
 import eu.kaesebrot.dev.repository.CachedUserRepository;
 import eu.kaesebrot.dev.repository.VenueRepository;
 import eu.kaesebrot.dev.service.*;
+import eu.kaesebrot.dev.service.menu.AdminMenuService;
+import eu.kaesebrot.dev.service.menu.UserMenuService;
 import eu.kaesebrot.dev.utils.CsvMimeTypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +32,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
     private final CachedUserService cachedUserService;
     private final CachedUserRepository cachedUserRepository;
     private final VenueRepository venueRepository;
-    private final AdminService adminService;
+    private final AdminMenuService adminMenuService;
     private final UserMenuService userMenuService;
     private final CallbackHandlingService callbackHandlingService;
     private final TelegramBotProperties properties;
@@ -40,7 +42,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                              CachedUserRepository cachedUserRepository,
                              VenueRepository venueRepository,
                              AdminKeyRepository adminKeyRepository,
-                             AdminService adminService,
+                             AdminMenuService adminMenuService,
                              UserMenuService userMenuService,
                              CallbackHandlingService callbackHandlingService, LocalizationService localizationService) throws TelegramApiException {
         super(new SetWebhook(properties.getWebhookBaseUrl()), properties.getBotToken());
@@ -48,7 +50,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         this.cachedUserService = cachedUserService;
         this.cachedUserRepository = cachedUserRepository;
         this.venueRepository = venueRepository;
-        this.adminService = adminService;
+        this.adminMenuService = adminMenuService;
         this.userMenuService = userMenuService;
         this.callbackHandlingService = callbackHandlingService;
         this.localizationService = localizationService;
@@ -138,7 +140,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
             if (update.getMessage().hasDocument() && CsvMimeTypeUtil.MimeTypeCouldBeCsv(update.getMessage().getDocument().getMimeType()))
             {
-                return adminService.handleCsvUpload(user, update.getMessage().getDocument().getFileId(), this);
+                return adminMenuService.handleCsvUpload(user, update.getMessage().getDocument().getFileId(), this);
             }
 
             if (update.hasMessage()) {
@@ -146,7 +148,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
                 // if the incoming string is 32 chars long, we can assume it is a UUID
                 if (messageText.length() == 32) {
-                    return adminService.handleKeyRedemption(user, messageText);
+                    return adminMenuService.handleKeyRedemption(user, messageText);
                 }
 
                 if (messageText.length() > 1 && messageText.startsWith("/")) {
@@ -186,7 +188,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
                         case ADMIN:
                             reply.setText(localizationService.getString("reply.admin"));
-                            reply.setReplyMarkup(adminService.getAdminMenu(user));
+                            reply.setReplyMarkup(adminMenuService.getAdminMenu(user));
                             return reply;
 
                         case CARLOS:
