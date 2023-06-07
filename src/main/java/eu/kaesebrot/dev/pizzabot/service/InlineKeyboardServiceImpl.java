@@ -5,6 +5,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 public class InlineKeyboardServiceImpl implements InlineKeyboardService {
@@ -16,7 +17,7 @@ public class InlineKeyboardServiceImpl implements InlineKeyboardService {
 
     @Override
     public List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtons(List<InlineKeyboardButton> buttons, boolean withNavigationFooter, String navigationFooterCallbackPrefix) {
-        return getPagedInlineKeyboardButtons(buttons, DEFAULT_COLUMNS, DEFAULT_ROWS, withNavigationFooter, navigationFooterCallbackPrefix, false);
+        return getPagedInlineKeyboardButtons(buttons, DEFAULT_COLUMNS, DEFAULT_ROWS, withNavigationFooter, navigationFooterCallbackPrefix, false, false);
     }
 
     @Override
@@ -27,7 +28,8 @@ public class InlineKeyboardServiceImpl implements InlineKeyboardService {
                 long rows,
                 boolean withNavigationFooter,
                 String navigationFooterCallbackPrefix,
-                boolean withCheckmark
+                boolean withCheckmark,
+                boolean withClose
             )
     {
         var listOfPages = new ArrayList<List<List<InlineKeyboardButton>>>();
@@ -59,7 +61,7 @@ public class InlineKeyboardServiceImpl implements InlineKeyboardService {
             }
 
             if (withNavigationFooter)
-                pageRows.add(getNavigationFooter(page, pagesNeeded, navigationFooterCallbackPrefix, withCheckmark));
+                pageRows.add(getNavigationFooter(page, pagesNeeded, navigationFooterCallbackPrefix, withCheckmark, withClose));
 
             listOfPages.add(pageRows);
         }
@@ -68,8 +70,9 @@ public class InlineKeyboardServiceImpl implements InlineKeyboardService {
     }
 
     @Override
-    public List<InlineKeyboardButton> getNavigationFooter(Long zeroBasedPageIndex, Long totalAmountOfPages, String callbackPrefix, boolean withCheckmark) {
+    public List<InlineKeyboardButton> getNavigationFooter(Long zeroBasedPageIndex, Long totalAmountOfPages, String callbackPrefix, boolean withCheckmark, boolean withClose) {
         var prefix = "";
+        ArrayList<InlineKeyboardButton> additionalButtons = new ArrayList<>();
 
         if (!callbackPrefix.isEmpty() || !callbackPrefix.isBlank())
             prefix = String.format("%s-", callbackPrefix);
@@ -87,9 +90,16 @@ public class InlineKeyboardServiceImpl implements InlineKeyboardService {
             var buttonCheckmark = new InlineKeyboardButton(localizationService.getString("label.checkmark"));
             buttonCheckmark.setCallbackData(String.format("%s%s", prefix, CALLBACK_NAVIGATION_CONFIRM));
 
-            return List.of(buttonBack, buttonForward, buttonPages, buttonCheckmark);
+            additionalButtons.add(buttonCheckmark);
         }
 
-        return List.of(buttonBack, buttonForward, buttonPages);
+        if (withClose) {
+            var buttonClose = new InlineKeyboardButton(localizationService.getString("label.close"));
+            buttonClose.setCallbackData(String.format("%s%s", prefix, CALLBACK_NAVIGATION_CLOSE));
+
+            additionalButtons.add(buttonClose);
+        }
+
+        return Stream.concat(Stream.of(buttonBack, buttonForward, buttonPages), additionalButtons.stream()).toList();
     }
 }

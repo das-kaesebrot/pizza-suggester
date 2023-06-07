@@ -11,6 +11,7 @@ public interface InlineKeyboardService {
     public final String CALLBACK_NAVIGATION_BACK = "back";
     public final String CALLBACK_NAVIGATION_PAGE = "invalid";
     public final String CALLBACK_NAVIGATION_CONFIRM = "confirm";
+    public final String CALLBACK_NAVIGATION_CLOSE = "close-menu";
 
     /**
      * Rows and columns use default values {@link #DEFAULT_COLUMNS} and {@link #DEFAULT_ROWS}. A checkmark is not inserted in the navigation.
@@ -28,9 +29,10 @@ public interface InlineKeyboardService {
      * @param withNavigationFooter Whether to add a footer for navigation purposes (back/forward buttons, page number, etc)
      * @param navigationFooterCallbackPrefix Prefix to use for generating navigation buttons. Can be null or empty.
      * @param navigationWithCheckmarkButton Whether to add a checkmark button to the navigation footer.
+     * @param navigationWithCloseButton Whether to add a Close button to the navigation footer.
      * @return A list containing all pages with the corresponding data
      */
-    List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtons(List<InlineKeyboardButton> buttons, long columns, long rows, boolean withNavigationFooter, String navigationFooterCallbackPrefix, boolean navigationWithCheckmarkButton);
+    List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtons(List<InlineKeyboardButton> buttons, long columns, long rows, boolean withNavigationFooter, String navigationFooterCallbackPrefix, boolean navigationWithCheckmarkButton, boolean navigationWithCloseButton);
 
 
     /**
@@ -38,7 +40,8 @@ public interface InlineKeyboardService {
      * @param totalAmountOfPages Total amount of pages
      * @param callbackPrefix Prefix to use for callback data. Can be null or empty.
      * @param withCheckmark Whether to add a checkmark button to the navigation footer.
+     * @param withClose Whether to add a Close button to the navigation footer.
      * @return A list of keyboard buttons to be used in an inline keyboard.
      */
-    List<InlineKeyboardButton> getNavigationFooter(Long zeroBasedPageIndex, Long totalAmountOfPages, String callbackPrefix, boolean withCheckmark);
+    List<InlineKeyboardButton> getNavigationFooter(Long zeroBasedPageIndex, Long totalAmountOfPages, String callbackPrefix, boolean withCheckmark, boolean withClose);
 }
