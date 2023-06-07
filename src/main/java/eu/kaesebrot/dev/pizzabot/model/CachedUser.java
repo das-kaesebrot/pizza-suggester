@@ -27,6 +27,8 @@ public class CachedUser implements Serializable {
     @JoinColumn(name = "adminkey_id")
     private AdminKey adminKey;
 
+    private boolean isSuperAdmin;
+
     @CreationTimestamp
     @Column(nullable = false)
     private Timestamp createdAt;
@@ -83,8 +85,18 @@ public class CachedUser implements Serializable {
         this.adminKey = adminKey;
     }
 
+    public void setAdminKeyAsSuperAdmin(AdminKey adminKey) {
+        setAdminKey(adminKey);
+
+        this.isSuperAdmin = true;
+    }
+
     public boolean isAdmin() {
         return adminKey != null;
+    }
+
+    public boolean isSuperAdmin() {
+        return isAdmin() && isSuperAdmin;
     }
 
     public UserDiet getUserDiet() {
