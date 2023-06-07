@@ -1,6 +1,7 @@
 package eu.kaesebrot.dev.service;
 
 import eu.kaesebrot.dev.model.CachedUser;
+import eu.kaesebrot.dev.repository.CachedUserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.locks.ReadWriteLock;

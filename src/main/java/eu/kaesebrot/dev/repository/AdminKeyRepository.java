@@ -1,4 +1,4 @@
-package eu.kaesebrot.dev.service;
+package eu.kaesebrot.dev.repository;
 
 import eu.kaesebrot.dev.model.AdminKey;
 import org.springframework.data.jpa.repository.JpaRepository;

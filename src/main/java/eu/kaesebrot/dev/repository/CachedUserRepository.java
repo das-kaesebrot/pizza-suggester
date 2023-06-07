@@ -1,4 +1,4 @@
-package eu.kaesebrot.dev.service;
+package eu.kaesebrot.dev.repository;
 
 import eu.kaesebrot.dev.model.CachedUser;
 import org.springframework.data.jpa.repository.JpaRepository;

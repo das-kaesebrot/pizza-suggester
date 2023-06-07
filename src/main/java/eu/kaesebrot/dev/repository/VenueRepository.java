@@ -1,4 +1,4 @@
-package eu.kaesebrot.dev.service;
+package eu.kaesebrot.dev.repository;
 
 import eu.kaesebrot.dev.model.Venue;
 import org.jvnet.hk2.annotations.Service;
