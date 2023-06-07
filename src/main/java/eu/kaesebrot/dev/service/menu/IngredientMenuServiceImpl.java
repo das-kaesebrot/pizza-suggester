@@ -1,6 +1,9 @@
-package eu.kaesebrot.dev.service;
+package eu.kaesebrot.dev.service.menu;
 
 import eu.kaesebrot.dev.model.Venue;
+import eu.kaesebrot.dev.repository.VenueRepository;
+import eu.kaesebrot.dev.service.InlineKeyboardService;
+import eu.kaesebrot.dev.service.LocalizationService;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;

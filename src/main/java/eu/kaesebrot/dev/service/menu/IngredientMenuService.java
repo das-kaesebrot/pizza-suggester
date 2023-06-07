@@ -1,4 +1,4 @@
-package eu.kaesebrot.dev.service;
+package eu.kaesebrot.dev.service.menu;
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 

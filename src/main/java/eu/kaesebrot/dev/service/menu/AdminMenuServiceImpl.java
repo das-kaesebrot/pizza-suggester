@@ -1,8 +1,12 @@
-package eu.kaesebrot.dev.service;
+package eu.kaesebrot.dev.service.menu;
 
 import eu.kaesebrot.dev.bot.PizzaSuggesterBot;
 import eu.kaesebrot.dev.enums.UserState;
 import eu.kaesebrot.dev.model.CachedUser;
+import eu.kaesebrot.dev.repository.AdminKeyRepository;
+import eu.kaesebrot.dev.repository.CachedUserRepository;
+import eu.kaesebrot.dev.repository.VenueRepository;
+import eu.kaesebrot.dev.service.LocalizationService;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +28,8 @@ import java.util.*;
 import java.util.stream.Stream;
 
 @Service
-public class AdminServiceImpl implements AdminService {
-    Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);
+public class AdminMenuServiceImpl implements AdminMenuService {
+    Logger logger = LoggerFactory.getLogger(AdminMenuServiceImpl.class);
     private final VenueRepository venueRepository;
     private final CachedUserRepository cachedUserRepository;
     private final AdminKeyRepository adminKeyRepository;
@@ -33,15 +37,15 @@ public class AdminServiceImpl implements AdminService {
     private final LocalizationService localizationService;
     private HashMap<Long, List<Long>> menuChatMessagesForUser;
 
-    public final String CALLBACK_ADMIN_VENUS = AdminService.CALLBACK_PREFIX + "-edit-venues";
-    public final String CALLBACK_ADMIN_REDEEM = AdminService.CALLBACK_PREFIX + "-key-redeem";
-    public final String CALLBACK_ADMIN_CHANGE_PERSONAL_VENUE = AdminService.CALLBACK_PREFIX + "-change-personal-venue";
-    public final String CALLBACK_ADMIN_CHANGE_DIET = AdminService.CALLBACK_PREFIX + "-change-diet";
-    public final String CALLBACK_ADMIN_ABOUT_ME = AdminService.CALLBACK_PREFIX + "-about-me";
-    public final String CALLBACK_ADMIN_FORGET_ME = AdminService.CALLBACK_PREFIX + "-forget-me";
-    public final String CALLBACK_ADMIN_CLOSE = AdminService.CALLBACK_PREFIX + "-close-menu";
+    public final String CALLBACK_ADMIN_VENUS = AdminMenuService.CALLBACK_PREFIX + "-edit-venues";
+    public final String CALLBACK_ADMIN_REDEEM = AdminMenuService.CALLBACK_PREFIX + "-key-redeem";
+    public final String CALLBACK_ADMIN_CHANGE_PERSONAL_VENUE = AdminMenuService.CALLBACK_PREFIX + "-change-personal-venue";
+    public final String CALLBACK_ADMIN_CHANGE_DIET = AdminMenuService.CALLBACK_PREFIX + "-change-diet";
+    public final String CALLBACK_ADMIN_ABOUT_ME = AdminMenuService.CALLBACK_PREFIX + "-about-me";
+    public final String CALLBACK_ADMIN_FORGET_ME = AdminMenuService.CALLBACK_PREFIX + "-forget-me";
+    public final String CALLBACK_ADMIN_CLOSE = AdminMenuService.CALLBACK_PREFIX + "-close-menu";
 
-    public AdminServiceImpl(VenueRepository venueRepository, CachedUserRepository cachedUserRepository, AdminKeyRepository adminKeyRepository, UserMenuService userMenuService, LocalizationService localizationService) {
+    public AdminMenuServiceImpl(VenueRepository venueRepository, CachedUserRepository cachedUserRepository, AdminKeyRepository adminKeyRepository, UserMenuService userMenuService, LocalizationService localizationService) {
         this.venueRepository = venueRepository;
         this.cachedUserRepository = cachedUserRepository;
         this.adminKeyRepository = adminKeyRepository;
@@ -69,7 +73,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public BotApiMethod<?> handleAdminCallback(CachedUser user, CallbackQuery query, PizzaSuggesterBot bot) throws TelegramApiException {
+    public BotApiMethod<?> handleCallback(CachedUser user, CallbackQuery query, PizzaSuggesterBot bot) throws TelegramApiException {
 
         AnswerCallbackQuery reply = new AnswerCallbackQuery(query.getId());
 
@@ -120,7 +124,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public boolean deleteCallbackMenuAfterHandling(CallbackQuery query) {
+    public boolean canCallbackMenuBeDeletedAfterHandling(CallbackQuery query) {
         switch (query.getData()) {
             case CALLBACK_ADMIN_ABOUT_ME:
                 return false;
