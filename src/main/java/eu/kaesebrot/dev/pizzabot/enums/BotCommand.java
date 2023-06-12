@@ -5,7 +5,7 @@ public enum BotCommand {
     RANDOM,
     HELP,
     ABOUT,
-    ADMIN,
+    SETTINGS,
     CARLOS,
     START,
     CONTACT,

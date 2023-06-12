@@ -161,7 +161,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                     logger.debug("Mapped command string '{}' to enum type '{}'", messageText, command);
 
                     if (
-                            command != BotCommand.ADMIN
+                            !(command == BotCommand.SETTINGS)
                             && (user.hasState(UserState.SELECTING_DIET)
                                 || user.hasState(UserState.SELECTING_VENUE))
                     )
@@ -188,7 +188,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                             reply.setText(localizationService.getString("error.notimplemented"));
                             return reply;
 
-                        case ADMIN:
+                        case SETTINGS:
                             reply.setText(localizationService.getString("reply.admin"));
                             reply.setReplyMarkup(adminMenuService.getAdminMenu(user));
                             return reply;
