@@ -1,5 +1,7 @@
 package eu.kaesebrot.dev.pizzabot.utils;
 
+import java.util.List;
+
 public final class StringUtils {
     private StringUtils() {}
 
@@ -17,5 +19,19 @@ public final class StringUtils {
 
     public static String prependCallbackPrefix(String prefix, String data) {
         return String.format("%s-%s", prefix, data);
+    }
+
+    /** Escapes the following characters with a preceding backslash:<br>
+     * <code>'_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'</code><br>
+     * Also see the <a href="https://core.telegram.org/bots/api#markdownv2-style">Telegram Bot API documentation</a>.
+     * @param data A string to escape
+     * @return The escaped string
+     */
+    public static String escapeForMarkdownV2Format(String data) {
+        for (var illegalChar: List.of('_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!')) {
+            data = data.replace(illegalChar.toString(), String.format("\\%c", illegalChar));
+        }
+
+        return data;
     }
 }

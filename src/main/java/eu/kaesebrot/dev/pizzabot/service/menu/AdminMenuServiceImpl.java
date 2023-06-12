@@ -230,9 +230,9 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     }
 
     private String getAboutData(CachedUser user) {
-        var createdAt = user.getCreatedAt().toString().replace("-", "\\-").replace(".", "\\.");
-        var modifiedAt = user.getModifiedAt().toString().replace("-", "\\-").replace(".", "\\.");
-        var userState = user.getState().toString().replace("_", "\\_");
+        var createdAt = StringUtils.escapeForMarkdownV2Format(user.getCreatedAt().toString());
+        var modifiedAt = StringUtils.escapeForMarkdownV2Format(user.getModifiedAt().toString());
+        var userState = StringUtils.escapeForMarkdownV2Format(user.getState().toString());
 
         return String.format("__*User %s*__\nAdmin: %s\nDiet: %s\nSelected venue: %s\nUser states: %s\nFirst seen: _%s_\nLast modified: _%s_", user.getChatId(), user.isAdmin(), user.getUserDiet(), user.getSelectedVenue(), userState, createdAt, modifiedAt);
     }
