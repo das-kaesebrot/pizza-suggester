@@ -34,4 +34,18 @@ public final class StringUtils {
 
         return data;
     }
+
+    /** Escapes the following characters with a preceding backslash:<br>
+     * <code>'`', '\'</code><br>
+     * Also see the <a href="https://core.telegram.org/bots/api#markdownv2-style">Telegram Bot API documentation</a>.
+     * @param data A string to escape
+     * @return The escaped string
+     */
+    public static String escapeCodeForMarkdownV2Format(String data) {
+        for (var illegalChar: List.of('`', '\\')) {
+            data = data.replace(illegalChar.toString(), String.format("\\%c", illegalChar));
+        }
+
+        return data;
+    }
 }

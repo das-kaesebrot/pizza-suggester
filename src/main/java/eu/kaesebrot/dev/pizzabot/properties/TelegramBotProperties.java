@@ -13,6 +13,7 @@ public class TelegramBotProperties {
     private String webhookBaseUrl;
     private String primaryLocale;
     private String[] supportedLocales;
+    private boolean debug = false;
 
     public String getBotUsername() {
         return botUsername;
@@ -52,5 +53,13 @@ public class TelegramBotProperties {
 
     public void setSupportedLocales(String[] supportedLocales) {
         this.supportedLocales = supportedLocales;
+    }
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
     }
 }

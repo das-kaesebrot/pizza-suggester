@@ -14,6 +14,7 @@ import eu.kaesebrot.dev.pizzabot.properties.TelegramBotProperties;
 import eu.kaesebrot.dev.pizzabot.repository.VenueRepository;
 import eu.kaesebrot.dev.pizzabot.service.menu.AdminMenuService;
 import eu.kaesebrot.dev.pizzabot.utils.CsvMimeTypeUtil;
+import eu.kaesebrot.dev.pizzabot.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -204,7 +205,13 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
         } catch (TelegramApiException | IOException e) {
             logger.error("Exception encountered while handling an update", e);
-            reply.setText(localizationService.getString("error.generic"));
+            if (properties.isDebug()) {
+                reply.setText(String.format("Encountered exception:\n```java\n%s\n```", StringUtils.escapeCodeForMarkdownV2Format(e.toString())));
+                reply.setParseMode(ParseMode.MARKDOWNV2);
+            } else {
+                reply.setText(localizationService.getString("error.generic"));
+            }
+
             return reply;
         }
     }
