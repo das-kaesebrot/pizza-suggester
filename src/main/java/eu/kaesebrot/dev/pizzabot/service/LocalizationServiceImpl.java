@@ -2,6 +2,7 @@ package eu.kaesebrot.dev.pizzabot.service;
 
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.properties.TelegramBotProperties;
+import eu.kaesebrot.dev.pizzabot.utils.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Locale;
@@ -27,7 +28,7 @@ public class LocalizationServiceImpl implements LocalizationService {
     public String getString(String key, CachedUser user) {
         var langTag = user.getLanguageTag();
 
-        if (langTag == null || langTag.isBlank() || langTag.isEmpty())
+        if (StringUtils.isNullOrEmpty(langTag))
             langTag = defaultLocale;
 
         return getString(key, langTag);
@@ -38,10 +39,5 @@ public class LocalizationServiceImpl implements LocalizationService {
         return ResourceBundle
                 .getBundle(BASE_NAME, Locale.forLanguageTag(languageTag))
                 .getString(key);
-    }
-
-    @Override
-    public String replaceVariable(String variableName, String variableContent, String formattedString) {
-        return formattedString.replace(String.format("$%s", variableName), variableContent);
     }
 }

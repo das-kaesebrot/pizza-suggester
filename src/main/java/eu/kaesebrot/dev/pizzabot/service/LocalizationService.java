@@ -6,5 +6,4 @@ public interface LocalizationService {
     String getString(String key);
     String getString(String key, String languageTag);
     String getString(String key, CachedUser user);
-    String replaceVariable(String variableName, String variableContent, String formattedString);
 }

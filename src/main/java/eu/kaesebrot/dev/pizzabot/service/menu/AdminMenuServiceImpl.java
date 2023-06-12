@@ -8,6 +8,7 @@ import eu.kaesebrot.dev.pizzabot.repository.CachedUserRepository;
 import eu.kaesebrot.dev.pizzabot.repository.VenueRepository;
 import eu.kaesebrot.dev.pizzabot.service.InlineKeyboardService;
 import eu.kaesebrot.dev.pizzabot.service.LocalizationService;
+import eu.kaesebrot.dev.pizzabot.utils.StringUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -285,10 +286,10 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     }
 
     private String stripCallbackPrefix(String data) {
-        return data.replace(String.format("%s-", CALLBACK_PREFIX), "");
+        return StringUtils.stripCallbackPrefix(CALLBACK_PREFIX, data);
     }
 
     private String prependCallbackPrefix(String data) {
-        return String.format("%s-%s", CALLBACK_PREFIX, data);
+        return StringUtils.prependCallbackPrefix(CALLBACK_PREFIX, data);
     }
 }

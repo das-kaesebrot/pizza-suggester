@@ -1,5 +1,6 @@
 package eu.kaesebrot.dev.pizzabot.service;
 
+import eu.kaesebrot.dev.pizzabot.utils.StringUtils;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
@@ -74,7 +75,7 @@ public class InlineKeyboardServiceImpl implements InlineKeyboardService {
         var prefix = "";
         ArrayList<InlineKeyboardButton> additionalButtons = new ArrayList<>();
 
-        if (!callbackPrefix.isEmpty() || !callbackPrefix.isBlank())
+        if (!StringUtils.isNullOrEmpty(callbackPrefix))
             prefix = String.format("%s-", callbackPrefix);
 
         var buttonBack = new InlineKeyboardButton(localizationService.getString("label.back"));
