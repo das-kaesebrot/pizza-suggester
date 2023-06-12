@@ -50,7 +50,7 @@ public class IngredientMenuServiceImpl implements IngredientMenuService {
         venueInlineKeyboards.put(venueId,
                 inlineKeyboardService.getPagedInlineKeyboardButtons(
                         listOfIngredientButtons, maxIngredientKeyboardColumns, maxIngredientKeyboardRows,
-                        true, CALLBACK_PREFIX, true));
+                        true, CALLBACK_PREFIX, true, false));
     }
 
     @Override
