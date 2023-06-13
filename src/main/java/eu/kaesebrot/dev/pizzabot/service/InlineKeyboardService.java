@@ -5,13 +5,14 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import java.util.List;
 
 public interface InlineKeyboardService {
-    public final Long DEFAULT_COLUMNS = 2L;
-    public final Long DEFAULT_ROWS = 3L;
-    public final String CALLBACK_NAVIGATION_FORWARD = "fwd";
-    public final String CALLBACK_NAVIGATION_BACK = "back";
-    public final String CALLBACK_NAVIGATION_PAGE = "invalid";
-    public final String CALLBACK_NAVIGATION_CONFIRM = "confirm";
-    public final String CALLBACK_NAVIGATION_CLOSE = "close-menu";
+    Long DEFAULT_COLUMNS = 2L;
+    Long DEFAULT_ROWS = 3L;
+    String CALLBACK_NAVIGATION_FORWARD = "fwd";
+    String CALLBACK_NAVIGATION_BACK = "back";
+    String CALLBACK_NAVIGATION_GETPAGE = "getpage";
+    String CALLBACK_NAVIGATION_PAGE = "invalid";
+    String CALLBACK_NAVIGATION_CONFIRM = "confirm";
+    String CALLBACK_NAVIGATION_CLOSE = "close-menu";
 
     /**
      * Rows and columns use default values {@link #DEFAULT_COLUMNS} and {@link #DEFAULT_ROWS}. A checkmark is not inserted in the navigation.

@@ -20,6 +20,7 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -76,6 +77,8 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         AnswerCallbackQuery reply = new AnswerCallbackQuery(query.getId());
 
         var sanitizedData = stripCallbackPrefix(query.getData());
+        int pageNumber = getPageNumberFromCallbackData(sanitizedData);
+        sanitizedData = stripPageNumberFromCallbackData(sanitizedData);
 
         switch (sanitizedData) {
             case CALLBACK_ADMIN_VENUS:
@@ -109,13 +112,25 @@ public class AdminMenuServiceImpl implements AdminMenuService {
 
             case CALLBACK_ADMIN_FORGET_ME:
                 cachedUserRepository.delete(user);
-
                 bot.execute(new SendMessage(user.getChatId().toString(), localizationService.getString("reply.forgetme")));
                 break;
 
 
             case InlineKeyboardService.CALLBACK_NAVIGATION_CLOSE:
                 reply.setText(localizationService.getString("admin.closed"));
+                break;
+
+            case InlineKeyboardService.CALLBACK_NAVIGATION_PAGE:
+                reply.setText(localizationService.getString("admin.pagepress"));
+                break;
+
+            case InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE:
+                var editMessage = new EditMessageReplyMarkup();
+                editMessage.setChatId(user.getChatId().toString());
+                editMessage.setMessageId(query.getMessage().getMessageId());
+                editMessage.setReplyMarkup(getAdminMenuMarkup(user, pageNumber));
+
+                bot.execute(editMessage);
                 break;
 
             default:
@@ -127,11 +142,12 @@ public class AdminMenuServiceImpl implements AdminMenuService {
 
     @Override
     public boolean canCallbackMenuBeDeletedAfterHandling(CallbackQuery query) {
-        switch (stripCallbackPrefix(query.getData())) {
+        switch (stripPageNumberFromCallbackData(stripCallbackPrefix(query.getData()))) {
             case CALLBACK_ADMIN_ABOUT_ME:
             case InlineKeyboardService.CALLBACK_NAVIGATION_FORWARD:
             case InlineKeyboardService.CALLBACK_NAVIGATION_BACK:
             case InlineKeyboardService.CALLBACK_NAVIGATION_PAGE:
+            case InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE:
                 return false;
 
             default:
@@ -294,7 +310,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         var modifiedAt = StringUtils.escapeForMarkdownV2Format(user.getModifiedAt().toString());
         var userState = StringUtils.escapeForMarkdownV2Format(user.getState().toString());
 
-        return String.format("__*User %s*__\nAdmin: %s\nDiet: %s\nSelected venue: %s\nUser states: %s\nFirst seen: _%s_\nLast modified: _%s_", user.getChatId(), user.isAdmin(), user.getUserDiet(), user.getSelectedVenue(), userState, createdAt, modifiedAt);
+        return String.format("__*User %s*__\nSuperAdmin: %s\nAdmin: %s\nDiet: %s\nSelected venue: %s\nUser states: %s\nFirst seen: _%s_\nLast modified: _%s_", user.getChatId(), user.isSuperAdmin(), user.isAdmin(), user.getUserDiet(), user.getSelectedVenue(), userState, createdAt, modifiedAt);
     }
 
     private Stream<InlineKeyboardButton> getLimitedAdminMenuButtons() {
@@ -351,5 +367,16 @@ public class AdminMenuServiceImpl implements AdminMenuService {
 
     private String prependCallbackPrefix(String data) {
         return StringUtils.prependCallbackPrefix(CALLBACK_PREFIX, data);
+    }
+
+    private int getPageNumberFromCallbackData(String data) {
+        if (data.startsWith(InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE))
+            return Integer.parseInt(data.replace(String.format("%s--", InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE), ""));
+
+        return 0;
+    }
+
+    private String stripPageNumberFromCallbackData(String data) {
+        return data.replaceAll("--\\d*$", "");
     }
 }
