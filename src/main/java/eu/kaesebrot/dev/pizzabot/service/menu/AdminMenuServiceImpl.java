@@ -163,7 +163,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
 
         // don't handle if we're not expecting the user to send us a key
         if (!user.hasState(UserState.SENDING_ADMIN_KEY))
-            throw new RuntimeException(String.format("No admin key expected!"));
+            throw new RuntimeException("No admin key expected!");
 
         var adminKeyOptional = adminKeyRepository
                 .findById(
