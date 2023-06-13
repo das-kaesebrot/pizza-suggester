@@ -179,10 +179,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                             return reply;
 
                         case PIZZA:
-                            // TODO set reply text for pizza selection
-                            reply.setText(localizationService.getString("error.notimplemented"));
-                            // reply.setReplyMarkup(inlineKeyboardService.getInitialKeyboard(0L));
-                            return reply;
+                            return userMenuService.getIngredientSelectionMenu(user);
 
                         case RANDOM:
                             return userMenuService.getRandomPizza(user);
