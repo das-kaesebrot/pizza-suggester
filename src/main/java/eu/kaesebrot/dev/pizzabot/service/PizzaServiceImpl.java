@@ -7,12 +7,14 @@ import eu.kaesebrot.dev.pizzabot.model.Venue;
 import eu.kaesebrot.dev.pizzabot.repository.VenueRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
 import java.util.Map.Entry;
 
+@Service
 public class PizzaServiceImpl implements PizzaService {
     Logger logger = LoggerFactory.getLogger(PizzaServiceImpl.class);
     private final VenueRepository venueRepository;
