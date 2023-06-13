@@ -27,8 +27,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.starter.SpringWebhookBot;
 
-import java.io.IOException;
-
 @Component
 public class PizzaSuggesterBot extends SpringWebhookBot {
     Logger logger = LoggerFactory.getLogger(PizzaSuggesterBot.class);
@@ -91,7 +89,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         Long chatId;
 
         if (!update.hasMessage() && !update.hasCallbackQuery()) {
-            logger.error(String.format("Got an invalid update: %s", update.toString()));
+            logger.error(String.format("Got an invalid update: %s", update));
             throw new RuntimeException("Can't handle update!");
         }
 
