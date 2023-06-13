@@ -185,9 +185,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                             return reply;
 
                         case RANDOM:
-                            // TODO implement random pizza selection
-                            reply.setText(localizationService.getString("error.notimplemented"));
-                            return reply;
+                            return userMenuService.getRandomPizza(user);
 
                         case SETTINGS:
                             reply.setText(localizationService.getString("reply.admin"));

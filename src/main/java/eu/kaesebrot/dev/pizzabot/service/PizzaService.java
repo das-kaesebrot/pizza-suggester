@@ -14,4 +14,5 @@ public interface PizzaService {
     List<Pizza> getMatchingPizzasByIngredientStrings(Long venueId, List<String> ingredients);
     List<Pizza> filterSortAndTrimListOfPizzasForUser(CachedUser user, List<Pizza> allMatches);
     String resolveIngredientFromIndex(Long venueId, int ingredientIndex);
+    Pizza getRandomPizza(Venue venue, CachedUser user);
 }

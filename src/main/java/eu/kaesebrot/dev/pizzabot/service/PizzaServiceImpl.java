@@ -83,6 +83,21 @@ public class PizzaServiceImpl implements PizzaService {
         return getVenueIngredients(venueId).get(ingredientIndex);
     }
 
+    @Override
+    public Pizza getRandomPizza(Venue venue, CachedUser user) {
+        Random rand = new Random();
+
+        var menu = venue.getPizzaMenu();
+
+        while (true) {
+            var randPizza = menu.get(rand.nextInt(menu.size()));
+
+            // check if pizza is compatible with user diet before returning
+            if (randPizza.getMinimumUserDiet().ordinal() >= user.getUserDiet().ordinal())
+                return randPizza;
+        }
+    }
+
     private void generateVenueIngredientCache(Venue venue) {
         if ((venueIngredients.containsKey(venue.getId()) || venueIngredients.get(venue.getId()) != null)
             && venueIngredients.get(venue.getId()).createdAt().after(venue.getModifiedAt()))
