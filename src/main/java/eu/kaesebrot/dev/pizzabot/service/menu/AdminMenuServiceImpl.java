@@ -178,8 +178,13 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         var adminKey = adminKeyOptional.get();
 
         try {
-            user.setAdminKey(adminKey);
+            if (adminKey.isSuperAdminKey())
+                user.setAdminKeyAsSuperAdmin(adminKey);
+            else
+                user.setAdminKey(adminKey);
+
             user.removeState(UserState.SENDING_ADMIN_KEY);
+
             cachedUserRepository.saveAndFlush(user);
         } catch (RuntimeException e) {
             logger.error(String.format("Encountered an exception while redeeming admin key for user %s", user), e);
