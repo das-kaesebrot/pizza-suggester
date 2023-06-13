@@ -7,4 +7,6 @@ public interface UserMenuService extends MenuService {
     String CALLBACK_PREFIX = "usermenu";
     SendMessage getDietSelection(CachedUser user);
     SendMessage getVenueSelection(CachedUser user);
+    SendMessage getRandomPizza(CachedUser user);
+    SendMessage getIngredientSelectionMenu(CachedUser user);
 }
