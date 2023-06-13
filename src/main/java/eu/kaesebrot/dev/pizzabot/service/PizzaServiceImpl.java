@@ -74,7 +74,7 @@ public class PizzaServiceImpl implements PizzaService {
     public List<Pizza> filterSortAndTrimListOfPizzasForUser(CachedUser user, List<Pizza> allMatches) {
         return allMatches
                 .stream()
-                .filter(p -> p.getMinimumUserDiet().ordinal() <= user.getUserDiet().ordinal())
+                .filter(p -> p.getMinimumUserDiet().ordinal() >= user.getUserDiet().ordinal())
                 .sorted(Comparator.comparing(Pizza::getPrice))
                 .limit(MAX_PIZZA_RESULTS)
                 .toList();
