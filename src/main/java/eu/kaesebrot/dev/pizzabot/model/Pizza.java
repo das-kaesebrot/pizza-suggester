@@ -19,6 +19,7 @@ public class Pizza implements Serializable {
     private Long id;
 
     private String menuNumber;
+    private String name;
 
     private BigDecimal price;
     @ElementCollection
@@ -41,14 +42,16 @@ public class Pizza implements Serializable {
     public Pizza() {
     }
 
-    public Pizza(String menuNumber, BigDecimal price, Venue venue) {
+    public Pizza(String menuNumber, String name, BigDecimal price, Venue venue) {
         this.menuNumber = menuNumber;
+        this.name = name;
         this.price = price;
         this.venue = venue;
     }
 
-    public Pizza(String menuNumber, BigDecimal price, Set<String> ingredients, UserDiet minimumUserDiet, Venue venue) {
+    public Pizza(String menuNumber, String name, BigDecimal price, Set<String> ingredients, UserDiet minimumUserDiet, Venue venue) {
         this.menuNumber = menuNumber;
+        this.name = name;
         this.price = price;
         this.ingredients = ingredients;
         this.minimumUserDiet = minimumUserDiet;
@@ -57,6 +60,10 @@ public class Pizza implements Serializable {
 
     public void setMenuNumber(String menuNumber) {
         this.menuNumber = menuNumber;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setPrice(BigDecimal price) {
@@ -77,6 +84,10 @@ public class Pizza implements Serializable {
 
     public String getMenuNumber() {
         return menuNumber;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public BigDecimal getPrice() {
