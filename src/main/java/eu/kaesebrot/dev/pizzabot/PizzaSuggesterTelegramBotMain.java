@@ -8,10 +8,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 
 @SpringBootApplication
 @EnableConfigurationProperties(TelegramBotProperties.class)
-public class PizzaSuggesterTelegramBot {
+public class PizzaSuggesterTelegramBotMain {
 
     public static void main(String[] args) {
-        SpringApplication app = new SpringApplication(PizzaSuggesterTelegramBot.class);
+        SpringApplication app = new SpringApplication(PizzaSuggesterTelegramBotMain.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.run(args);
     }
