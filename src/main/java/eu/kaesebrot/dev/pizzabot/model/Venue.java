@@ -6,6 +6,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -24,7 +25,7 @@ public class Venue implements Serializable {
     private String description;
 
     @OneToMany(mappedBy = "venue")
-    private Set<Pizza> pizzaMenu;
+    private List<Pizza> pizzaMenu;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "selectedVenue")
     private Set<CachedUser> usersUsingVenue;
@@ -50,7 +51,7 @@ public class Venue implements Serializable {
         this.venueInfo = venueInfo;
     }
 
-    public Venue(String name, String description, Set<Pizza> pizzaMenu, VenueInfo venueInfo) {
+    public Venue(String name, String description, List<Pizza> pizzaMenu, VenueInfo venueInfo) {
         this.name = name;
         this.description = description;
         this.pizzaMenu = pizzaMenu;
@@ -73,7 +74,7 @@ public class Venue implements Serializable {
         return description;
     }
 
-    public Set<Pizza> getPizzaMenu() {
+    public List<Pizza> getPizzaMenu() {
         return pizzaMenu;
     }
 
@@ -101,7 +102,7 @@ public class Venue implements Serializable {
         this.description = description;
     }
 
-    public void setPizzaMenu(Set<Pizza> pizzaMenu) {
+    public void setPizzaMenu(List<Pizza> pizzaMenu) {
         this.pizzaMenu = pizzaMenu;
     }
 
