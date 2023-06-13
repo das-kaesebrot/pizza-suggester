@@ -201,7 +201,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
             return reply;
 
-        } catch (TelegramApiException | IOException e) {
+        } catch (Exception e) {
             logger.error("Exception encountered while handling an update", e);
             if (properties.isDebug()) {
                 reply.setText(String.format("Encountered exception:\n```java\n%s\n```", StringUtils.escapeCodeForMarkdownV2Format(e.toString())));
