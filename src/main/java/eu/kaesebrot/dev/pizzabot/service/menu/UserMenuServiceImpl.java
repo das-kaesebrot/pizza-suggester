@@ -34,12 +34,14 @@ public class UserMenuServiceImpl implements UserMenuService {
     private final CachedUserRepository cachedUserRepository;
     private final VenueRepository venueRepository;
     private final PizzaService pizzaService;
+    private final IngredientMenuService ingredientMenuService;
     private final LocalizationService localizationService;
 
-    public UserMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, PizzaService pizzaService, LocalizationService localizationService) {
+    public UserMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, PizzaService pizzaService, IngredientMenuService ingredientMenuService, LocalizationService localizationService) {
         this.cachedUserRepository = cachedUserRepository;
         this.venueRepository = venueRepository;
         this.pizzaService = pizzaService;
+        this.ingredientMenuService = ingredientMenuService;
         this.localizationService = localizationService;
     }
 
@@ -150,8 +152,15 @@ public class UserMenuServiceImpl implements UserMenuService {
 
     @Override
     public SendMessage getIngredientSelectionMenu(CachedUser user) {
-        var reply = new SendMessage();
-        return null;
+        if (user.getSelectedVenue() == null)
+            throw new RuntimeException("No venue selected by user yet!");
+
+        SendMessage reply = new SendMessage(user.getChatId().toString(), localizationService.getString("pizza.random"));
+        reply.setParseMode(ParseMode.MARKDOWNV2);
+
+        reply.setReplyMarkup(ingredientMenuService.getInitialKeyboard(user.getSelectedVenue().getId()));
+
+        return reply;
     }
 
     private InlineKeyboardMarkup getVenueSelectionMarkup() {
