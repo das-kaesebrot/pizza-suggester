@@ -188,9 +188,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                             return userMenuService.getRandomPizza(user);
 
                         case SETTINGS:
-                            reply.setText(localizationService.getString("reply.admin"));
-                            reply.setReplyMarkup(adminMenuService.getAdminMenu(user));
-                            return reply;
+                            return adminMenuService.getAdminMenu(user);
 
                         case CARLOS:
                             break;
