@@ -63,9 +63,9 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
         // create an initial admin key if the repository is empty
         if (adminKeyRepository.count() <= 0) {
-            var firstAdminKey = new AdminKey();
+            var firstAdminKey = new AdminKey(true);
             adminKeyRepository.saveAndFlush(firstAdminKey);
-            logger.info(String.format("Created an initial admin key, use this key to gain admin permissions to the bot!\n\n\t*** ADMINKEY: %s ***\n\n", firstAdminKey));
+            logger.info(String.format("Created an initial super admin key, use this key to gain admin permissions to the bot!\n\n\t*** ADMINKEY: %s ***\n\n", firstAdminKey));
         }
     }
 

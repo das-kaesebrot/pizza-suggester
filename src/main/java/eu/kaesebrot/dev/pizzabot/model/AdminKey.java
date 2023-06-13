@@ -13,7 +13,14 @@ public class AdminKey {
     @OneToOne(mappedBy = "adminKey")
     private CachedUser claimant;
 
+    private boolean grantsSuperAdmin;
+
     public AdminKey() {
+        grantsSuperAdmin = false;
+    }
+
+    public AdminKey(boolean grantsSuperAdmin) {
+        this.grantsSuperAdmin = grantsSuperAdmin;
     }
 
     public UUID getKey() {
@@ -26,6 +33,10 @@ public class AdminKey {
 
     public boolean hasBeenClaimed() {
         return !(claimant == null);
+    }
+
+    public boolean isSuperAdminKey() {
+        return grantsSuperAdmin;
     }
 
     @Override
