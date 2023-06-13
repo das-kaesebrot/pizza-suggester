@@ -69,8 +69,7 @@ public class UserMenuServiceImpl implements UserMenuService {
         }
         else if (sanitizedData.startsWith(CALLBACK_DIET_PREFIX))
         {
-            var selectedDiet = query.getData();
-            selectedDiet = selectedDiet.replace(String.format("%s-", CALLBACK_DIET_PREFIX), "");
+            var selectedDiet = sanitizedData.replace(String.format("%s-", CALLBACK_DIET_PREFIX), "");
 
             user.setUserDiet(UserDiet.valueOf(selectedDiet.toUpperCase()));
             user.removeState(UserState.SELECTING_DIET);
