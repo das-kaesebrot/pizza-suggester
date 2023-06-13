@@ -4,6 +4,7 @@ public enum UserState {
     FREE,
     SELECTING_VENUE,
     SELECTING_DIET,
+    SELECTING_PIZZAS,
 
     // limited to non-admin users
     SENDING_ADMIN_KEY,
