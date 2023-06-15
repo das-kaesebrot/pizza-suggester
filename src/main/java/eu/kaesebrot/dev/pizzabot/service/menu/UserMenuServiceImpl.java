@@ -6,6 +6,7 @@ import eu.kaesebrot.dev.pizzabot.enums.UserState;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.model.Pizza;
 import eu.kaesebrot.dev.pizzabot.model.Venue;
+import eu.kaesebrot.dev.pizzabot.properties.VersionProperties;
 import eu.kaesebrot.dev.pizzabot.repository.CachedUserRepository;
 import eu.kaesebrot.dev.pizzabot.repository.VenueRepository;
 import eu.kaesebrot.dev.pizzabot.service.LocalizationService;
@@ -36,6 +37,7 @@ public class UserMenuServiceImpl implements UserMenuService {
     private final PizzaService pizzaService;
     private final IngredientMenuService ingredientMenuService;
     private final LocalizationService localizationService;
+    private final VersionProperties versionProperties;
 
     public UserMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, PizzaService pizzaService, IngredientMenuService ingredientMenuService, LocalizationService localizationService) {
         this.cachedUserRepository = cachedUserRepository;
@@ -43,6 +45,8 @@ public class UserMenuServiceImpl implements UserMenuService {
         this.pizzaService = pizzaService;
         this.ingredientMenuService = ingredientMenuService;
         this.localizationService = localizationService;
+
+        versionProperties = new VersionProperties();
     }
 
     @Override
@@ -162,6 +166,22 @@ public class UserMenuServiceImpl implements UserMenuService {
     public SendMessage getHelpMessage(CachedUser user) {
         var msg = new SendMessage(user.getChatId().toString(), localizationService.getString("reply.help"));
         msg.setParseMode(ParseMode.MARKDOWNV2);
+
+        return msg;
+    }
+
+    @Override
+    public SendMessage getAboutMessage(CachedUser user) {
+        var text = localizationService.getString("reply.about");
+        text = StringUtils.replacePropertiesVariable("bot_handle", "KantineBot", text);
+        text = StringUtils.replacePropertiesVariable("technical_name", "pizza-suggester", text);
+        text = StringUtils.replacePropertiesVariable("git_hash", versionProperties.getGitHash(), text);
+        text = StringUtils.replacePropertiesVariable("git_branch", versionProperties.getGitBranch(), text);
+        text = StringUtils.replacePropertiesVariable("build_date", versionProperties.getBuildDate().toString(), text);
+
+        var msg = new SendMessage(user.getChatId().toString(), text);
+        msg.setParseMode(ParseMode.MARKDOWNV2);
+        msg.disableWebPagePreview();
 
         return msg;
     }

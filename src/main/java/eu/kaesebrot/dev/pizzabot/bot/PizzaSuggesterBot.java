@@ -188,9 +188,11 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                         case SETTINGS:
                             return adminMenuService.getAdminMenu(user);
 
+                        case ABOUT:
+                            return userMenuService.getAboutMessage(user);
+
                         case CARLOS:
                         case CONTACT:
-                        case ABOUT:
                             // TODO
                             reply.setText(localizationService.getString("error.notimplemented"));
                             // reply.setReplyMarkup(inlineKeyboardService.getInitialKeyboard(0L));

@@ -10,5 +10,6 @@ public interface UserMenuService extends MenuService {
     SendMessage getRandomPizza(CachedUser user);
     SendMessage getHelpMessageWithGreeting(CachedUser user);
     SendMessage getHelpMessage(CachedUser user);
+    SendMessage getAboutMessage(CachedUser user);
     SendMessage getIngredientSelectionMenu(CachedUser user);
 }
