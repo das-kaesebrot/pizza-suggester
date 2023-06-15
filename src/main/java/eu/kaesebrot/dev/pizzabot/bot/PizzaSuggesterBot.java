@@ -124,6 +124,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                 }
 
                 execute(userMenuService.getDietSelection(user));
+                execute(userMenuService.getHelpMessage(user));
 
                 reply.setText(localizationService.getString("select.disclaimer"));
 
@@ -172,9 +173,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                     switch (command) {
                         case START:
                         case HELP:
-                            reply.setText(localizationService.getString("reply.help"));
-                            reply.setParseMode(ParseMode.MARKDOWNV2);
-                            return reply;
+                            return userMenuService.getHelpMessage(user);
 
                         case PIZZA:
                             return userMenuService.getIngredientSelectionMenu(user);

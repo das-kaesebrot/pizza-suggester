@@ -150,6 +150,14 @@ public class UserMenuServiceImpl implements UserMenuService {
     }
 
     @Override
+    public SendMessage getHelpMessage(CachedUser user) {
+        var msg = new SendMessage(user.getChatId().toString(), localizationService.getString("reply.help"));
+        msg.setParseMode(ParseMode.MARKDOWNV2);
+
+        return msg;
+    }
+
+    @Override
     public SendMessage getIngredientSelectionMenu(CachedUser user) {
         if (user.getSelectedVenue() == null)
             throw new RuntimeException("No venue selected by user yet!");
