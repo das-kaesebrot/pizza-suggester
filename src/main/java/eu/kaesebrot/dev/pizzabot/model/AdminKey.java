@@ -27,6 +27,10 @@ public class AdminKey {
         return key;
     }
 
+    public String getKeyString() {
+        return key.toString().replace("-", "");
+    }
+
     public CachedUser getClaimant() {
         return claimant;
     }
