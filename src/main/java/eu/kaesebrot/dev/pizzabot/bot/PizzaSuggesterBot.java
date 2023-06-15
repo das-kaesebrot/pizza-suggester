@@ -173,7 +173,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                     switch (command) {
                         case START:
                         case HELP:
-                            return userMenuService.getHelpMessage(user);
+                            return userMenuService.getHelpMessageWithGreeting(user);
 
                         case PIZZA:
                             return userMenuService.getIngredientSelectionMenu(user);
