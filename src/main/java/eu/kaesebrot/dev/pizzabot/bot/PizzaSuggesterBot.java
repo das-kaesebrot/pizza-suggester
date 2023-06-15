@@ -17,6 +17,7 @@ import eu.kaesebrot.dev.pizzabot.utils.CsvMimeTypeUtil;
 import eu.kaesebrot.dev.pizzabot.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
@@ -38,6 +39,10 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
     private final CallbackHandlingService callbackHandlingService;
     private final TelegramBotProperties properties;
     private final LocalizationService localizationService;
+
+    @Value("#{environment.getProperty('debug') != null && environment.getProperty('debug') != 'false'}")
+    private boolean isDebug;
+
     public PizzaSuggesterBot(TelegramBotProperties properties,
                              CachedUserService cachedUserService,
                              CachedUserRepository cachedUserRepository,
@@ -200,8 +205,12 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
         } catch (Exception e) {
             logger.error("Exception encountered while handling an update", e);
-            if (properties.isDebug()) {
-                reply.setText(String.format("Encountered exception:\n```java\n%s\n```", StringUtils.escapeCodeForMarkdownV2Format(e.toString())));
+            if (isDebug) {
+                var stackTraceZero = e.getStackTrace()[0];
+                reply.setText(String.format("Encountered exception:\n```java\n%s\n\tat %s.%s(%s:%d)\n```",
+                        StringUtils.escapeCodeForMarkdownV2Format(e.toString()),
+                        stackTraceZero.getClassName(), stackTraceZero.getMethodName(), stackTraceZero.getFileName(),
+                        stackTraceZero.getLineNumber()));
                 reply.setParseMode(ParseMode.MARKDOWNV2);
             } else {
                 reply.setText(localizationService.getString("error.generic"));
