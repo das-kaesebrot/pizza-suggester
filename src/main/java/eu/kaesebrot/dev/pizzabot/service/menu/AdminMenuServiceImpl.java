@@ -3,6 +3,7 @@ package eu.kaesebrot.dev.pizzabot.service.menu;
 import eu.kaesebrot.dev.pizzabot.bot.PizzaSuggesterBot;
 import eu.kaesebrot.dev.pizzabot.enums.UserDiet;
 import eu.kaesebrot.dev.pizzabot.enums.UserState;
+import eu.kaesebrot.dev.pizzabot.model.AdminKey;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.model.Pizza;
 import eu.kaesebrot.dev.pizzabot.repository.AdminKeyRepository;
@@ -82,9 +83,12 @@ public class AdminMenuServiceImpl implements AdminMenuService {
 
         switch (sanitizedData) {
             case CALLBACK_ADMIN_VENUS:
-            case CALLBACK_ADMIN_GENERATE_KEY:
                 // TODO handle button press of admin venues
                 reply.setText(localizationService.getString("error.notimplemented"));
+                break;
+
+            case CALLBACK_ADMIN_GENERATE_KEY:
+                bot.execute(handleButtonPressAdminKeyGenerate(user));
                 break;
 
             case CALLBACK_ADMIN_REDEEM:
@@ -148,6 +152,8 @@ public class AdminMenuServiceImpl implements AdminMenuService {
             case InlineKeyboardService.CALLBACK_NAVIGATION_BACK:
             case InlineKeyboardService.CALLBACK_NAVIGATION_PAGE:
             case InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE:
+            case CALLBACK_ADMIN_GENERATE_KEY:
+            case CALLBACK_ADMIN_VENUS:
                 return false;
 
             default:
@@ -308,6 +314,27 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         user.addState(UserState.SENDING_ADMIN_KEY);
 
         cachedUserRepository.saveAndFlush(user);
+    }
+
+    private SendMessage handleButtonPressAdminKeyGenerate(CachedUser user) {
+        var message = new SendMessage();
+        var text = localizationService.getString("admin.genkeydone");
+
+        var key = genAdminKey();
+
+        message.setChatId(user.getChatId());
+        message.setText(StringUtils.replacePropertiesVariable("key", key.getKeyString(), text));
+        message.setParseMode(ParseMode.MARKDOWNV2);
+
+        return message;
+    }
+
+    private AdminKey genAdminKey() {
+        var key = new AdminKey();
+
+        adminKeyRepository.saveAndFlush(key);
+
+        return key;
     }
 
     private String getAboutData(CachedUser user) {
