@@ -165,7 +165,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                     logger.debug("Mapped command string '{}' to enum type '{}'", messageText, command);
 
                     if (
-                            !(command == BotCommand.SETTINGS)
+                            !(command == BotCommand.SETTINGS || command == BotCommand.ABOUT || command == BotCommand.HELP)
                             && (user.hasState(UserState.SELECTING_DIET)
                                 || user.hasState(UserState.SELECTING_VENUE))
                     )
