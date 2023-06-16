@@ -155,6 +155,21 @@ public class UserMenuServiceImpl implements UserMenuService {
     }
 
     @Override
+    public SendMessage getSetupMessages(CachedUser user, PizzaSuggesterBot bot) throws TelegramApiException {
+        bot.execute(new SendMessage(user.getChatId().toString(), localizationService.getString("reply.firstrun")));
+
+        if (!venueRepository.findAll().isEmpty()) {
+            bot.execute(getVenueSelection(user));
+        }
+
+        bot.execute(getDietSelection(user));
+
+        bot.execute(new SendMessage(user.getChatId().toString(), localizationService.getString("select.disclaimer")));
+
+        return getHelpMessage(user);
+    }
+
+    @Override
     public SendMessage getHelpMessageWithGreeting(CachedUser user) {
         var msg = new SendMessage(user.getChatId().toString(),
                 String.format("%s\n%s", localizationService.getString("reply.greeting"), localizationService.getString("reply.help")));
