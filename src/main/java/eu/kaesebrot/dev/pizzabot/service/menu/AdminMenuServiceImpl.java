@@ -3,6 +3,7 @@ package eu.kaesebrot.dev.pizzabot.service.menu;
 import eu.kaesebrot.dev.pizzabot.bot.PizzaSuggesterBot;
 import eu.kaesebrot.dev.pizzabot.enums.UserDiet;
 import eu.kaesebrot.dev.pizzabot.enums.UserState;
+import eu.kaesebrot.dev.pizzabot.exceptions.PendingVenueSelectionException;
 import eu.kaesebrot.dev.pizzabot.model.AdminKey;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.model.Pizza;
@@ -206,7 +207,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
             throw new RuntimeException(String.format("User doesn't have required state %s", UserState.SENDING_VENUE_CSV));
 
         if (user.getSelectedVenue() == null)
-            throw new RuntimeException("No venue selected by user yet!");
+            throw new PendingVenueSelectionException("No venue selected by user yet!");
 
         var venue = user.getSelectedVenue();
 
