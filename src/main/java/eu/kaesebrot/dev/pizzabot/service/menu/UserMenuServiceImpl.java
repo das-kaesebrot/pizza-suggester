@@ -10,6 +10,7 @@ import eu.kaesebrot.dev.pizzabot.model.Venue;
 import eu.kaesebrot.dev.pizzabot.properties.VersionProperties;
 import eu.kaesebrot.dev.pizzabot.repository.CachedUserRepository;
 import eu.kaesebrot.dev.pizzabot.repository.VenueRepository;
+import eu.kaesebrot.dev.pizzabot.service.InlineKeyboardService;
 import eu.kaesebrot.dev.pizzabot.service.LocalizationService;
 import eu.kaesebrot.dev.pizzabot.service.PizzaService;
 import eu.kaesebrot.dev.pizzabot.utils.StringUtils;
@@ -23,7 +24,9 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.sql.Timestamp;
 import java.text.NumberFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -32,19 +35,24 @@ import java.util.Locale;
 public class UserMenuServiceImpl implements UserMenuService {
     private static final String CALLBACK_DIET_PREFIX = "diet";
     private static final String CALLBACK_VENUE_PREFIX = "venue";
+    private static final String CALLBACK_VENUE_SELECTION = CALLBACK_VENUE_PREFIX + "-select";
     private static final String MESSAGES_LABEL_DIET_PREFIX = "label.diet";
     private final CachedUserRepository cachedUserRepository;
     private final VenueRepository venueRepository;
     private final PizzaService pizzaService;
     private final IngredientMenuService ingredientMenuService;
+    private final InlineKeyboardService inlineKeyboardService;
     private final LocalizationService localizationService;
     private final VersionProperties versionProperties;
+    private List<List<List<InlineKeyboardButton>>> pagedVenueSelectionMenu;
+    private Timestamp lastPagedVenueSelectionUpdate;
 
-    public UserMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, PizzaService pizzaService, IngredientMenuService ingredientMenuService, LocalizationService localizationService) {
+    public UserMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, PizzaService pizzaService, IngredientMenuService ingredientMenuService, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService) {
         this.cachedUserRepository = cachedUserRepository;
         this.venueRepository = venueRepository;
         this.pizzaService = pizzaService;
         this.ingredientMenuService = ingredientMenuService;
+        this.inlineKeyboardService = inlineKeyboardService;
         this.localizationService = localizationService;
 
         versionProperties = new VersionProperties();
@@ -59,18 +67,7 @@ public class UserMenuServiceImpl implements UserMenuService {
 
         if (sanitizedData.startsWith(CALLBACK_VENUE_PREFIX))
         {
-            var selectedVenue = query.getData();
-            selectedVenue = selectedVenue.replace(String.format("%s-", CALLBACK_VENUE_PREFIX), "");
-
-            long venueId = Long.parseLong(selectedVenue);
-            var venue = venueRepository.findById(venueId);
-
-            if (venue.isEmpty())
-                throw new RuntimeException("Couldn't find a venue by given id!");
-
-            user.setSelectedVenue(venue.get());
-            user.removeState(UserState.SELECTING_VENUE);
-            cachedUserRepository.saveAndFlush(user);
+            handleVenueCallback(user, sanitizedData, query, bot);
         }
         else if (sanitizedData.startsWith(CALLBACK_DIET_PREFIX))
         {
@@ -106,6 +103,21 @@ public class UserMenuServiceImpl implements UserMenuService {
         cachedUserRepository.save(user);
 
         return dietSelection;
+    }
+
+    private void handleVenueCallback(CachedUser user, String sanitizedData, CallbackQuery query, PizzaSuggesterBot bot) {
+        var selectedVenue = sanitizedData;
+        selectedVenue = selectedVenue.replace(String.format("%s-", CALLBACK_VENUE_PREFIX), "");
+
+        long venueId = Long.parseLong(selectedVenue);
+        var venue = venueRepository.findById(venueId);
+
+        if (venue.isEmpty())
+            throw new RuntimeException("Couldn't find a venue by given id!");
+
+        user.setSelectedVenue(venue.get());
+        user.removeState(UserState.SELECTING_VENUE);
+        cachedUserRepository.saveAndFlush(user);
     }
 
     private InlineKeyboardMarkup getDietSelectionMarkup() {
@@ -216,17 +228,10 @@ public class UserMenuServiceImpl implements UserMenuService {
     }
 
     private InlineKeyboardMarkup getVenueSelectionMarkup() {
-        var venueButtonRows = new ArrayList<List<InlineKeyboardButton>>();
         var keyboard = new InlineKeyboardMarkup();
+        regenerateMenuCaches();
 
-        for (Venue venue : venueRepository.findAll())
-        {
-            var button = new InlineKeyboardButton(venue.getName());
-            button.setCallbackData(prependCallbackPrefix(String.format("%s-%d", CALLBACK_VENUE_PREFIX, venue.getId())));
-            venueButtonRows.add(List.of(button));
-        }
-
-        keyboard.setKeyboard(venueButtonRows);
+        keyboard.setKeyboard(pagedVenueSelectionMenu.get(0));
 
         return keyboard;
     }
@@ -254,5 +259,36 @@ public class UserMenuServiceImpl implements UserMenuService {
                 pizzaDiet, pizzaInfoText);
 
         return pizzaInfoText;
+    }
+
+
+    private String formatVenueForButton(Venue venue) {
+        // TODO venue formatting
+        var pizzaInfoText = localizationService.getString("pizza.info");
+
+        return pizzaInfoText;
+    }
+
+    private List<InlineKeyboardButton> getVenueButtons() {
+        var venueButtons = new ArrayList<InlineKeyboardButton>();
+
+        for (Venue venue : venueRepository.findAll())
+        {
+            var button = new InlineKeyboardButton(formatVenueForButton(venue));
+            button.setCallbackData(prependCallbackPrefix(String.format("%s-%d", CALLBACK_VENUE_SELECTION, venue.getId())));
+            venueButtons.add(button);
+        }
+
+        return venueButtons;
+    }
+
+    private void regenerateMenuCaches() {
+        if (pagedVenueSelectionMenu == null ||
+                pagedVenueSelectionMenu.isEmpty() ||
+                lastPagedVenueSelectionUpdate == null ||
+                !venueRepository.findByModifiedAtGreaterThan(lastPagedVenueSelectionUpdate).isEmpty()) {
+            pagedVenueSelectionMenu = inlineKeyboardService.getPagedInlineKeyboardButtons(getVenueButtons(), VENUE_SELECTION_COLUMNS, VENUE_SELECTION_ROWS, true, CALLBACK_VENUE_PREFIX, false, false);
+            lastPagedVenueSelectionUpdate = Timestamp.from(Instant.now());
+        }
     }
 }
