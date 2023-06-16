@@ -2,6 +2,7 @@ package eu.kaesebrot.dev.pizzabot.bot;
 
 import eu.kaesebrot.dev.pizzabot.enums.BotCommand;
 import eu.kaesebrot.dev.pizzabot.enums.UserState;
+import eu.kaesebrot.dev.pizzabot.exceptions.PendingSelectionException;
 import eu.kaesebrot.dev.pizzabot.model.AdminKey;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.repository.AdminKeyRepository;
@@ -166,12 +167,10 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
                     if (
                             !(command == BotCommand.SETTINGS || command == BotCommand.ABOUT || command == BotCommand.HELP)
-                            && (user.hasState(UserState.SELECTING_DIET)
-                                || user.hasState(UserState.SELECTING_VENUE))
-                    )
-                    {
-                        reply.setText(localizationService.getString("error.finishselection"));
-                        return reply;
+                                    && (user.hasState(UserState.SELECTING_DIET)
+                                    || user.hasState(UserState.SELECTING_VENUE))
+                    ) {
+                        throw new PendingSelectionException("User hasn't finished setup yet!");
                     }
 
                     switch (command) {
@@ -207,6 +206,11 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
             reply.setText(localizationService.getString("error.notimplemented"));
             return reply;
 
+        } catch (PendingSelectionException e) {
+            logger.error("Exception encountered while handling an update", e);
+
+            reply.setText(localizationService.getString("error.finishselection"));
+            return reply;
         } catch (Exception e) {
             logger.error("Exception encountered while handling an update", e);
             if (isDebug) {

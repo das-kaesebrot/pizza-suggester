@@ -3,6 +3,7 @@ package eu.kaesebrot.dev.pizzabot.service.menu;
 import eu.kaesebrot.dev.pizzabot.bot.PizzaSuggesterBot;
 import eu.kaesebrot.dev.pizzabot.enums.UserDiet;
 import eu.kaesebrot.dev.pizzabot.enums.UserState;
+import eu.kaesebrot.dev.pizzabot.exceptions.PendingVenueSelectionException;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.model.Pizza;
 import eu.kaesebrot.dev.pizzabot.model.Venue;
@@ -139,7 +140,7 @@ public class UserMenuServiceImpl implements UserMenuService {
     @Override
     public SendMessage getRandomPizza(CachedUser user) {
         if (user.getSelectedVenue() == null)
-            throw new RuntimeException("No venue selected by user yet!");
+            throw new PendingVenueSelectionException("No venue selected by user yet!");
 
         var pizza = pizzaService.getRandomPizza(user.getSelectedVenue(), user);
 
@@ -189,7 +190,7 @@ public class UserMenuServiceImpl implements UserMenuService {
     @Override
     public SendMessage getIngredientSelectionMenu(CachedUser user) {
         if (user.getSelectedVenue() == null)
-            throw new RuntimeException("No venue selected by user yet!");
+            throw new PendingVenueSelectionException("No venue selected by user yet!");
 
         SendMessage reply = new SendMessage(user.getChatId().toString(), localizationService.getString("pizza.random"));
         reply.setParseMode(ParseMode.MARKDOWNV2);
