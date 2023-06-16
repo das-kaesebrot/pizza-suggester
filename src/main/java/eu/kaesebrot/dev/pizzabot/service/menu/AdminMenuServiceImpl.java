@@ -83,9 +83,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
 
         switch (sanitizedData) {
             case CALLBACK_ADMIN_VENUS:
-                // TODO handle button press of admin venues
-                reply.setText(localizationService.getString("error.notimplemented"));
-                break;
+                throw new UnsupportedOperationException("Not implemented yet!");
 
             case CALLBACK_ADMIN_GENERATE_KEY:
                 bot.execute(handleButtonPressAdminKeyGenerate(user));

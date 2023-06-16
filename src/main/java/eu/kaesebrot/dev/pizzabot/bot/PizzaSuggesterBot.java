@@ -194,14 +194,17 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                         case CARLOS:
                         case CONTACT:
                             // TODO
-                            reply.setText(localizationService.getString("error.notimplemented"));
-                            // reply.setReplyMarkup(inlineKeyboardService.getInitialKeyboard(0L));
-                            return reply;
+                            throw new UnsupportedOperationException("Not implemented yet!");
                     }
 
                 }
             }
 
+            return reply;
+        } catch (UnsupportedOperationException e) {
+            logger.error("Exception encountered while handling an update", e);
+
+            reply.setText(localizationService.getString("error.notimplemented"));
             return reply;
 
         } catch (Exception e) {
