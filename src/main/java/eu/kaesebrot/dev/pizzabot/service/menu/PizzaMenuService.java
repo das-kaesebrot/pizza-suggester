@@ -4,13 +4,10 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 
 import java.util.Optional;
 
-public interface IngredientMenuService {
+public interface PizzaMenuService extends MenuService {
     int maxIngredientKeyboardRows = 3;
     int maxIngredientKeyboardColumns = 2;
-    String CALLBACK_PREFIX = "ingredients";
-
-    void regenerateInlineKeyboardPageCache();
-    void regenerateInlineKeyboardPageCache(Long venueId);
+    String CALLBACK_PREFIX = "pizzamenu";
     InlineKeyboardMarkup getInitialKeyboard(Long venueId);
     InlineKeyboardMarkup getKeyboardForPage(Long venueId, Optional<Integer> pageNumber);
 }
