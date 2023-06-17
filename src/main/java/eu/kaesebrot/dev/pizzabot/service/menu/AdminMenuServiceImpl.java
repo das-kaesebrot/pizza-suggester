@@ -3,6 +3,7 @@ package eu.kaesebrot.dev.pizzabot.service.menu;
 import eu.kaesebrot.dev.pizzabot.bot.PizzaSuggesterBot;
 import eu.kaesebrot.dev.pizzabot.enums.UserDiet;
 import eu.kaesebrot.dev.pizzabot.enums.UserState;
+import eu.kaesebrot.dev.pizzabot.exceptions.NotAuthorizedException;
 import eu.kaesebrot.dev.pizzabot.exceptions.PendingVenueSelectionException;
 import eu.kaesebrot.dev.pizzabot.model.AdminKey;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
@@ -206,6 +207,9 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         if (!user.hasState(UserState.SENDING_VENUE_CSV))
             throw new RuntimeException(String.format("User doesn't have required state %s", UserState.SENDING_VENUE_CSV));
 
+        if (!user.isAdmin())
+            throw new NotAuthorizedException(String.format("User %s is not an admin!", user.getChatId()));
+
         if (user.getSelectedVenue() == null)
             throw new PendingVenueSelectionException("No venue selected by user yet!");
 
@@ -316,6 +320,9 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     }
 
     private SendMessage handleButtonPressAdminKeyGenerate(CachedUser user) {
+        if (!user.isSuperAdmin())
+            throw new NotAuthorizedException(String.format("User %s is not a super admin!", user.getChatId()));
+
         var message = new SendMessage();
         var text = localizationService.getString("admin.genkeydone");
 

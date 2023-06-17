@@ -2,6 +2,7 @@ package eu.kaesebrot.dev.pizzabot.bot;
 
 import eu.kaesebrot.dev.pizzabot.enums.BotCommand;
 import eu.kaesebrot.dev.pizzabot.enums.UserState;
+import eu.kaesebrot.dev.pizzabot.exceptions.NotAuthorizedException;
 import eu.kaesebrot.dev.pizzabot.exceptions.PendingSelectionException;
 import eu.kaesebrot.dev.pizzabot.model.AdminKey;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
@@ -190,6 +191,12 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
             }
 
             return reply;
+        } catch (NotAuthorizedException e) {
+            logger.error("Exception encountered while handling an update", e);
+
+            reply.setText(localizationService.getString("error.unauthorized"));
+            return reply;
+
         } catch (UnsupportedOperationException e) {
             logger.error("Exception encountered while handling an update", e);
 
@@ -201,6 +208,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
             reply.setText(localizationService.getString("error.finishselection"));
             return reply;
+
         } catch (Exception e) {
             logger.error("Exception encountered while handling an update", e);
             if (isDebug) {
