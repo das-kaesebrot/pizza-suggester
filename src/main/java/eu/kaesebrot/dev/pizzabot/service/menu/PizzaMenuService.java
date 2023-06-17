@@ -10,8 +10,6 @@ public interface PizzaMenuService extends MenuService {
     int maxIngredientKeyboardRows = 3;
     int maxIngredientKeyboardColumns = 2;
     String CALLBACK_PREFIX = "pizzamenu";
-    InlineKeyboardMarkup getInitialKeyboard(Long venueId);
-    InlineKeyboardMarkup getKeyboardForPage(Long venueId, Optional<Integer> pageNumber);
     SendMessage getRandomPizza(CachedUser user);
     SendMessage getIngredientSelectionMenu(CachedUser user);
 }

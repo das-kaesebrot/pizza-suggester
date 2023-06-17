@@ -5,6 +5,7 @@ import eu.kaesebrot.dev.pizzabot.classes.IngredientButtonList;
 import eu.kaesebrot.dev.pizzabot.exceptions.PendingVenueSelectionException;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.model.Pizza;
+import eu.kaesebrot.dev.pizzabot.model.Venue;
 import eu.kaesebrot.dev.pizzabot.repository.VenueRepository;
 import eu.kaesebrot.dev.pizzabot.service.InlineKeyboardService;
 import eu.kaesebrot.dev.pizzabot.service.LocalizationService;
@@ -42,20 +43,6 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
     }
 
     @Override
-    public InlineKeyboardMarkup getKeyboardForPage(Long venueId, Optional<Integer> pageNumber) {
-        regenerateInlineKeyboardPageCache();
-
-        return new InlineKeyboardMarkup(getKeyboardButtonsForPage(venueId, pageNumber));
-    }
-
-    @Override
-    public InlineKeyboardMarkup getInitialKeyboard(Long venueId) {
-        var keyboard = new InlineKeyboardMarkup();
-
-        return getKeyboardForPage(venueId, null);
-    }
-
-    @Override
     public BotApiMethod<?> handleCallback(CachedUser user, CallbackQuery query, PizzaSuggesterBot bot) throws TelegramApiException {
 
         AnswerCallbackQuery reply = new AnswerCallbackQuery(query.getId());
@@ -78,7 +65,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
                 var editMessage = new EditMessageReplyMarkup();
                 editMessage.setChatId(user.getChatId().toString());
                 editMessage.setMessageId(query.getMessage().getMessageId());
-                editMessage.setReplyMarkup(getKeyboardForPage(user.getSelectedVenue().getId(), Optional.of(pageNumber)));
+                editMessage.setReplyMarkup(getKeyboardForPage(user.getSelectedVenue(), pageNumber));
 
                 bot.execute(editMessage);
                 break;
@@ -103,7 +90,6 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
                 return true;
         }
     }
-
 
     @Override
     public SendMessage getRandomPizza(CachedUser user) {
@@ -130,24 +116,24 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
         SendMessage reply = new SendMessage(user.getChatId().toString(), localizationService.getString("pizza.random"));
         reply.setParseMode(ParseMode.MARKDOWNV2);
 
-        reply.setReplyMarkup(getInitialKeyboard(user.getSelectedVenue().getId()));
+        reply.setReplyMarkup(getKeyboardForPage(user.getSelectedVenue(), 0));
 
         return reply;
     }
 
-    private List<List<InlineKeyboardButton>> getKeyboardButtonsForPage(Long venueId, Optional<Integer> pageNumber) {
+    private InlineKeyboardMarkup getKeyboardForPage(Venue venue , int pageNumber) {
         regenerateInlineKeyboardPageCache();
 
-        return venueIngredientButtons.get(venueId).ingredientButtons().get(pageNumber.orElse(0));
+        return new InlineKeyboardMarkup(venueIngredientButtons.get(venue.getId()).ingredientButtons().get(pageNumber));
     }
 
     private void regenerateInlineKeyboardPageCache() {
         for (var venue : venueRepository.findAll()) {
-            var ingredientList = pizzaService.getVenueIngredientList(venue);
-
             if ((venueIngredientButtons.containsKey(venue.getId()) || venueIngredientButtons.get(venue.getId()) != null)
                     && venueIngredientButtons.get(venue.getId()).createdAt().after(venue.getModifiedAt()))
                 continue;
+
+            var ingredientList = pizzaService.getVenueIngredientList(venue);
 
             var listOfIngredientButtons = new ArrayList<InlineKeyboardButton>();
 
