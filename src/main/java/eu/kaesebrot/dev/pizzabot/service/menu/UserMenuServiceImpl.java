@@ -33,25 +33,17 @@ import java.util.Locale;
 
 @Service
 public class UserMenuServiceImpl implements UserMenuService {
-    private static final String CALLBACK_DIET_PREFIX = "diet";
-    private static final String CALLBACK_VENUE_PREFIX = "venue";
-    private static final String CALLBACK_VENUE_SELECTION = CALLBACK_VENUE_PREFIX + "-select";
-    private static final String MESSAGES_LABEL_DIET_PREFIX = "label.diet";
     private final CachedUserRepository cachedUserRepository;
     private final VenueRepository venueRepository;
-    private final PizzaService pizzaService;
-    private final PizzaMenuService pizzaMenuService;
     private final InlineKeyboardService inlineKeyboardService;
     private final LocalizationService localizationService;
     private final VersionProperties versionProperties;
     private List<List<List<InlineKeyboardButton>>> pagedVenueSelectionMenu;
     private Timestamp lastPagedVenueSelectionUpdate;
 
-    public UserMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, PizzaService pizzaService, PizzaMenuService pizzaMenuService, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService) {
+    public UserMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService) {
         this.cachedUserRepository = cachedUserRepository;
         this.venueRepository = venueRepository;
-        this.pizzaService = pizzaService;
-        this.pizzaMenuService = pizzaMenuService;
         this.inlineKeyboardService = inlineKeyboardService;
         this.localizationService = localizationService;
 
@@ -150,23 +142,6 @@ public class UserMenuServiceImpl implements UserMenuService {
     }
 
     @Override
-    public SendMessage getRandomPizza(CachedUser user) {
-        if (user.getSelectedVenue() == null)
-            throw new PendingVenueSelectionException("No venue selected by user yet!");
-
-        var pizza = pizzaService.getRandomPizza(user.getSelectedVenue(), user);
-
-        var text = formatPizzaForMessage(pizza);
-        var formattedPizzaRandText = localizationService.getString("pizza.random");
-        text = StringUtils.replacePropertiesVariable("pizza_info", text, formattedPizzaRandText);
-
-        SendMessage reply = new SendMessage(user.getChatId().toString(), text);
-        reply.setParseMode(ParseMode.MARKDOWNV2);
-
-        return reply;
-    }
-
-    @Override
     public SendMessage getSetupMessages(CachedUser user, PizzaSuggesterBot bot) throws TelegramApiException {
         bot.execute(new SendMessage(user.getChatId().toString(), localizationService.getString("reply.firstrun")));
 
@@ -214,19 +189,6 @@ public class UserMenuServiceImpl implements UserMenuService {
         return msg;
     }
 
-    @Override
-    public SendMessage getIngredientSelectionMenu(CachedUser user) {
-        if (user.getSelectedVenue() == null)
-            throw new PendingVenueSelectionException("No venue selected by user yet!");
-
-        SendMessage reply = new SendMessage(user.getChatId().toString(), localizationService.getString("pizza.random"));
-        reply.setParseMode(ParseMode.MARKDOWNV2);
-
-        reply.setReplyMarkup(pizzaMenuService.getInitialKeyboard(user.getSelectedVenue().getId()));
-
-        return reply;
-    }
-
     private InlineKeyboardMarkup getVenueSelectionMarkup() {
         var keyboard = new InlineKeyboardMarkup();
         regenerateMenuCaches();
@@ -242,23 +204,6 @@ public class UserMenuServiceImpl implements UserMenuService {
 
     private String prependCallbackPrefix(String data) {
         return StringUtils.prependCallbackPrefix(CALLBACK_PREFIX, data);
-    }
-
-    private String formatPizzaForMessage(Pizza pizza) {
-        var pizzaInfoText = localizationService.getString("pizza.info");
-
-        var pizzaDiet = localizationService.getString(String.format("%s.%s", MESSAGES_LABEL_DIET_PREFIX, pizza.getMinimumUserDiet().toString().toLowerCase()));
-
-        pizzaInfoText = StringUtils.replacePropertiesVariable("pizza_number",
-                pizza.getMenuNumber(), pizzaInfoText);
-        pizzaInfoText = StringUtils.replacePropertiesVariable("pizza_name",
-                "Pizza", pizzaInfoText); // todo pizza name
-        pizzaInfoText = StringUtils.replacePropertiesVariable("pizza_price",
-                StringUtils.escapeForMarkdownV2Format(NumberFormat.getInstance(Locale.GERMANY).format(pizza.getPrice())), pizzaInfoText);
-        pizzaInfoText = StringUtils.replacePropertiesVariable("diet_compatibility",
-                pizzaDiet, pizzaInfoText);
-
-        return pizzaInfoText;
     }
 
 

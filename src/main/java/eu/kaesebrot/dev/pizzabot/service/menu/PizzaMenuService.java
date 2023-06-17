@@ -1,5 +1,7 @@
 package eu.kaesebrot.dev.pizzabot.service.menu;
 
+import eu.kaesebrot.dev.pizzabot.model.CachedUser;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 import java.util.Optional;
@@ -10,4 +12,6 @@ public interface PizzaMenuService extends MenuService {
     String CALLBACK_PREFIX = "pizzamenu";
     InlineKeyboardMarkup getInitialKeyboard(Long venueId);
     InlineKeyboardMarkup getKeyboardForPage(Long venueId, Optional<Integer> pageNumber);
+    SendMessage getRandomPizza(CachedUser user);
+    SendMessage getIngredientSelectionMenu(CachedUser user);
 }

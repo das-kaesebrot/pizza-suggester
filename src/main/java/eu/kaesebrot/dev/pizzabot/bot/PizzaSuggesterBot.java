@@ -11,6 +11,7 @@ import eu.kaesebrot.dev.pizzabot.repository.CachedUserRepository;
 import eu.kaesebrot.dev.pizzabot.service.CachedUserService;
 import eu.kaesebrot.dev.pizzabot.service.CallbackHandlingService;
 import eu.kaesebrot.dev.pizzabot.service.LocalizationService;
+import eu.kaesebrot.dev.pizzabot.service.menu.PizzaMenuService;
 import eu.kaesebrot.dev.pizzabot.service.menu.UserMenuService;
 import eu.kaesebrot.dev.pizzabot.properties.TelegramBotProperties;
 import eu.kaesebrot.dev.pizzabot.repository.VenueRepository;
@@ -38,6 +39,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
     private final VenueRepository venueRepository;
     private final AdminMenuService adminMenuService;
     private final UserMenuService userMenuService;
+    private final PizzaMenuService pizzaMenuService;
     private final CallbackHandlingService callbackHandlingService;
     private final TelegramBotProperties properties;
     private final LocalizationService localizationService;
@@ -52,7 +54,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                              AdminKeyRepository adminKeyRepository,
                              AdminMenuService adminMenuService,
                              UserMenuService userMenuService,
-                             CallbackHandlingService callbackHandlingService, LocalizationService localizationService) throws TelegramApiException {
+                             PizzaMenuService pizzaMenuService, CallbackHandlingService callbackHandlingService, LocalizationService localizationService) throws TelegramApiException {
         super(new SetWebhook(properties.getWebhookBaseUrl()), properties.getBotToken());
         this.properties = properties;
         this.cachedUserService = cachedUserService;
@@ -60,6 +62,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         this.venueRepository = venueRepository;
         this.adminMenuService = adminMenuService;
         this.userMenuService = userMenuService;
+        this.pizzaMenuService = pizzaMenuService;
         this.callbackHandlingService = callbackHandlingService;
         this.localizationService = localizationService;
 
@@ -170,10 +173,10 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                             return userMenuService.getHelpMessageWithGreeting(user);
 
                         case PIZZA:
-                            return userMenuService.getIngredientSelectionMenu(user);
+                            return pizzaMenuService.getIngredientSelectionMenu(user);
 
                         case RANDOM:
-                            return userMenuService.getRandomPizza(user);
+                            return pizzaMenuService.getRandomPizza(user);
 
                         case SETTINGS:
                             return adminMenuService.getAdminMenu(user);
