@@ -41,6 +41,13 @@ public class PizzaServiceImpl implements PizzaService {
     }
 
     @Override
+    public IngredientList getVenueIngredientList(Venue venue) {
+        generateVenueIngredientCache(venue);
+
+        return venueIngredients.get(venue.getId());
+    }
+
+    @Override
     public List<Pizza> getMatchingPizzasByIngredientIndexList(Long venueId, List<Integer> ingredientIndexList) {
         List<String> ingredients = new LinkedList<>();
 
