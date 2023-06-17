@@ -12,9 +12,6 @@ import java.util.*;
 
 @Service
 public class IngredientMenuServiceImpl implements IngredientMenuService {
-    private static final int maxIngredientKeyboardRows = 3;
-    private static final int maxIngredientKeyboardColumns = 2;
-    private static final String CALLBACK_PREFIX = "ingredients";
     private final VenueRepository venueRepository;
     private final InlineKeyboardService inlineKeyboardService;
     private HashMap<Long, List<List<List<InlineKeyboardButton>>>> venueInlineKeyboards;
