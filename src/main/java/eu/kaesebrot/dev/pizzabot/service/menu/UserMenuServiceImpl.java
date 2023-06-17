@@ -40,18 +40,18 @@ public class UserMenuServiceImpl implements UserMenuService {
     private final CachedUserRepository cachedUserRepository;
     private final VenueRepository venueRepository;
     private final PizzaService pizzaService;
-    private final IngredientMenuService ingredientMenuService;
+    private final PizzaMenuService pizzaMenuService;
     private final InlineKeyboardService inlineKeyboardService;
     private final LocalizationService localizationService;
     private final VersionProperties versionProperties;
     private List<List<List<InlineKeyboardButton>>> pagedVenueSelectionMenu;
     private Timestamp lastPagedVenueSelectionUpdate;
 
-    public UserMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, PizzaService pizzaService, IngredientMenuService ingredientMenuService, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService) {
+    public UserMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, PizzaService pizzaService, PizzaMenuService pizzaMenuService, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService) {
         this.cachedUserRepository = cachedUserRepository;
         this.venueRepository = venueRepository;
         this.pizzaService = pizzaService;
-        this.ingredientMenuService = ingredientMenuService;
+        this.pizzaMenuService = pizzaMenuService;
         this.inlineKeyboardService = inlineKeyboardService;
         this.localizationService = localizationService;
 
@@ -222,7 +222,7 @@ public class UserMenuServiceImpl implements UserMenuService {
         SendMessage reply = new SendMessage(user.getChatId().toString(), localizationService.getString("pizza.random"));
         reply.setParseMode(ParseMode.MARKDOWNV2);
 
-        reply.setReplyMarkup(ingredientMenuService.getInitialKeyboard(user.getSelectedVenue().getId()));
+        reply.setReplyMarkup(pizzaMenuService.getInitialKeyboard(user.getSelectedVenue().getId()));
 
         return reply;
     }
