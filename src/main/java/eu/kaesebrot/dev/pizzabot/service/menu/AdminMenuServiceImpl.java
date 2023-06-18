@@ -156,12 +156,11 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     public boolean canCallbackMenuBeDeletedAfterHandling(CallbackQuery query) {
         switch (stripPageNumberFromCallbackData(stripCallbackPrefix(query.getData()))) {
             case CALLBACK_ADMIN_ABOUT_ME:
-            case InlineKeyboardService.CALLBACK_NAVIGATION_FORWARD:
             case InlineKeyboardService.CALLBACK_NAVIGATION_BACK:
             case InlineKeyboardService.CALLBACK_NAVIGATION_PAGE:
             case InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE:
             case CALLBACK_ADMIN_GENERATE_KEY:
-            case CALLBACK_ADMIN_VENUS:
+            case CALLBACK_ADMIN_VENUES_EDIT:
                 return false;
 
             default:
