@@ -157,10 +157,8 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
 
             venueIngredientButtons.put(venue.getId(),
                     new IngredientButtonList(
-                    inlineKeyboardService.getPagedInlineKeyboardButtons(
-                            listOfIngredientButtons, maxIngredientKeyboardColumns, maxIngredientKeyboardRows,
-                            true, CALLBACK_PREFIX, true, false),
-                            Timestamp.from(Instant.now())));
+                        inlineKeyboardService.getPagedInlineKeyboardButtonsWithFooterAndCheckmark(listOfIngredientButtons, maxIngredientKeyboardColumns, maxIngredientKeyboardRows, CALLBACK_PREFIX),
+                        Timestamp.from(Instant.now())));
         }
     }
 

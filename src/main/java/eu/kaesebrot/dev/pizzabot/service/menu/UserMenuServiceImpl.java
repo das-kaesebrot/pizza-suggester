@@ -232,7 +232,7 @@ public class UserMenuServiceImpl implements UserMenuService {
                 pagedVenueSelectionMenu.isEmpty() ||
                 lastPagedVenueSelectionUpdate == null ||
                 !venueRepository.findByModifiedAtGreaterThan(lastPagedVenueSelectionUpdate).isEmpty()) {
-            pagedVenueSelectionMenu = inlineKeyboardService.getPagedInlineKeyboardButtons(getVenueButtons(), VENUE_SELECTION_COLUMNS, VENUE_SELECTION_ROWS, true, CALLBACK_VENUE_PREFIX, false, false);
+            pagedVenueSelectionMenu = inlineKeyboardService.getPagedInlineKeyboardButtonsWithFooterAndCloseButton(getVenueButtons(), VENUE_SELECTION_COLUMNS, VENUE_SELECTION_ROWS, CALLBACK_VENUE_PREFIX);
             lastPagedVenueSelectionUpdate = Timestamp.from(Instant.now());
         }
     }
