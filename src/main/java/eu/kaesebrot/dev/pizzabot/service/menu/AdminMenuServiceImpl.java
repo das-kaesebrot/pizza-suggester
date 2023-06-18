@@ -210,6 +210,9 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     @Override
     public BotApiMethod<?> handleCsvUpload(CachedUser user, String fileId, PizzaSuggesterBot bot) throws TelegramApiException, IOException {
 
+        if (!user.hasState(UserState.MODIFYING_VENUE))
+            throw new RuntimeException(String.format("User doesn't have required state %s", UserState.MODIFYING_VENUE));
+
         // throw if we're not expecting the user to send us a CSV file
         if (!user.hasState(UserState.SENDING_VENUE_CSV))
             throw new RuntimeException(String.format("User doesn't have required state %s", UserState.SENDING_VENUE_CSV));
