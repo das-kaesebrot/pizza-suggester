@@ -18,7 +18,22 @@ public class InlineKeyboardServiceImpl implements InlineKeyboardService {
 
     @Override
     public List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtons(List<InlineKeyboardButton> buttons, boolean withNavigationFooter, String navigationFooterCallbackPrefix) {
-        return getPagedInlineKeyboardButtons(buttons, DEFAULT_COLUMNS, DEFAULT_ROWS, withNavigationFooter, navigationFooterCallbackPrefix, false, false);
+        return getPagedInlineKeyboardButtons(buttons, DEFAULT_COLUMNS, DEFAULT_ROWS, withNavigationFooter, navigationFooterCallbackPrefix, false, false, false);
+    }
+
+    @Override
+    public List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtonsWithFooterAndCheckmark(List<InlineKeyboardButton> buttons, long columns, long rows, String navigationFooterCallbackPrefix) {
+        return getPagedInlineKeyboardButtons(buttons, columns, rows, true, navigationFooterCallbackPrefix, true, false, false);
+    }
+
+    @Override
+    public List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtonsWithFooterAndCloseButton(List<InlineKeyboardButton> buttons, long columns, long rows, String navigationFooterCallbackPrefix) {
+        return getPagedInlineKeyboardButtons(buttons, columns, rows, true, navigationFooterCallbackPrefix, false, true, false);
+    }
+
+    @Override
+    public List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtonsWithFooterCheckmarkAndCloseButton(List<InlineKeyboardButton> buttons, long columns, long rows, String navigationFooterCallbackPrefix) {
+        return getPagedInlineKeyboardButtons(buttons, columns, rows, true, navigationFooterCallbackPrefix, true, true, false);
     }
 
     @Override

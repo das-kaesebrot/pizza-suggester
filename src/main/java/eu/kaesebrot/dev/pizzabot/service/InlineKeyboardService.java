@@ -7,7 +7,6 @@ import java.util.List;
 public interface InlineKeyboardService {
     Long DEFAULT_COLUMNS = 2L;
     Long DEFAULT_ROWS = 3L;
-    String CALLBACK_NAVIGATION_FORWARD = "fwd";
     String CALLBACK_NAVIGATION_BACK = "back";
     String CALLBACK_NAVIGATION_GETPAGE = "getpage";
     String CALLBACK_NAVIGATION_PAGE = "invalid";
@@ -22,6 +21,9 @@ public interface InlineKeyboardService {
      * @return A list containing all pages with the corresponding data
      */
     List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtons(List<InlineKeyboardButton> buttons, boolean withNavigationFooter, String navigationFooterCallbackPrefix);
+    List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtonsWithFooterAndCheckmark(List<InlineKeyboardButton> buttons, long columns, long rows,String navigationFooterCallbackPrefix);
+    List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtonsWithFooterAndCloseButton(List<InlineKeyboardButton> buttons, long columns, long rows,String navigationFooterCallbackPrefix);
+    List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtonsWithFooterCheckmarkAndCloseButton(List<InlineKeyboardButton> buttons, long columns, long rows,String navigationFooterCallbackPrefix);
 
     /**
      * @param buttons The buttons to be used for generating the pages
