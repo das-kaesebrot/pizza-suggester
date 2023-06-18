@@ -463,13 +463,13 @@ public class AdminMenuServiceImpl implements AdminMenuService {
 
     private void regenerateMenuCaches() {
         if (pagedSuperAdminMenu == null || pagedSuperAdminMenu.isEmpty())
-            pagedSuperAdminMenu = inlineKeyboardService.getPagedInlineKeyboardButtons(getSuperAdminMenuButtons().toList(), MENU_COLUMNS, MENU_ROWS, true, CALLBACK_PREFIX, false, true);
+            pagedSuperAdminMenu = inlineKeyboardService.getPagedInlineKeyboardButtonsWithFooterAndCloseButton(getSuperAdminMenuButtons().toList(), MENU_COLUMNS, MENU_ROWS, CALLBACK_PREFIX);
 
         if (pagedFullAdminMenu == null || pagedFullAdminMenu.isEmpty())
-            pagedFullAdminMenu = inlineKeyboardService.getPagedInlineKeyboardButtons(getFullAdminMenuButtons().toList(), MENU_COLUMNS, MENU_ROWS, true, CALLBACK_PREFIX, false, true);
+            pagedFullAdminMenu = inlineKeyboardService.getPagedInlineKeyboardButtonsWithFooterAndCloseButton(getFullAdminMenuButtons().toList(), MENU_COLUMNS, MENU_ROWS, CALLBACK_PREFIX);
 
         if (pagedLimitedAdminMenu == null || pagedLimitedAdminMenu.isEmpty())
-            pagedLimitedAdminMenu = inlineKeyboardService.getPagedInlineKeyboardButtons(getLimitedAdminMenuButtons().toList(), MENU_COLUMNS, MENU_ROWS, true, CALLBACK_PREFIX, false, true);
+            pagedLimitedAdminMenu = inlineKeyboardService.getPagedInlineKeyboardButtonsWithFooterAndCloseButton(getLimitedAdminMenuButtons().toList(), MENU_COLUMNS, MENU_ROWS, CALLBACK_PREFIX);
     }
 
     private String stripCallbackPrefix(String data) {
