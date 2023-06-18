@@ -106,10 +106,10 @@ public class InlineKeyboardServiceImpl implements InlineKeyboardService {
             previousPage = totalAmountOfPages - 1;
 
         var buttonPreviousPage = new InlineKeyboardButton(localizationService.getString("label.prevpage"));
-        buttonPreviousPage.setCallbackData(String.format("%s%s--%d", prefix, CALLBACK_NAVIGATION_GETPAGE, nextPage));
+        buttonPreviousPage.setCallbackData(String.format("%s%s--%d", prefix, CALLBACK_NAVIGATION_GETPAGE, previousPage));
 
         var buttonNextPage = new InlineKeyboardButton(localizationService.getString("label.nextpage"));
-        buttonNextPage.setCallbackData(String.format("%s%s--%d", prefix, CALLBACK_NAVIGATION_GETPAGE, previousPage));
+        buttonNextPage.setCallbackData(String.format("%s%s--%d", prefix, CALLBACK_NAVIGATION_GETPAGE, nextPage));
 
         var buttonPages = new InlineKeyboardButton(String.format("%s %d/%d", localizationService.getString("label.page"), zeroBasedPageIndex + 1, totalAmountOfPages));
         buttonPages.setCallbackData(String.format("%s%s", prefix, CALLBACK_NAVIGATION_PAGE));
