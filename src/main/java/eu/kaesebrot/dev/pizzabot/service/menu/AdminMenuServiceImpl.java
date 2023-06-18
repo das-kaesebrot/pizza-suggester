@@ -46,7 +46,9 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     private final InlineKeyboardService inlineKeyboardService;
     private final LocalizationService localizationService;
 
-    public final String CALLBACK_ADMIN_VENUS = "edit-venues";
+    public final String CALLBACK_ADMIN_VENUES_PREFIX = "venues";
+    public final String CALLBACK_ADMIN_VENUES_EDIT = CALLBACK_ADMIN_VENUES_PREFIX + "-edit";
+    public final String CALLBACK_ADMIN_VENUES_CREATE = CALLBACK_ADMIN_VENUES_PREFIX + "-create";
     public final String CALLBACK_ADMIN_REDEEM = "key-redeem";
     public final String CALLBACK_ADMIN_CHANGE_PERSONAL_VENUE = "change-personal-venue";
     public final String CALLBACK_ADMIN_CHANGE_DIET = "change-diet";
@@ -84,8 +86,12 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         sanitizedData = stripPageNumberFromCallbackData(sanitizedData);
 
         switch (sanitizedData) {
-            case CALLBACK_ADMIN_VENUS:
+            case CALLBACK_ADMIN_VENUES_EDIT:
                 throw new UnsupportedOperationException("Not implemented yet!");
+
+            case CALLBACK_ADMIN_VENUES_CREATE:
+                bot.execute(handleButtonPressCreateVenue(user));
+                break;
 
             case CALLBACK_ADMIN_GENERATE_KEY:
                 bot.execute(handleButtonPressAdminKeyGenerate(user));
@@ -313,6 +319,15 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         return keyboard;
     }
 
+    private SendMessage handleButtonPressCreateVenue(CachedUser user) {
+        user.addState(UserState.CREATING_VENUE);
+        user.addState(UserState.SENDING_VENUE_NAME);
+
+        cachedUserRepository.saveAndFlush(user);
+
+        return new SendMessage(user.getChatId().toString(), localizationService.getString("admin.venues.create.name"));
+    }
+
     private void handleButtonPressAdminKeyRedemption(CachedUser user) {
         user.addState(UserState.SENDING_ADMIN_KEY);
 
@@ -359,10 +374,13 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     }
 
     private Stream<InlineKeyboardButton> getFullAdminMenuButtons() {
-        var buttonVenues = new InlineKeyboardButton(localizationService.getString("admin.venues"));
-        buttonVenues.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_VENUS));
+        var buttonCreateVenue = new InlineKeyboardButton(localizationService.getString("admin.venues.create"));
+        buttonCreateVenue.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_VENUES_CREATE));
 
-        return Stream.concat(Stream.of(buttonVenues), getCommonButtons());
+        var buttonEditVenues = new InlineKeyboardButton(localizationService.getString("admin.venues.edit"));
+        buttonEditVenues.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_VENUES_EDIT));
+
+        return Stream.concat(Stream.of(buttonCreateVenue, buttonEditVenues), getCommonButtons());
     }
 
     private Stream<InlineKeyboardButton> getSuperAdminMenuButtons() {
