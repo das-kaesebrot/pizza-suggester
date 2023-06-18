@@ -418,7 +418,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         var modifiedAt = StringUtils.escapeForMarkdownV2Format(user.getModifiedAt().toString());
         var userState = StringUtils.escapeForMarkdownV2Format(user.getState().toString());
 
-        return String.format("__*User %s*__\nSuperAdmin: %s\nAdmin: %s\nDiet: %s\nSelected venue: %s\nUser states: %s\nFirst seen: _%s_\nLast modified: _%s_", user.getChatId(), user.isSuperAdmin(), user.isAdmin(), user.getUserDiet(), user.getSelectedVenue(), userState, createdAt, modifiedAt);
+        return String.format("__*User %s*__\nSuperAdmin: %s\nAdmin: %s\nDiet: %s\nSelected venue: %s\nUser states: %s\nFirst seen: _%s_\nLast modified: _%s_", user.getChatId(), user.isSuperAdmin(), user.isAdmin(), user.getUserDiet(), user.getSelectedVenue().getId(), userState, createdAt, modifiedAt);
     }
 
     private Stream<InlineKeyboardButton> getLimitedAdminMenuButtons() {
