@@ -59,7 +59,21 @@ public class UserMenuServiceImpl implements UserMenuService {
 
         if (sanitizedData.startsWith(CALLBACK_VENUE_PREFIX))
         {
-            handleVenueCallback(user, sanitizedData, query, bot);
+            var selectedVenue = sanitizedData;
+            selectedVenue = selectedVenue.replace(String.format("%s-", CALLBACK_VENUE_SELECTION), "");
+
+            long venueId = Long.parseLong(selectedVenue);
+            var venue = venueRepository.findById(venueId);
+
+            if (venue.isEmpty())
+                throw new RuntimeException("Couldn't find a venue by given id!");
+
+            user.setSelectedVenue(venue.get());
+            user.removeState(UserState.SELECTING_VENUE);
+            cachedUserRepository.saveAndFlush(user);
+
+            bot.execute(new SendMessage(query.getFrom().getId().toString(),
+                    StringUtils.replacePropertiesVariable("venue_name", venue.get().getName(), localizationService.getString("select.venuesuccess"))));
         }
         else if (sanitizedData.startsWith(CALLBACK_DIET_PREFIX))
         {
@@ -70,10 +84,9 @@ public class UserMenuServiceImpl implements UserMenuService {
             cachedUserRepository.saveAndFlush(user);
 
             bot.execute(new SendMessage(query.getFrom().getId().toString(),
-                    String.format("%s: %s", localizationService.getString("select.dietsuccess"),
-                            localizationService.getString(String.format("%s.%s", MESSAGES_LABEL_DIET_PREFIX, selectedDiet.toLowerCase()))
-                    ))
-            );
+                    StringUtils.replacePropertiesVariable("diet_name",
+                            localizationService.getString(String.format("%s.%s", MESSAGES_LABEL_DIET_PREFIX, selectedDiet.toLowerCase())),
+                            localizationService.getString("select.dietsuccess"))));
         }
 
         return reply;
@@ -95,21 +108,6 @@ public class UserMenuServiceImpl implements UserMenuService {
         cachedUserRepository.save(user);
 
         return dietSelection;
-    }
-
-    private void handleVenueCallback(CachedUser user, String sanitizedData, CallbackQuery query, PizzaSuggesterBot bot) {
-        var selectedVenue = sanitizedData;
-        selectedVenue = selectedVenue.replace(String.format("%s-", CALLBACK_VENUE_PREFIX), "");
-
-        long venueId = Long.parseLong(selectedVenue);
-        var venue = venueRepository.findById(venueId);
-
-        if (venue.isEmpty())
-            throw new RuntimeException("Couldn't find a venue by given id!");
-
-        user.setSelectedVenue(venue.get());
-        user.removeState(UserState.SELECTING_VENUE);
-        cachedUserRepository.saveAndFlush(user);
     }
 
     private InlineKeyboardMarkup getDietSelectionMarkup() {
@@ -209,9 +207,10 @@ public class UserMenuServiceImpl implements UserMenuService {
 
     private String formatVenueForButton(Venue venue) {
         // TODO venue formatting
-        var pizzaInfoText = localizationService.getString("pizza.info");
+        var venueInfoText = localizationService.getString("venue.info");
+        venueInfoText = StringUtils.replacePropertiesVariable("venue_name", venue.getName(), venueInfoText);
 
-        return pizzaInfoText;
+        return venueInfoText;
     }
 
     private List<InlineKeyboardButton> getVenueButtons() {
