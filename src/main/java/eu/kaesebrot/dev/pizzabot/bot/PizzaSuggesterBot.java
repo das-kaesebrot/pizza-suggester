@@ -147,12 +147,11 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
             if (update.hasMessage()) {
                 var messageText = message.getText();
 
-                // if the incoming string is 32 chars long, we can assume it is a UUID
-                if (messageText.length() == 32) {
-                    return adminMenuService.handleKeyRedemption(user, messageText);
-                }
+                // branch if message is a command
+                if (messageText.startsWith("/")) {
+                    if (messageText.length() <= 1)
+                        throw new RuntimeException(String.format("Command %s is too short!", messageText));
 
-                if (messageText.length() > 1 && messageText.startsWith("/")) {
                     logger.debug("Update type: command");
                     messageText = messageText.substring(1);
 
@@ -188,8 +187,13 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                         case CONTACT:
                             // TODO
                             throw new UnsupportedOperationException("Not implemented yet!");
-                    }
-
+                        }
+                } else if (messageText.length() == 32 && user.hasState(UserState.SENDING_ADMIN_KEY)) {
+                    return adminMenuService.handleKeyRedemption(user, messageText);
+                } else if (user.hasState(UserState.CREATING_VENUE)) {
+                    return adminMenuService.handleVenueCreationReply(user, messageText);
+                } else if (user.hasState(UserState.MODIFYING_VENUE)) {
+                    return adminMenuService.handleVenueModificationReply(user, messageText);
                 }
             }
 
