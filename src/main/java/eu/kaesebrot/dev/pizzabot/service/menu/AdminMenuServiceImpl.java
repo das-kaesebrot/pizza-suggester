@@ -220,10 +220,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         if (!user.isAdmin())
             throw new NotAuthorizedException(String.format("User %s is not an admin!", user.getChatId()));
 
-        if (user.getSelectedVenue() == null)
-            throw new PendingVenueSelectionException("No venue selected by user yet!");
-
-        var venue = user.getSelectedVenue();
+        var venue = venueRepository.findById(venuesBeingEditedByUsers.get(user.getChatId())).get();
 
         var reply = new SendMessage();
         reply.setChatId(user.getChatId());
