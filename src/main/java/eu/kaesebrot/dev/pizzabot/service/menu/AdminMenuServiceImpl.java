@@ -4,10 +4,10 @@ import eu.kaesebrot.dev.pizzabot.bot.PizzaSuggesterBot;
 import eu.kaesebrot.dev.pizzabot.enums.UserDiet;
 import eu.kaesebrot.dev.pizzabot.enums.UserState;
 import eu.kaesebrot.dev.pizzabot.exceptions.NotAuthorizedException;
-import eu.kaesebrot.dev.pizzabot.exceptions.PendingVenueSelectionException;
 import eu.kaesebrot.dev.pizzabot.model.AdminKey;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.model.Pizza;
+import eu.kaesebrot.dev.pizzabot.model.Venue;
 import eu.kaesebrot.dev.pizzabot.repository.AdminKeyRepository;
 import eu.kaesebrot.dev.pizzabot.repository.CachedUserRepository;
 import eu.kaesebrot.dev.pizzabot.repository.VenueRepository;
@@ -59,6 +59,8 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     List<List<List<InlineKeyboardButton>>> pagedSuperAdminMenu;
     List<List<List<InlineKeyboardButton>>> pagedFullAdminMenu;
     List<List<List<InlineKeyboardButton>>> pagedLimitedAdminMenu;
+
+    HashMap<Long, Long> venuesBeingEditedByUsers = new HashMap<>();
 
     public AdminMenuServiceImpl(VenueRepository venueRepository, CachedUserRepository cachedUserRepository, AdminKeyRepository adminKeyRepository, UserMenuService userMenuService, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService) {
         this.venueRepository = venueRepository;
@@ -295,6 +297,60 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         logger.info(String.format("Processed %d rows and generated %d pizza objects, encountered %d errors", rows.size(), pizzas.size(), errorCounter));
 
         return reply;
+    }
+
+    @Override
+    public SendMessage handleVenueCreationReply(CachedUser user, String message) {
+        if (!user.isAdmin())
+            throw new NotAuthorizedException(String.format("User %d is not allowed to create new venues!", user.getChatId()));
+
+        if (!user.hasState(UserState.SENDING_VENUE_NAME))
+            throw new RuntimeException(String.format("User is not in required state %s!", UserState.SENDING_VENUE_NAME));
+
+        var venue = new Venue();
+        venue.setName(message.trim());
+
+        user.removeState(UserState.CREATING_VENUE);
+        user.removeState(UserState.SENDING_VENUE_NAME);
+
+        venueRepository.saveAndFlush(venue);
+        cachedUserRepository.saveAndFlush(user);
+
+        var text = localizationService.getString("admin.venues.create.success");
+        text = StringUtils.replacePropertiesVariable("name", venue.getName(), text);
+        text = StringUtils.replacePropertiesVariable("venue_edit_button_label", localizationService.getString("admin.venues.edit"), text);
+
+        return new SendMessage(user.getChatId().toString(), text);
+    }
+
+    @Override
+    public SendMessage handleVenueModificationReply(CachedUser user, String message) {
+        if (!user.isAdmin())
+            throw new NotAuthorizedException(String.format("User %d is not allowed to modify venues!", user.getChatId()));
+
+        if (!user.hasState(UserState.MODIFYING_VENUE))
+            throw new RuntimeException(String.format("User is not in required state %s!", UserState.SENDING_VENUE_NAME));
+
+        var venue = venueRepository.findById(venuesBeingEditedByUsers.get(user.getChatId())).get();
+
+        if (user.hasState(UserState.SENDING_VENUE_NAME)) {
+            venue.setName(message.trim());
+            user.removeState(UserState.SENDING_VENUE_NAME);
+        } else if (user.hasState(UserState.SENDING_VENUE_ADDRESS)) {
+            // TODO
+        } else if (user.hasState(UserState.SENDING_VENUE_PHONE_NUMBER)) {
+            // TODO
+        }
+
+        user.removeState(UserState.MODIFYING_VENUE);
+
+        venueRepository.saveAndFlush(venue);
+        cachedUserRepository.saveAndFlush(user);
+
+        var text = localizationService.getString("admin.venues.edit.success");
+        text = StringUtils.replacePropertiesVariable("name", venue.getName(), text);
+
+        return new SendMessage(user.getChatId().toString(), text);
     }
 
     private InlineKeyboardMarkup getAdminMenuMarkup(CachedUser user) {
