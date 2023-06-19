@@ -10,6 +10,9 @@ public final class StringUtils {
     }
 
     public static String replacePropertiesVariable(String variableName, String variableContent, String formattedString) {
+        if (variableContent == null)
+            variableContent = "";
+
         return formattedString.replace(String.format("$%s", variableName), variableContent);
     }
 
@@ -28,6 +31,9 @@ public final class StringUtils {
      * @return The escaped string
      */
     public static String escapeForMarkdownV2Format(String data) {
+        if (data == null)
+            data = "";
+
         for (var illegalChar: List.of('_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!')) {
             data = data.replace(illegalChar.toString(), String.format("\\%c", illegalChar));
         }
@@ -42,6 +48,9 @@ public final class StringUtils {
      * @return The escaped string
      */
     public static String escapeCodeForMarkdownV2Format(String data) {
+        if (data == null)
+            data = "";
+
         for (var illegalChar: List.of('`', '\\')) {
             data = data.replace(illegalChar.toString(), String.format("\\%c", illegalChar));
         }
