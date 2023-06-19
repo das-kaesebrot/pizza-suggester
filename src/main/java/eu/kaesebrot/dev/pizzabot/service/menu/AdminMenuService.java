@@ -12,6 +12,8 @@ public interface AdminMenuService extends MenuService {
     String CALLBACK_PREFIX = "admin";
     int MENU_COLUMNS = 1;
     int MENU_ROWS = 3;
+    int VENUE_SPECIFIC_EDIT_MENU_COLUMNS = 2;
+    int VENUE_SPECIFIC_EDIT_MENU_ROWS = 5;
 
     BotApiMethod<?> handleKeyRedemption(CachedUser user, String key);
     BotApiMethod<?> handleCsvUpload(CachedUser user, String fileId, PizzaSuggesterBot bot) throws TelegramApiException, IOException;
