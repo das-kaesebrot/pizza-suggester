@@ -394,19 +394,35 @@ public class AdminMenuServiceImpl implements AdminMenuService {
 
         var venue = venueRepository.findById(venuesBeingEditedByUsers.get(user.getChatId())).get();
 
-        if (user.hasState(UserState.SENDING_VENUE_NAME)) {
-            venue.setName(message.trim());
-            user.removeState(UserState.SENDING_VENUE_NAME);
-        } else if (user.hasState(UserState.SENDING_VENUE_ADDRESS)) {
-            // TODO
-        } else if (user.hasState(UserState.SENDING_VENUE_PHONE_NUMBER)) {
-            // TODO
+        try {
+            user.removeState(UserState.MODIFYING_VENUE);
+
+            var trimmedText = message.trim();
+
+            if (user.hasState(UserState.SENDING_VENUE_NAME)) {
+                user.removeState(UserState.SENDING_VENUE_NAME);
+
+                venue.setName(trimmedText);
+
+            } else if (user.hasState(UserState.SENDING_VENUE_ADDRESS)) {
+                user.removeState(UserState.SENDING_VENUE_ADDRESS);
+
+                var venueInfo = venue.getVenueInfo();
+                venueInfo.setAddress(trimmedText);
+                venue.setVenueInfo(venueInfo);
+
+            } else if (user.hasState(UserState.SENDING_VENUE_PHONE_NUMBER)) {
+                user.removeState(UserState.SENDING_VENUE_PHONE_NUMBER);
+
+                var venueInfo = venue.getVenueInfo();
+                venueInfo.setPhoneNumber(trimmedText);
+                venue.setVenueInfo(venueInfo);
+            }
+        } finally {
+            // always save, no matter what
+            venueRepository.saveAndFlush(venue);
+            cachedUserRepository.saveAndFlush(user);
         }
-
-        user.removeState(UserState.MODIFYING_VENUE);
-
-        venueRepository.saveAndFlush(venue);
-        cachedUserRepository.saveAndFlush(user);
 
         var text = localizationService.getString("admin.venues.edit.success");
         text = StringUtils.replacePropertiesVariable("name", venue.getName(), text);
