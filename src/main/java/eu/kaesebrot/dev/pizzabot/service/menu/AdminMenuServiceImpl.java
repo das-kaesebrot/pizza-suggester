@@ -193,6 +193,11 @@ public class AdminMenuServiceImpl implements AdminMenuService {
 
 
             case CALLBACK_ADMIN_VENUES_EDIT_NAME:
+            case CALLBACK_ADMIN_VENUES_EDIT_URL:
+            case CALLBACK_ADMIN_VENUES_EDIT_PHONE:
+            case CALLBACK_ADMIN_VENUES_EDIT_ADDRESS:
+            case CALLBACK_ADMIN_VENUES_EDIT_PIZZAS:
+                bot.execute(handleButtonPressChangeVenue(user, sanitizedData, number));
                 break;
 
             case CALLBACK_ADMIN_VENUES_DELETE:
@@ -507,6 +512,45 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     }
 
     //region venue edit submenu
+    private SendMessage handleButtonPressChangeVenue(CachedUser user, String operation, int venueId) {
+        var message = new SendMessage();
+        user.addState(UserState.MODIFYING_VENUE);
+        message.setChatId(user.getChatId());
+
+        switch (operation) {
+            case CALLBACK_ADMIN_VENUES_EDIT_NAME:
+                user.addState(UserState.SENDING_VENUE_NAME);
+                message.setText(localizationService.getString("admin.venues.edit.name.reply"));
+                break;
+
+            case CALLBACK_ADMIN_VENUES_EDIT_URL:
+                user.addState(UserState.SENDING_VENUE_URL);
+                message.setText(localizationService.getString("admin.venues.edit.url.reply"));
+                break;
+
+            case CALLBACK_ADMIN_VENUES_EDIT_PHONE:
+                user.addState(UserState.SENDING_VENUE_PHONE_NUMBER);
+                message.setText(localizationService.getString("admin.venues.edit.number.reply"));
+                break;
+
+            case CALLBACK_ADMIN_VENUES_EDIT_ADDRESS:
+                user.addState(UserState.SENDING_VENUE_ADDRESS);
+                message.setText(localizationService.getString("admin.venues.edit.address.reply"));
+                break;
+
+            case CALLBACK_ADMIN_VENUES_EDIT_PIZZAS:
+                user.addState(UserState.SENDING_VENUE_CSV);
+                message.setText(localizationService.getString("admin.venues.edit.pizzas.reply"));
+                break;
+        }
+
+        venuesBeingEditedByUsers.put(user.getChatId(), (long) venueId);
+
+        cachedUserRepository.saveAndFlush(user);
+
+        return message;
+    }
+
     private void handleButtonPressEditInSubmenuEditVenueForSpecificVenue(CachedUser user, int messageId, int venueId, PizzaSuggesterBot bot) throws TelegramApiException {
         var editMarkup = new EditMessageReplyMarkup();
         var venue = venueRepository.findById((long) venueId).get();
