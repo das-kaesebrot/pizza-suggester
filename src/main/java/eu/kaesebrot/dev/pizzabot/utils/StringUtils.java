@@ -59,8 +59,8 @@ public final class StringUtils {
     }
 
     public static int getNumberFromCallbackData(String data) {
-        if (data.matches("^\\w+--\\d+$")) {
-            return Integer.parseInt(data.replaceAll("^\\w+--", ""));
+        if (data.matches("^[a-zA-Z-]+--\\d+$")) {
+            return Integer.parseInt(data.replaceAll("^[a-zA-Z-]+--", ""));
         }
 
         return 0;
