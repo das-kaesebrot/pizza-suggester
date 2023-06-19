@@ -19,15 +19,15 @@ public class VenueInfo implements Serializable {
 
     private String phoneNumber;
 
+    private String address;
+
     private URL url;
 
     public VenueInfo() {
     }
 
-    public VenueInfo(double longitude, double latitude, String phoneNumber) {
-        this.longitude = longitude;
-        this.latitude = latitude;
-        this.phoneNumber = phoneNumber;
+    public VenueInfo(String address) {
+        this.address = address;
     }
 
     public VenueInfo(double longitude, double latitude, String phoneNumber, URL url) {
@@ -53,6 +53,10 @@ public class VenueInfo implements Serializable {
         return phoneNumber;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
     public URL getUrl() {
         return url;
     }
@@ -67,6 +71,10 @@ public class VenueInfo implements Serializable {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public void setUrl(URL url) {
