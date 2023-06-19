@@ -4,6 +4,7 @@ import eu.kaesebrot.dev.pizzabot.classes.IngredientList;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.model.Pizza;
 import eu.kaesebrot.dev.pizzabot.model.Venue;
+import eu.kaesebrot.dev.pizzabot.repository.PizzaRepository;
 import eu.kaesebrot.dev.pizzabot.repository.VenueRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,10 +19,12 @@ import java.util.Map.Entry;
 public class PizzaServiceImpl implements PizzaService {
     Logger logger = LoggerFactory.getLogger(PizzaServiceImpl.class);
     private final VenueRepository venueRepository;
+    private final PizzaRepository pizzaRepository;
     private HashMap<Long, IngredientList> venueIngredients;
 
-    public PizzaServiceImpl(VenueRepository venueRepository) {
+    public PizzaServiceImpl(VenueRepository venueRepository, PizzaRepository pizzaRepository) {
         this.venueRepository = venueRepository;
+        this.pizzaRepository = pizzaRepository;
     }
 
     @Override
@@ -96,7 +99,7 @@ public class PizzaServiceImpl implements PizzaService {
     public Pizza getRandomPizza(Venue venue, CachedUser user) {
         Random rand = new Random();
 
-        var menu = venue.getPizzaMenu();
+        var menu = pizzaRepository.findByVenueAndMinimumUserDietGreaterThanEqual(venue, user.getUserDiet());
 
         while (true) {
             var randPizza = menu.get(rand.nextInt(menu.size()));
