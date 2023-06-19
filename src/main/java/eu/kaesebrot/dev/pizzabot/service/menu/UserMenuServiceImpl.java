@@ -202,9 +202,9 @@ public class UserMenuServiceImpl implements UserMenuService {
     }
 
     private String formatVenueForButton(Venue venue) {
-        // TODO venue formatting
         var venueInfoText = localizationService.getString("venue.info");
         venueInfoText = StringUtils.replacePropertiesVariable("venue_name", venue.getName(), venueInfoText);
+        venueInfoText = StringUtils.replacePropertiesVariable("venue_address", venue.getVenueInfo().getAddress(), venueInfoText);
 
         return venueInfoText;
     }
