@@ -742,7 +742,9 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         if (!venueRepository.findAll().isEmpty() && (pagedVenueSelectionMenu == null ||
                 pagedVenueSelectionMenu.isEmpty() ||
                 lastPagedVenueSelectionUpdate == null ||
-                !venueRepository.findByModifiedAtGreaterThan(lastPagedVenueSelectionUpdate).isEmpty())) {
+                venueRepository.existsByModifiedAtAfter(lastPagedVenueSelectionUpdate) ||
+                venueRepository.existsByVenueInfoModifiedAtAfter(lastPagedVenueSelectionUpdate)
+        )) {
             pagedVenueSelectionMenu = inlineKeyboardService.getPagedInlineKeyboardButtonsWithBackButton(getVenueButtons(), MENU_COLUMNS, MENU_ROWS, CALLBACK_PREFIX + "-" + CALLBACK_ADMIN_VENUES_EDIT_PREFIX);
             lastPagedVenueSelectionUpdate = Timestamp.from(Instant.now());
         }

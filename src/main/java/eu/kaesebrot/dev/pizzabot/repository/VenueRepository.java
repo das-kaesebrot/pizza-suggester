@@ -5,9 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 @Repository
 public interface VenueRepository extends JpaRepository<Venue, Long> {
-    List<Venue> findByModifiedAtGreaterThan(Timestamp timestamp);
+    boolean existsByModifiedAtAfter(Timestamp timestamp);
+    boolean existsByVenueInfoModifiedAtAfter(Timestamp timestamp);
 }
