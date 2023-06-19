@@ -70,6 +70,9 @@ public class VenueInfo implements Serializable {
     }
 
     public void setPhoneNumber(String phoneNumber) {
+        if (!phoneNumber.matches("^\\+"))
+            throw new RuntimeException("Phone number needs to start with an area code!");
+
         this.phoneNumber = phoneNumber;
     }
 
