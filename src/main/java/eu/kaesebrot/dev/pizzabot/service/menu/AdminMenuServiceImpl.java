@@ -8,6 +8,7 @@ import eu.kaesebrot.dev.pizzabot.model.AdminKey;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.model.Pizza;
 import eu.kaesebrot.dev.pizzabot.model.Venue;
+import eu.kaesebrot.dev.pizzabot.properties.TelegramBotProperties;
 import eu.kaesebrot.dev.pizzabot.repository.AdminKeyRepository;
 import eu.kaesebrot.dev.pizzabot.repository.CachedUserRepository;
 import eu.kaesebrot.dev.pizzabot.repository.PizzaRepository;
@@ -51,6 +52,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     private final UserMenuService userMenuService;
     private final InlineKeyboardService inlineKeyboardService;
     private final LocalizationService localizationService;
+    private final TelegramBotProperties botProperties;
 
     public final String CALLBACK_ADMIN_VENUES_PREFIX = "v";
     // only used to get the submenu for editing venues from the admin menu
@@ -92,6 +94,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         this.userMenuService = userMenuService;
         this.inlineKeyboardService = inlineKeyboardService;
         this.localizationService = localizationService;
+        this.botProperties = botProperties;
     }
 
     @Override
@@ -302,7 +305,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         logger.info(String.format("Reading new pizza CSV for venue %s", venue));
 
         logger.debug(String.format("Handling new document by %s: %s", user , fileId));
-        String filePath = bot.execute(new GetFile(fileId)).getFilePath();
+        String filePath = bot.execute(new GetFile(fileId)).getFileUrl(botProperties.getBotToken());
 
         var outputStream = new ByteArrayOutputStream();
 
