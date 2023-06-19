@@ -32,6 +32,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
@@ -422,7 +423,15 @@ public class AdminMenuServiceImpl implements AdminMenuService {
                 var venueInfo = venue.getVenueInfo();
                 venueInfo.setPhoneNumber(trimmedText);
                 venue.setVenueInfo(venueInfo);
+            } else if (user.hasState(UserState.SENDING_VENUE_URL)) {
+                user.removeState(UserState.SENDING_VENUE_URL);
+
+                var venueInfo = venue.getVenueInfo();
+                venueInfo.setUrl(trimmedText);
+                venue.setVenueInfo(venueInfo);
             }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
         } finally {
             // always save, no matter what
             venueRepository.saveAndFlush(venue);
