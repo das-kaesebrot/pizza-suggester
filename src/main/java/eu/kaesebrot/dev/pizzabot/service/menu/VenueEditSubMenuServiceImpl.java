@@ -40,8 +40,8 @@ import java.time.Instant;
 import java.util.*;
 
 @Service
-public class VenuEditSubMenuServiceImpl implements VenueEditSubMenuService {
-    Logger logger = LoggerFactory.getLogger(VenuEditSubMenuServiceImpl.class);
+public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
+    Logger logger = LoggerFactory.getLogger(VenueEditSubMenuServiceImpl.class);
     private final CachedUserRepository cachedUserRepository;
     private final VenueRepository venueRepository;
     private final PizzaRepository pizzaRepository;
@@ -54,7 +54,7 @@ public class VenuEditSubMenuServiceImpl implements VenueEditSubMenuService {
 
     HashMap<Long, Long> venuesBeingEditedByUsers = new HashMap<>();
 
-    public VenuEditSubMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, PizzaRepository pizzaRepository, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService, TelegramBotProperties botProperties) {
+    public VenueEditSubMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, PizzaRepository pizzaRepository, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService, TelegramBotProperties botProperties) {
         this.cachedUserRepository = cachedUserRepository;
         this.venueRepository = venueRepository;
         this.pizzaRepository = pizzaRepository;
