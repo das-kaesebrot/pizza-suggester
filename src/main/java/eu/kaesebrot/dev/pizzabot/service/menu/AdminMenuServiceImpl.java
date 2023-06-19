@@ -690,4 +690,6 @@ public class AdminMenuServiceImpl implements AdminMenuService {
             lastPagedVenueSelectionUpdate = Timestamp.from(Instant.now());
         }
     }
+
+    //endregion
 }
