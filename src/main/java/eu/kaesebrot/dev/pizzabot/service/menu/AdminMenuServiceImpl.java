@@ -410,7 +410,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
             throw new NotAuthorizedException(String.format("User %d is not allowed to modify venues!", user.getChatId()));
 
         if (!user.hasState(UserState.MODIFYING_VENUE))
-            throw new RuntimeException(String.format("User is not in required state %s!", UserState.SENDING_VENUE_NAME));
+            throw new RuntimeException(String.format("User is not in required state %s!", UserState.MODIFYING_VENUE));
 
         var venue = venueRepository.findById(venuesBeingEditedByUsers.get(user.getChatId())).get();
 
