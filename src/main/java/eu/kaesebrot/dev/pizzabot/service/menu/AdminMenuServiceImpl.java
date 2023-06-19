@@ -111,11 +111,17 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         sanitizedData = StringUtils.stripNumberFromCallbackData(sanitizedData);
 
         switch (sanitizedData) {
-            case CALLBACK_ADMIN_VENUES_EDIT:
-                throw new UnsupportedOperationException("Not implemented yet!");
+            case CALLBACK_ADMIN_VENUES_EDIT_MENU_OP:
+            case CALLBACK_ADMIN_VENUES_EDIT_SUBMENU_PREFIX + "-" + InlineKeyboardService.CALLBACK_NAVIGATION_BACK:
+                handleButtonPressGetSubmenuVenues(user, query.getMessage().getMessageId(), bot);
+                break;
 
             case CALLBACK_ADMIN_VENUES_CREATE:
                 bot.execute(handleButtonPressCreateVenue(user));
+                break;
+
+            case CALLBACK_ADMIN_VENUES_EDIT_PREFIX:
+                handleButtonPressEditInSubmenuEditVenueForSpecificVenue(user, query.getMessage().getMessageId(), number, bot);
                 break;
 
             case CALLBACK_ADMIN_GENERATE_KEY:
@@ -168,6 +174,29 @@ public class AdminMenuServiceImpl implements AdminMenuService {
                 bot.execute(editMessage);
                 break;
 
+            // used for scrolling through venues in edit selection menu
+            case CALLBACK_ADMIN_VENUES_EDIT_PREFIX + "-" + InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE:
+                if (pagedVenueSelectionMenu.size() > 1) {
+                    var editVenueMenuMessage = new EditMessageReplyMarkup();
+                    editVenueMenuMessage.setChatId(user.getChatId().toString());
+                    editVenueMenuMessage.setMessageId(query.getMessage().getMessageId());
+                    editVenueMenuMessage.setReplyMarkup(getVenueSelectionMarkup(number));
+
+                    bot.execute(editVenueMenuMessage);
+                }
+                break;
+
+            case CALLBACK_ADMIN_VENUES_EDIT_PREFIX + "-" + InlineKeyboardService.CALLBACK_NAVIGATION_BACK:
+                handleButtonPressBackFromVenueEditMenu(user, query.getMessage().getMessageId(), bot);
+                break;
+
+
+            case CALLBACK_ADMIN_VENUES_EDIT_NAME:
+                break;
+
+            case CALLBACK_ADMIN_VENUES_DELETE:
+                break;
+
             default:
                 throw new IllegalArgumentException(String.format("Unknown callback data for admin menu! Given data: %s, CallbackQuery: %s", query.getData(), query));
         }
@@ -179,11 +208,20 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     public boolean canCallbackMenuBeDeletedAfterHandling(CallbackQuery query) {
         switch (StringUtils.stripNumberFromCallbackData(stripCallbackPrefix(query.getData()))) {
             case CALLBACK_ADMIN_ABOUT_ME:
-            case InlineKeyboardService.CALLBACK_NAVIGATION_BACK:
+            case CALLBACK_ADMIN_GENERATE_KEY:
+            case CALLBACK_ADMIN_VENUES_EDIT_PREFIX:
+            case CALLBACK_ADMIN_VENUES_EDIT_MENU_OP:
             case InlineKeyboardService.CALLBACK_NAVIGATION_PAGE:
             case InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE:
-            case CALLBACK_ADMIN_GENERATE_KEY:
-            case CALLBACK_ADMIN_VENUES_EDIT:
+            case CALLBACK_ADMIN_VENUES_EDIT_PREFIX + "-" + InlineKeyboardService.CALLBACK_NAVIGATION_PAGE:
+            case CALLBACK_ADMIN_VENUES_EDIT_PREFIX + "-" + InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE:
+            case CALLBACK_ADMIN_VENUES_EDIT_PREFIX + "-" + InlineKeyboardService.CALLBACK_NAVIGATION_BACK:
+            case CALLBACK_ADMIN_VENUES_EDIT_SUBMENU_PREFIX + "-" + InlineKeyboardService.CALLBACK_NAVIGATION_BACK:
+            case CALLBACK_ADMIN_VENUES_EDIT_NAME:
+            case CALLBACK_ADMIN_VENUES_EDIT_URL:
+            case CALLBACK_ADMIN_VENUES_EDIT_PHONE:
+            case CALLBACK_ADMIN_VENUES_EDIT_ADDRESS:
+            case CALLBACK_ADMIN_VENUES_EDIT_PIZZAS:
                 return false;
 
             default:
