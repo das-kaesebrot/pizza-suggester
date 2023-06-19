@@ -210,12 +210,14 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
 
         var pizzaDiet = localizationService.getString(String.format("%s.%s", UserMenuService.MESSAGES_LABEL_DIET_PREFIX, pizza.getMinimumUserDiet().toString().toLowerCase()));
 
+        var price = NumberFormat.getCurrencyInstance(Locale.GERMANY).format(pizza.getPrice());
+
         pizzaInfoText = StringUtils.replacePropertiesVariable("pizza_number",
                 pizza.getMenuNumber(), pizzaInfoText);
         pizzaInfoText = StringUtils.replacePropertiesVariable("pizza_name",
                 "Pizza", pizzaInfoText); // todo pizza name
         pizzaInfoText = StringUtils.replacePropertiesVariable("pizza_price",
-                StringUtils.escapeForMarkdownV2Format(NumberFormat.getInstance(Locale.GERMANY).format(pizza.getPrice())), pizzaInfoText);
+                StringUtils.escapeForMarkdownV2Format(price), pizzaInfoText);
         pizzaInfoText = StringUtils.replacePropertiesVariable("diet_compatibility",
                 pizzaDiet, pizzaInfoText);
 
