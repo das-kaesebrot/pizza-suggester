@@ -84,8 +84,8 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         AnswerCallbackQuery reply = new AnswerCallbackQuery(query.getId());
 
         var sanitizedData = stripCallbackPrefix(query.getData());
-        int pageNumber = getPageNumberFromCallbackData(sanitizedData);
-        sanitizedData = stripPageNumberFromCallbackData(sanitizedData);
+        int number = StringUtils.getNumberFromCallbackData(sanitizedData);
+        sanitizedData = StringUtils.stripNumberFromCallbackData(sanitizedData);
 
         switch (sanitizedData) {
             case CALLBACK_ADMIN_VENUES_EDIT:
@@ -140,7 +140,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
                 var editMessage = new EditMessageReplyMarkup();
                 editMessage.setChatId(user.getChatId().toString());
                 editMessage.setMessageId(query.getMessage().getMessageId());
-                editMessage.setReplyMarkup(getAdminMenuMarkup(user, pageNumber));
+                editMessage.setReplyMarkup(getAdminMenuMarkup(user, number));
 
                 bot.execute(editMessage);
                 break;

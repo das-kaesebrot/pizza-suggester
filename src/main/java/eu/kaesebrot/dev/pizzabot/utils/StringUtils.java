@@ -48,4 +48,20 @@ public final class StringUtils {
 
         return data;
     }
+
+    public static int getNumberFromCallbackData(String data) {
+        if (data.matches("^\\w+--\\d+$")) {
+            return Integer.parseInt(data.replaceAll("^\\w+--", ""));
+        }
+
+        return 0;
+    }
+
+    public static String appendNumberToCallbackData(String data, int number) {
+        return String.format("%s--%d", data, number);
+    }
+
+    public static String stripNumberFromCallbackData(String data) {
+        return data.replaceAll("--\\d+$", "");
+    }
 }
