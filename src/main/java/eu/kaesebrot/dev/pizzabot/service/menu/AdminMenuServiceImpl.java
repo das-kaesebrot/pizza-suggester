@@ -450,6 +450,8 @@ public class AdminMenuServiceImpl implements AdminMenuService {
             // always save, no matter what
             venueRepository.saveAndFlush(venue);
             cachedUserRepository.saveAndFlush(user);
+
+            venuesBeingEditedByUsers.remove(user.getChatId());
         }
 
         var text = localizationService.getString("admin.venues.edit.success");
