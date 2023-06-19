@@ -46,9 +46,23 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     private final InlineKeyboardService inlineKeyboardService;
     private final LocalizationService localizationService;
 
-    public final String CALLBACK_ADMIN_VENUES_PREFIX = "venues";
-    public final String CALLBACK_ADMIN_VENUES_EDIT = CALLBACK_ADMIN_VENUES_PREFIX + "-edit";
+    public final String CALLBACK_ADMIN_VENUES_PREFIX = "v";
+    // only used to get the submenu for editing venues from the admin menu
+    public final String CALLBACK_ADMIN_VENUES_EDIT_MENU_OP = CALLBACK_ADMIN_VENUES_PREFIX + "-menu";
+    // only used to initialize the venue creation process
     public final String CALLBACK_ADMIN_VENUES_CREATE = CALLBACK_ADMIN_VENUES_PREFIX + "-create";
+    // used in venue selection menu before editing a venue (overview of all venues to edit)
+    public final String CALLBACK_ADMIN_VENUES_EDIT_PREFIX = CALLBACK_ADMIN_VENUES_PREFIX + "-edit";
+
+    // used for buttons when selecting an edit operation for a venue
+    public final String CALLBACK_ADMIN_VENUES_EDIT_SUBMENU_PREFIX = CALLBACK_ADMIN_VENUES_EDIT_PREFIX + "-ops";
+    // used for editing the name
+    public final String CALLBACK_ADMIN_VENUES_EDIT_NAME = CALLBACK_ADMIN_VENUES_EDIT_SUBMENU_PREFIX + "-n";
+    public final String CALLBACK_ADMIN_VENUES_EDIT_ADDRESS = CALLBACK_ADMIN_VENUES_EDIT_SUBMENU_PREFIX + "-a";
+    public final String CALLBACK_ADMIN_VENUES_EDIT_URL = CALLBACK_ADMIN_VENUES_EDIT_SUBMENU_PREFIX + "-u";
+    public final String CALLBACK_ADMIN_VENUES_EDIT_PHONE = CALLBACK_ADMIN_VENUES_EDIT_SUBMENU_PREFIX + "-p";
+    public final String CALLBACK_ADMIN_VENUES_EDIT_PIZZAS = CALLBACK_ADMIN_VENUES_EDIT_SUBMENU_PREFIX + "-c";
+    public final String CALLBACK_ADMIN_VENUES_DELETE = CALLBACK_ADMIN_VENUES_EDIT_SUBMENU_PREFIX + "-d";
     public final String CALLBACK_ADMIN_REDEEM = "key-redeem";
     public final String CALLBACK_ADMIN_CHANGE_PERSONAL_VENUE = "change-personal-venue";
     public final String CALLBACK_ADMIN_CHANGE_DIET = "change-diet";
