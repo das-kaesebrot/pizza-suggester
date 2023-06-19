@@ -215,11 +215,12 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
         pizzaInfoText = StringUtils.replacePropertiesVariable("pizza_number",
                 pizza.getMenuNumber(), pizzaInfoText);
         pizzaInfoText = StringUtils.replacePropertiesVariable("pizza_name",
-                "Pizza", pizzaInfoText); // todo pizza name
+                pizza.getName(), pizzaInfoText);
         pizzaInfoText = StringUtils.replacePropertiesVariable("pizza_price",
                 StringUtils.escapeForMarkdownV2Format(price), pizzaInfoText);
         pizzaInfoText = StringUtils.replacePropertiesVariable("diet_compatibility",
                 pizzaDiet, pizzaInfoText);
+        pizzaInfoText = StringUtils.replacePropertiesVariable("pizza_ingredients", pizza.getIngredients().toString(), pizzaInfoText);
 
         return pizzaInfoText;
     }
