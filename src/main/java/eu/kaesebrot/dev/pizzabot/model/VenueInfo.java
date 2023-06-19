@@ -1,9 +1,13 @@
 package eu.kaesebrot.dev.pizzabot.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "venue_info")
@@ -22,6 +26,14 @@ public class VenueInfo implements Serializable {
     private String address;
 
     private URL url;
+
+    @CreationTimestamp
+    @Column(nullable = false)
+    private Timestamp createdAt;
+
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private Timestamp modifiedAt;
 
     public VenueInfo() {
     }
@@ -61,6 +73,14 @@ public class VenueInfo implements Serializable {
         return url;
     }
 
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public Timestamp getModifiedAt() {
+        return modifiedAt;
+    }
+
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
@@ -70,7 +90,9 @@ public class VenueInfo implements Serializable {
     }
 
     public void setPhoneNumber(String phoneNumber) {
-        if (!phoneNumber.matches("^\\+"))
+        phoneNumber = phoneNumber.replaceAll(" ", "");
+
+        if (!phoneNumber.matches("^\\+[0-9 ]+$"))
             throw new RuntimeException("Phone number needs to start with an area code!");
 
         this.phoneNumber = phoneNumber;
@@ -82,5 +104,9 @@ public class VenueInfo implements Serializable {
 
     public void setUrl(URL url) {
         this.url = url;
+    }
+
+    public void setUrl(String url) throws MalformedURLException {
+        this.url = new URL(url);
     }
 }
