@@ -72,6 +72,11 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     }
 
     @Override
+    public String getCallbackPrefix() {
+        return CALLBACK_PREFIX;
+    }
+
+    @Override
     public SendMessage getAdminMenu(CachedUser user) {
         SendMessage reply = new SendMessage(user.getChatId().toString(), localizationService.getString("reply.admin"));
         reply.setReplyMarkup(getAdminMenuMarkup(user));
@@ -470,24 +475,5 @@ public class AdminMenuServiceImpl implements AdminMenuService {
 
         if (pagedLimitedAdminMenu == null || pagedLimitedAdminMenu.isEmpty())
             pagedLimitedAdminMenu = inlineKeyboardService.getPagedInlineKeyboardButtonsWithFooterAndCloseButton(getLimitedAdminMenuButtons().toList(), MENU_COLUMNS, MENU_ROWS, CALLBACK_PREFIX);
-    }
-
-    private String stripCallbackPrefix(String data) {
-        return StringUtils.stripCallbackPrefix(CALLBACK_PREFIX, data);
-    }
-
-    private String prependCallbackPrefix(String data) {
-        return StringUtils.prependCallbackPrefix(CALLBACK_PREFIX, data);
-    }
-
-    private int getPageNumberFromCallbackData(String data) {
-        if (data.startsWith(InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE))
-            return Integer.parseInt(data.replace(String.format("%s--", InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE), ""));
-
-        return 0;
-    }
-
-    private String stripPageNumberFromCallbackData(String data) {
-        return data.replaceAll("--\\d*$", "");
     }
 }

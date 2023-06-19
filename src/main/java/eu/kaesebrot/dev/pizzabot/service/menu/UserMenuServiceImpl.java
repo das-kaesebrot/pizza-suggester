@@ -51,6 +51,11 @@ public class UserMenuServiceImpl implements UserMenuService {
     }
 
     @Override
+    public String getCallbackPrefix() {
+        return CALLBACK_PREFIX;
+    }
+
+    @Override
     public BotApiMethod<?> handleCallback(CachedUser user, CallbackQuery query, PizzaSuggesterBot bot) throws TelegramApiException
     {
         AnswerCallbackQuery reply = new AnswerCallbackQuery(query.getId());
@@ -195,15 +200,6 @@ public class UserMenuServiceImpl implements UserMenuService {
 
         return keyboard;
     }
-
-    private String stripCallbackPrefix(String data) {
-        return StringUtils.stripCallbackPrefix(CALLBACK_PREFIX, data);
-    }
-
-    private String prependCallbackPrefix(String data) {
-        return StringUtils.prependCallbackPrefix(CALLBACK_PREFIX, data);
-    }
-
 
     private String formatVenueForButton(Venue venue) {
         // TODO venue formatting

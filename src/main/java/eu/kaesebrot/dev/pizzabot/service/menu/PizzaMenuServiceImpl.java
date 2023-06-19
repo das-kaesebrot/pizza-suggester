@@ -45,12 +45,17 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
     }
 
     @Override
+    public String getCallbackPrefix() {
+        return CALLBACK_PREFIX;
+    }
+
+    @Override
     public BotApiMethod<?> handleCallback(CachedUser user, CallbackQuery query, PizzaSuggesterBot bot) throws TelegramApiException {
 
         AnswerCallbackQuery reply = new AnswerCallbackQuery(query.getId());
 
         var sanitizedData = stripCallbackPrefix(query.getData());
-        var sanitizedDataWithoutNumbers = stripNumberFromCallbackData(sanitizedData);
+        var sanitizedDataWithoutNumbers = StringUtils.stripNumberFromCallbackData(sanitizedData);
 
         switch (sanitizedDataWithoutNumbers) {
             case CALLBACK_PIZZA_INGREDIENT_TOGGLE:
@@ -73,7 +78,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
                 var editMessageMarkup = new EditMessageReplyMarkup();
                 editMessageMarkup.setChatId(user.getChatId().toString());
                 editMessageMarkup.setMessageId(query.getMessage().getMessageId());
-                editMessageMarkup.setReplyMarkup(getKeyboardForPage(user.getSelectedVenue(), getPageNumberFromCallbackData(sanitizedData)));
+                editMessageMarkup.setReplyMarkup(getKeyboardForPage(user.getSelectedVenue(), StringUtils.getNumberFromCallbackData(sanitizedData)));
 
                 bot.execute(editMessageMarkup);
                 break;
@@ -87,7 +92,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
 
     @Override
     public boolean canCallbackMenuBeDeletedAfterHandling(CallbackQuery query) {
-        switch (stripNumberFromCallbackData(stripCallbackPrefix(query.getData()))) {
+        switch (StringUtils.stripNumberFromCallbackData(stripCallbackPrefix(query.getData()))) {
             case InlineKeyboardService.CALLBACK_NAVIGATION_PAGE:
             case InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE:
             case CALLBACK_PIZZA_INGREDIENT_TOGGLE:
@@ -150,7 +155,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
 
             for (int index = 0; index < ingredientList.ingredients().size(); index++) {
                 var button = new InlineKeyboardButton(ingredientList.ingredients().get(index));
-                button.setCallbackData(String.format("%s-%s--%d", CALLBACK_PREFIX, CALLBACK_PIZZA_INGREDIENT_TOGGLE, index));
+                button.setCallbackData(StringUtils.appendNumberToCallbackData(String.format("%s-%s", CALLBACK_PREFIX, CALLBACK_PIZZA_INGREDIENT_TOGGLE), index));
 
                 listOfIngredientButtons.add(button);
             }
@@ -192,21 +197,6 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
         selectedUserIngredients.put(user.getChatId(), entry);
     }
 
-    private String stripCallbackPrefix(String data) {
-        return StringUtils.stripCallbackPrefix(CALLBACK_PREFIX, data);
-    }
-
-    private String prependCallbackPrefix(String data) {
-        return StringUtils.prependCallbackPrefix(CALLBACK_PREFIX, data);
-    }
-
-    private int getPageNumberFromCallbackData(String data) {
-        if (data.startsWith(InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE))
-            return Integer.parseInt(data.replace(String.format("%s--", InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE), ""));
-
-        return 0;
-    }
-
     private int getIngredientIndexFromCallbackData(String data) {
         if (data.startsWith(CALLBACK_PIZZA_INGREDIENT_TOGGLE))
             return Integer.parseInt(data.replace(String.format("%s--", CALLBACK_PIZZA_INGREDIENT_TOGGLE), ""));
@@ -229,9 +219,5 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
                 pizzaDiet, pizzaInfoText);
 
         return pizzaInfoText;
-    }
-
-    private String stripNumberFromCallbackData(String data) {
-        return data.replaceAll("--\\d*$", "");
     }
 }
