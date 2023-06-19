@@ -644,7 +644,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         buttonCreateVenue.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_VENUES_CREATE));
 
         var buttonEditVenues = new InlineKeyboardButton(localizationService.getString("admin.venues.edit"));
-        buttonEditVenues.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_VENUES_EDIT));
+        buttonEditVenues.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_VENUES_EDIT_MENU_OP));
 
         return Stream.concat(Stream.of(buttonCreateVenue, buttonEditVenues), getCommonButtons());
     }
