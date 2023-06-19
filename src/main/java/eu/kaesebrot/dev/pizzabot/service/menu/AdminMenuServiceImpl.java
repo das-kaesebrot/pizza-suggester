@@ -593,6 +593,10 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     }
 
     private void handleButtonPressGetSubmenuVenues(CachedUser user, int messageId, PizzaSuggesterBot bot) throws TelegramApiException {
+        if (venueRepository.findAll().isEmpty()) {
+            return;
+        }
+
         var message = new EditMessageText();
         message.setChatId(user.getChatId());
         message.setMessageId(messageId);
