@@ -208,6 +208,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
                 break;
 
             case CALLBACK_ADMIN_VENUES_DELETE:
+                bot.execute(handleButtonPressDeleteVenue(user, number));
                 break;
 
             default:
@@ -453,6 +454,22 @@ public class AdminMenuServiceImpl implements AdminMenuService {
 
         var text = localizationService.getString("admin.venues.edit.success");
         text = StringUtils.replacePropertiesVariable("name", venue.getName(), text);
+
+        return new SendMessage(user.getChatId().toString(), text);
+    }
+
+    private SendMessage handleButtonPressDeleteVenue(CachedUser user, int venueId) {
+
+        if (!user.isAdmin())
+            throw new NotAuthorizedException(String.format("User %d is not allowed to modify venues!", user.getChatId()));
+
+        var venue = venueRepository.findById((long) venueId).get();
+        var name = venue.getName();
+
+        venueRepository.delete(venue);
+
+        var text = localizationService.getString("admin.venues.edit.delete.reply");
+        text = StringUtils.replacePropertiesVariable("venue_name", name, text);
 
         return new SendMessage(user.getChatId().toString(), text);
     }
