@@ -40,6 +40,7 @@ public class UserMenuServiceImpl implements UserMenuService {
     private final VersionProperties versionProperties;
     private List<List<List<InlineKeyboardButton>>> pagedVenueSelectionMenu;
     private Timestamp lastPagedVenueSelectionUpdate;
+    private long lastAmountOfVenuesInRepository = 0;
 
     public UserMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService) {
         this.cachedUserRepository = cachedUserRepository;
@@ -227,10 +228,12 @@ public class UserMenuServiceImpl implements UserMenuService {
                 pagedVenueSelectionMenu.isEmpty() ||
                 lastPagedVenueSelectionUpdate == null ||
                 venueRepository.existsByModifiedAtAfter(lastPagedVenueSelectionUpdate) ||
-                venueRepository.existsByVenueInfoModifiedAtAfter(lastPagedVenueSelectionUpdate)
+                venueRepository.existsByVenueInfoModifiedAtAfter(lastPagedVenueSelectionUpdate) ||
+                lastAmountOfVenuesInRepository != venueRepository.count()
         ) {
             pagedVenueSelectionMenu = inlineKeyboardService.getPagedInlineKeyboardButtonsWithFooterAndCloseButton(getVenueButtons(), VENUE_SELECTION_COLUMNS, VENUE_SELECTION_ROWS, CALLBACK_VENUE_PREFIX);
             lastPagedVenueSelectionUpdate = Timestamp.from(Instant.now());
+            lastAmountOfVenuesInRepository = venueRepository.count();
         }
     }
 }
