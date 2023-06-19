@@ -33,6 +33,8 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -70,9 +72,11 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     public final String CALLBACK_ADMIN_FORGET_ME = "forget-me";
     public final String CALLBACK_ADMIN_GENERATE_KEY = "gen-key";
 
-    List<List<List<InlineKeyboardButton>>> pagedSuperAdminMenu;
-    List<List<List<InlineKeyboardButton>>> pagedFullAdminMenu;
-    List<List<List<InlineKeyboardButton>>> pagedLimitedAdminMenu;
+    private List<List<List<InlineKeyboardButton>>> pagedSuperAdminMenu;
+    private List<List<List<InlineKeyboardButton>>> pagedFullAdminMenu;
+    private List<List<List<InlineKeyboardButton>>> pagedLimitedAdminMenu;
+    private List<List<List<InlineKeyboardButton>>> pagedVenueSelectionMenu;
+    private Timestamp lastPagedVenueSelectionUpdate;
 
     HashMap<Long, Long> venuesBeingEditedByUsers = new HashMap<>();
 
@@ -489,5 +493,13 @@ public class AdminMenuServiceImpl implements AdminMenuService {
 
         if (pagedLimitedAdminMenu == null || pagedLimitedAdminMenu.isEmpty())
             pagedLimitedAdminMenu = inlineKeyboardService.getPagedInlineKeyboardButtonsWithFooterAndCloseButton(getLimitedAdminMenuButtons().toList(), MENU_COLUMNS, MENU_ROWS, CALLBACK_PREFIX);
+
+        if (!venueRepository.findAll().isEmpty() && (pagedVenueSelectionMenu == null ||
+                pagedVenueSelectionMenu.isEmpty() ||
+                lastPagedVenueSelectionUpdate == null ||
+                !venueRepository.findByModifiedAtGreaterThan(lastPagedVenueSelectionUpdate).isEmpty())) {
+            pagedVenueSelectionMenu = inlineKeyboardService.getPagedInlineKeyboardButtonsWithBackButton(getVenueButtons(), MENU_COLUMNS, MENU_ROWS, CALLBACK_PREFIX + "-" + CALLBACK_ADMIN_VENUES_EDIT_PREFIX);
+            lastPagedVenueSelectionUpdate = Timestamp.from(Instant.now());
+        }
     }
 }
