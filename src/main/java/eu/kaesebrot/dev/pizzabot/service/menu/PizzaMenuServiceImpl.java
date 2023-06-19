@@ -113,6 +113,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
         var text = formatPizzaForMessage(pizza);
         var formattedPizzaRandText = localizationService.getString("pizza.random");
         text = StringUtils.replacePropertiesVariable("pizza_info", text, formattedPizzaRandText);
+        text = StringUtils.replacePropertiesVariable("greeting", localizationService.getString("pizza.greeting"), text);
 
         SendMessage reply = new SendMessage(user.getChatId().toString(), text);
         reply.setParseMode(ParseMode.MARKDOWNV2);
