@@ -24,6 +24,7 @@ import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -473,6 +474,139 @@ public class AdminMenuServiceImpl implements AdminMenuService {
 
         return key;
     }
+
+    private void handleButtonPressBackFromVenueEditMenu(CachedUser user, int messageId, PizzaSuggesterBot bot) throws TelegramApiException {
+        var editMessageReplyMarkup = new EditMessageReplyMarkup();
+        editMessageReplyMarkup.setChatId(user.getChatId().toString());
+        editMessageReplyMarkup.setMessageId(messageId);
+        editMessageReplyMarkup.setReplyMarkup(getAdminMenuMarkup(user, 0));
+
+        var editMessageText = new EditMessageText();
+        editMessageText.setChatId(user.getChatId());
+        editMessageText.setMessageId(messageId);
+        editMessageText.setText(localizationService.getString("reply.admin"));
+
+        bot.execute(editMessageText);
+        bot.execute(editMessageReplyMarkup);
+    }
+
+    //region venue edit submenu
+    private void handleButtonPressEditInSubmenuEditVenueForSpecificVenue(CachedUser user, int messageId, int venueId, PizzaSuggesterBot bot) throws TelegramApiException {
+        var editMarkup = new EditMessageReplyMarkup();
+        var venue = venueRepository.findById((long) venueId).get();
+
+        editMarkup.setChatId(user.getChatId().toString());
+        editMarkup.setMessageId(messageId);
+        editMarkup.setReplyMarkup(getVenueSpecificOpsMarkup(venueId));
+
+        var editMessageText = new EditMessageText();
+
+        var text = localizationService.getString("admin.venues.edit.venue");
+
+        var url = venue.getVenueInfo().getUrl();
+        var urlString = "";
+        if (url != null)
+            urlString = url.toString();
+
+        text = StringUtils.replacePropertiesVariable("venue_name", StringUtils.escapeForMarkdownV2Format(venue.getName()), text);
+        text = StringUtils.replacePropertiesVariable("venue_url", StringUtils.escapeForMarkdownV2Format(urlString), text);
+        text = StringUtils.replacePropertiesVariable("venue_address", StringUtils.escapeForMarkdownV2Format(venue.getVenueInfo().getAddress()), text);
+        text = StringUtils.replacePropertiesVariable("venue_number", StringUtils.escapeForMarkdownV2Format(venue.getVenueInfo().getPhoneNumber()), text);
+        text = StringUtils.replacePropertiesVariable("venue_pizza_amount", String.valueOf(venue.getPizzaMenu().size()), text);
+
+        editMessageText.setChatId(user.getChatId().toString());
+        editMessageText.setMessageId(messageId);
+        editMessageText.setParseMode(ParseMode.MARKDOWNV2);
+        editMessageText.setText(text);
+
+        bot.execute(editMessageText);
+        bot.execute(editMarkup);
+    }
+
+    private void handleButtonPressGetSubmenuVenues(CachedUser user, int messageId, PizzaSuggesterBot bot) throws TelegramApiException {
+        var message = new EditMessageText();
+        message.setChatId(user.getChatId());
+        message.setMessageId(messageId);
+        message.setText(localizationService.getString("admin.venues.edit.message"));
+
+        var editMessageReplyMarkup = new EditMessageReplyMarkup();
+        editMessageReplyMarkup.setChatId(user.getChatId());
+        editMessageReplyMarkup.setMessageId(messageId);
+        editMessageReplyMarkup.setReplyMarkup(getVenueSelectionMarkup(0));
+
+        bot.execute(message);
+        bot.execute(editMessageReplyMarkup);
+    }
+
+    private InlineKeyboardMarkup getVenueSpecificOpsMarkup(int venueId) {
+        var venue = venueRepository.findById((long) venueId).get();
+
+        var keyboard = new InlineKeyboardMarkup();
+
+        var pagedMenu = inlineKeyboardService.getPagedInlineKeyboardButtonsWithBackButtonWithoutPageButtons(getVenueSpecificOps(venue), VENUE_SPECIFIC_EDIT_MENU_COLUMNS, VENUE_SPECIFIC_EDIT_MENU_ROWS, CALLBACK_PREFIX + "-" + CALLBACK_ADMIN_VENUES_EDIT_SUBMENU_PREFIX);
+
+        keyboard.setKeyboard(pagedMenu.get(0));
+
+        return keyboard;
+    }
+
+    private List<InlineKeyboardButton> getVenueSpecificOps(Venue venue) {
+        var buttonChangeName = new InlineKeyboardButton(localizationService.getString("admin.venues.edit.name"));
+        buttonChangeName.setCallbackData(StringUtils.appendNumberToCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_VENUES_EDIT_NAME), Math.toIntExact(venue.getId())));
+
+        var buttonChangeUrl = new InlineKeyboardButton(localizationService.getString("admin.venues.edit.url"));
+        buttonChangeUrl.setCallbackData(StringUtils.appendNumberToCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_VENUES_EDIT_URL), Math.toIntExact(venue.getId())));
+
+        var buttonChangeAddress = new InlineKeyboardButton(localizationService.getString("admin.venues.edit.address"));
+        buttonChangeAddress.setCallbackData(StringUtils.appendNumberToCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_VENUES_EDIT_ADDRESS), Math.toIntExact(venue.getId())));
+
+        var buttonChangeNumber = new InlineKeyboardButton(localizationService.getString("admin.venues.edit.number"));
+        buttonChangeNumber.setCallbackData(StringUtils.appendNumberToCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_VENUES_EDIT_PHONE), Math.toIntExact(venue.getId())));
+
+        var buttonUploadPizzaCsv = new InlineKeyboardButton(localizationService.getString("admin.venues.edit.pizzas"));
+        buttonUploadPizzaCsv.setCallbackData(StringUtils.appendNumberToCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_VENUES_EDIT_PIZZAS), Math.toIntExact(venue.getId())));
+
+        var buttonDelete = new InlineKeyboardButton(localizationService.getString("admin.venues.edit.delete"));
+        buttonDelete.setCallbackData(StringUtils.appendNumberToCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_VENUES_DELETE), Math.toIntExact(venue.getId())));
+
+        return List.of(buttonChangeName, buttonChangeUrl, buttonChangeAddress, buttonChangeNumber, buttonUploadPizzaCsv, buttonDelete);
+    }
+
+    private List<InlineKeyboardButton> getVenueButtons() {
+        var venueButtons = new ArrayList<InlineKeyboardButton>();
+
+        for (Venue venue : venueRepository.findAll())
+        {
+            var button = new InlineKeyboardButton(formatVenueForButton(venue));
+            button.setCallbackData(StringUtils.appendNumberToCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_VENUES_EDIT_PREFIX), Math.toIntExact(venue.getId())));
+            venueButtons.add(button);
+        }
+
+        return venueButtons;
+    }
+
+    private String formatVenueForButton(Venue venue) {
+        var venueInfoText = localizationService.getString("venue.info");
+        venueInfoText = StringUtils.replacePropertiesVariable("venue_name", venue.getName(), venueInfoText);
+        venueInfoText = StringUtils.replacePropertiesVariable("venue_address", venue.getVenueInfo().getAddress(), venueInfoText);
+
+        return venueInfoText;
+    }
+
+
+    private InlineKeyboardMarkup getVenueSelectionMarkup(int page) {
+        regenerateMenuCaches();
+
+        var keyboard = new InlineKeyboardMarkup();
+
+        keyboard.setKeyboard(pagedVenueSelectionMenu.get(page));
+
+        return keyboard;
+    }
+
+    //endregion
+
+    //region helper methods
 
     private String getAboutData(CachedUser user) {
         var createdAt = StringUtils.escapeForMarkdownV2Format(user.getCreatedAt().toString());
