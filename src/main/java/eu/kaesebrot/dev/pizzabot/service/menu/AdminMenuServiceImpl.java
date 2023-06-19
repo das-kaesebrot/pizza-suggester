@@ -10,6 +10,7 @@ import eu.kaesebrot.dev.pizzabot.model.Pizza;
 import eu.kaesebrot.dev.pizzabot.model.Venue;
 import eu.kaesebrot.dev.pizzabot.repository.AdminKeyRepository;
 import eu.kaesebrot.dev.pizzabot.repository.CachedUserRepository;
+import eu.kaesebrot.dev.pizzabot.repository.PizzaRepository;
 import eu.kaesebrot.dev.pizzabot.repository.VenueRepository;
 import eu.kaesebrot.dev.pizzabot.service.InlineKeyboardService;
 import eu.kaesebrot.dev.pizzabot.service.LocalizationService;
@@ -46,6 +47,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     private final VenueRepository venueRepository;
     private final CachedUserRepository cachedUserRepository;
     private final AdminKeyRepository adminKeyRepository;
+    private final PizzaRepository pizzaRepository;
     private final UserMenuService userMenuService;
     private final InlineKeyboardService inlineKeyboardService;
     private final LocalizationService localizationService;
@@ -82,10 +84,11 @@ public class AdminMenuServiceImpl implements AdminMenuService {
 
     HashMap<Long, Long> venuesBeingEditedByUsers = new HashMap<>();
 
-    public AdminMenuServiceImpl(VenueRepository venueRepository, CachedUserRepository cachedUserRepository, AdminKeyRepository adminKeyRepository, UserMenuService userMenuService, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService) {
+    public AdminMenuServiceImpl(VenueRepository venueRepository, CachedUserRepository cachedUserRepository, AdminKeyRepository adminKeyRepository, PizzaRepository pizzaRepository, UserMenuService userMenuService, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService, TelegramBotProperties botProperties) {
         this.venueRepository = venueRepository;
         this.cachedUserRepository = cachedUserRepository;
         this.adminKeyRepository = adminKeyRepository;
+        this.pizzaRepository = pizzaRepository;
         this.userMenuService = userMenuService;
         this.inlineKeyboardService = inlineKeyboardService;
         this.localizationService = localizationService;
@@ -358,8 +361,15 @@ public class AdminMenuServiceImpl implements AdminMenuService {
             }
         }
 
-        venue.setPizzaMenu(pizzas);
-        venueRepository.saveAndFlush(venue);
+        user.removeState(UserState.MODIFYING_VENUE);
+        user.removeState(UserState.SENDING_VENUE_CSV);
+
+        // remove all previous pizzas for that venue
+        if (!pizzaRepository.findByVenue(venue).isEmpty())
+            pizzaRepository.deleteAll(pizzaRepository.findByVenue(venue));
+
+        pizzaRepository.saveAllAndFlush(pizzas);
+        cachedUserRepository.saveAndFlush(user);
 
         logger.info(String.format("Processed %d rows and generated %d pizza objects, encountered %d errors", rows.size(), pizzas.size(), errorCounter));
 
