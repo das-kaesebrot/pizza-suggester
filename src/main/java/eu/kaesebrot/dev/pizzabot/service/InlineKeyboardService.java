@@ -12,18 +12,11 @@ public interface InlineKeyboardService {
     String CALLBACK_NAVIGATION_PAGE = "invalid";
     String CALLBACK_NAVIGATION_CONFIRM = "confirm";
     String CALLBACK_NAVIGATION_CLOSE = "close-menu";
-
-    /**
-     * Rows and columns use default values {@link #DEFAULT_COLUMNS} and {@link #DEFAULT_ROWS}. A checkmark is not inserted in the navigation.
-     * @param buttons The buttons to be used for generating the pages
-     * @param withNavigationFooter Whether to add a footer for navigation purposes (back/forward buttons, page number, etc)
-     * @param navigationFooterCallbackPrefix Prefix to use for generating navigation buttons. Can be null or empty.
-     * @return A list containing all pages with the corresponding data
-     */
-    List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtons(List<InlineKeyboardButton> buttons, boolean withNavigationFooter, String navigationFooterCallbackPrefix);
-    List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtonsWithFooterAndCheckmark(List<InlineKeyboardButton> buttons, long columns, long rows,String navigationFooterCallbackPrefix);
-    List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtonsWithFooterAndCloseButton(List<InlineKeyboardButton> buttons, long columns, long rows,String navigationFooterCallbackPrefix);
-    List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtonsWithFooterCheckmarkAndCloseButton(List<InlineKeyboardButton> buttons, long columns, long rows,String navigationFooterCallbackPrefix);
+    List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtonsWithFooterAndCheckmark(List<InlineKeyboardButton> buttons, long columns, long rows, String navigationFooterCallbackPrefix);
+    List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtonsWithFooterAndCloseButton(List<InlineKeyboardButton> buttons, long columns, long rows, String navigationFooterCallbackPrefix);
+    List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtonsWithFooterCheckmarkAndCloseButton(List<InlineKeyboardButton> buttons, long columns, long rows, String navigationFooterCallbackPrefix);
+    List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtonsWithBackButton(List<InlineKeyboardButton> buttons, long columns, long rows, String navigationFooterCallbackPrefix);
+    List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtonsWithBackButtonWithoutPageButtons(List<InlineKeyboardButton> buttons, long columns, long rows, String navigationFooterCallbackPrefix);
 
     /**
      * @param buttons The buttons to be used for generating the pages
@@ -36,7 +29,7 @@ public interface InlineKeyboardService {
      * @param navigationWithBackButton Whether to add a Back button to the navigation footer.
      * @return A list containing all pages with the corresponding data
      */
-    List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtons(List<InlineKeyboardButton> buttons, long columns, long rows, boolean withNavigationFooter, String navigationFooterCallbackPrefix, boolean navigationWithCheckmarkButton, boolean navigationWithCloseButton, boolean navigationWithBackButton);
+    List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtons(List<InlineKeyboardButton> buttons, long columns, long rows, boolean withNavigationFooter, String navigationFooterCallbackPrefix, boolean withPageScrolling, boolean navigationWithCheckmarkButton, boolean navigationWithCloseButton, boolean navigationWithBackButton);
 
 
     /**
@@ -48,5 +41,5 @@ public interface InlineKeyboardService {
      * @param withBackButton Whether to add a Back button to the navigation footer.
      * @return A list of keyboard buttons to be used in an inline keyboard.
      */
-    List<InlineKeyboardButton> getNavigationFooter(Long zeroBasedPageIndex, Long totalAmountOfPages, String callbackPrefix, boolean withCheckmark, boolean withClose, boolean withBackButton);
+    List<InlineKeyboardButton> getNavigationFooter(Long zeroBasedPageIndex, Long totalAmountOfPages, String callbackPrefix, boolean withPageScrolling, boolean withCheckmark, boolean withClose, boolean withBackButton);
 }

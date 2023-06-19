@@ -17,23 +17,28 @@ public class InlineKeyboardServiceImpl implements InlineKeyboardService {
     }
 
     @Override
-    public List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtons(List<InlineKeyboardButton> buttons, boolean withNavigationFooter, String navigationFooterCallbackPrefix) {
-        return getPagedInlineKeyboardButtons(buttons, DEFAULT_COLUMNS, DEFAULT_ROWS, withNavigationFooter, navigationFooterCallbackPrefix, false, false, false);
-    }
-
-    @Override
     public List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtonsWithFooterAndCheckmark(List<InlineKeyboardButton> buttons, long columns, long rows, String navigationFooterCallbackPrefix) {
-        return getPagedInlineKeyboardButtons(buttons, columns, rows, true, navigationFooterCallbackPrefix, true, false, false);
+        return getPagedInlineKeyboardButtons(buttons, columns, rows, true, navigationFooterCallbackPrefix, true, true, false, false);
     }
 
     @Override
     public List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtonsWithFooterAndCloseButton(List<InlineKeyboardButton> buttons, long columns, long rows, String navigationFooterCallbackPrefix) {
-        return getPagedInlineKeyboardButtons(buttons, columns, rows, true, navigationFooterCallbackPrefix, false, true, false);
+        return getPagedInlineKeyboardButtons(buttons, columns, rows, true, navigationFooterCallbackPrefix, true, false, true, false);
     }
 
     @Override
     public List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtonsWithFooterCheckmarkAndCloseButton(List<InlineKeyboardButton> buttons, long columns, long rows, String navigationFooterCallbackPrefix) {
-        return getPagedInlineKeyboardButtons(buttons, columns, rows, true, navigationFooterCallbackPrefix, true, true, false);
+        return getPagedInlineKeyboardButtons(buttons, columns, rows, true, navigationFooterCallbackPrefix, true, true, true, false);
+    }
+
+    @Override
+    public List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtonsWithBackButton(List<InlineKeyboardButton> buttons, long columns, long rows, String navigationFooterCallbackPrefix) {
+        return getPagedInlineKeyboardButtons(buttons, columns, rows, true, navigationFooterCallbackPrefix, true, false, false, true);
+    }
+
+    @Override
+    public List<List<List<InlineKeyboardButton>>> getPagedInlineKeyboardButtonsWithBackButtonWithoutPageButtons(List<InlineKeyboardButton> buttons, long columns, long rows, String navigationFooterCallbackPrefix) {
+        return getPagedInlineKeyboardButtons(buttons, columns, rows, true, navigationFooterCallbackPrefix, false, false, false, true);
     }
 
     @Override
@@ -44,6 +49,7 @@ public class InlineKeyboardServiceImpl implements InlineKeyboardService {
                 long rows,
                 boolean withNavigationFooter,
                 String navigationFooterCallbackPrefix,
+                boolean withPageScrolling,
                 boolean withCheckmark,
                 boolean withClose,
                 boolean withBackButton
@@ -69,7 +75,7 @@ public class InlineKeyboardServiceImpl implements InlineKeyboardService {
 
                 for (long columnCounter = 0; columnCounter < columns; columnCounter++) {
                     long pageOffset = columns * rows * page;
-                    long indexWithOffset = columnCounter + rowCounter + pageOffset;
+                    long indexWithOffset = columnCounter + columns * rowCounter + pageOffset;
 
                     if (indexWithOffset >= buttons.size())
                         break;
@@ -81,7 +87,7 @@ public class InlineKeyboardServiceImpl implements InlineKeyboardService {
             }
 
             if (withNavigationFooter)
-                pageRows.add(getNavigationFooter(page, pagesNeeded, navigationFooterCallbackPrefix, withCheckmark, withClose, withBackButton));
+                pageRows.add(getNavigationFooter(page, pagesNeeded, navigationFooterCallbackPrefix, withPageScrolling, withCheckmark, withClose, withBackButton));
 
             listOfPages.add(pageRows);
         }
@@ -90,29 +96,34 @@ public class InlineKeyboardServiceImpl implements InlineKeyboardService {
     }
 
     @Override
-    public List<InlineKeyboardButton> getNavigationFooter(Long zeroBasedPageIndex, Long totalAmountOfPages, String callbackPrefix, boolean withCheckmark, boolean withClose, boolean withBackButton) {
+    public List<InlineKeyboardButton> getNavigationFooter(Long zeroBasedPageIndex, Long totalAmountOfPages, String callbackPrefix, boolean withPageScrolling, boolean withCheckmark, boolean withClose, boolean withBackButton) {
         var prefix = "";
+        ArrayList<InlineKeyboardButton> pageButtons = new ArrayList<>();
         ArrayList<InlineKeyboardButton> additionalButtons = new ArrayList<>();
 
         if (!StringUtils.isNullOrEmpty(callbackPrefix))
             prefix = String.format("%s-", callbackPrefix);
 
-        long nextPage = zeroBasedPageIndex + 1;
-        if (nextPage >= totalAmountOfPages)
-            nextPage = 0;
+        if (withPageScrolling) {
+            long nextPage = zeroBasedPageIndex + 1;
+            if (nextPage >= totalAmountOfPages)
+                nextPage = 0;
 
-        long previousPage = zeroBasedPageIndex - 1;
-        if (previousPage < 0)
-            previousPage = totalAmountOfPages - 1;
+            long previousPage = zeroBasedPageIndex - 1;
+            if (previousPage < 0)
+                previousPage = totalAmountOfPages - 1;
 
-        var buttonPreviousPage = new InlineKeyboardButton(localizationService.getString("label.prevpage"));
-        buttonPreviousPage.setCallbackData(String.format("%s%s--%d", prefix, CALLBACK_NAVIGATION_GETPAGE, previousPage));
+            var buttonPreviousPage = new InlineKeyboardButton(localizationService.getString("label.prevpage"));
+            buttonPreviousPage.setCallbackData(String.format("%s%s--%d", prefix, CALLBACK_NAVIGATION_GETPAGE, previousPage));
 
-        var buttonNextPage = new InlineKeyboardButton(localizationService.getString("label.nextpage"));
-        buttonNextPage.setCallbackData(String.format("%s%s--%d", prefix, CALLBACK_NAVIGATION_GETPAGE, nextPage));
+            var buttonNextPage = new InlineKeyboardButton(localizationService.getString("label.nextpage"));
+            buttonNextPage.setCallbackData(String.format("%s%s--%d", prefix, CALLBACK_NAVIGATION_GETPAGE, nextPage));
 
-        var buttonPages = new InlineKeyboardButton(String.format("%s %d/%d", localizationService.getString("label.page"), zeroBasedPageIndex + 1, totalAmountOfPages));
-        buttonPages.setCallbackData(String.format("%s%s", prefix, CALLBACK_NAVIGATION_PAGE));
+            var buttonPages = new InlineKeyboardButton(String.format("%s %d/%d", localizationService.getString("label.page"), zeroBasedPageIndex + 1, totalAmountOfPages));
+            buttonPages.setCallbackData(String.format("%s%s", prefix, CALLBACK_NAVIGATION_PAGE));
+
+            pageButtons.addAll(List.of(buttonPreviousPage, buttonNextPage, buttonPages));
+        }
 
         if (withCheckmark) {
             var buttonCheckmark = new InlineKeyboardButton(localizationService.getString("label.checkmark"));
@@ -135,6 +146,6 @@ public class InlineKeyboardServiceImpl implements InlineKeyboardService {
             additionalButtons.add(buttonBack);
         }
 
-        return Stream.concat(Stream.of(buttonPreviousPage, buttonNextPage, buttonPages), additionalButtons.stream()).toList();
+        return Stream.concat(pageButtons.stream(), additionalButtons.stream()).toList();
     }
 }
