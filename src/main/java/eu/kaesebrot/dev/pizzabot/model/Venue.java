@@ -43,6 +43,7 @@ public class Venue implements Serializable {
     private Timestamp modifiedAt;
 
     public Venue() {
+        venueInfo = new VenueInfo();
     }
 
     public Venue(String name, String description, VenueInfo venueInfo) {
