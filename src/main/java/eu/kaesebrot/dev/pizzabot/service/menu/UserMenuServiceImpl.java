@@ -62,24 +62,40 @@ public class UserMenuServiceImpl implements UserMenuService {
         AnswerCallbackQuery reply = new AnswerCallbackQuery(query.getId());
 
         var sanitizedData = stripCallbackPrefix(query.getData());
+        var number = StringUtils.getNumberFromCallbackData(sanitizedData);
+        sanitizedData = StringUtils.stripNumberFromCallbackData(sanitizedData);
 
         if (sanitizedData.startsWith(CALLBACK_VENUE_PREFIX))
         {
-            var selectedVenue = sanitizedData;
-            selectedVenue = selectedVenue.replace(String.format("%s-", CALLBACK_VENUE_SELECTION), "");
+            sanitizedData = sanitizedData.replace(CALLBACK_VENUE_PREFIX + "-", "");
 
-            long venueId = Long.parseLong(selectedVenue);
-            var venue = venueRepository.findById(venueId);
+            switch (sanitizedData) {
+                case CALLBACK_VENUE_SELECTION:
+                    long venueId = number;
+                    var venue = venueRepository.findById(venueId);
 
-            if (venue.isEmpty())
-                throw new RuntimeException("Couldn't find a venue by given id!");
+                    if (venue.isEmpty())
+                        throw new RuntimeException("Couldn't find a venue by given id!");
 
-            user.setSelectedVenue(venue.get());
-            user.removeState(UserState.SELECTING_VENUE);
-            cachedUserRepository.saveAndFlush(user);
+                    user.setSelectedVenue(venue.get());
+                    user.removeState(UserState.SELECTING_VENUE);
+                    cachedUserRepository.saveAndFlush(user);
 
-            bot.execute(new SendMessage(query.getFrom().getId().toString(),
-                    StringUtils.replacePropertiesVariable("venue_name", venue.get().getName(), localizationService.getString("select.venuesuccess"))));
+                    bot.execute(new SendMessage(query.getFrom().getId().toString(),
+                            StringUtils.replacePropertiesVariable("venue_name", venue.get().getName(), localizationService.getString("select.venuesuccess"))));
+                case InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE:
+                    if (pagedVenueSelectionMenu.size() > 1) {
+                        var editVenueMenu = new EditMessageReplyMarkup();
+                        editVenueMenu.setMessageId(query.getMessage().getMessageId());
+                        editVenueMenu.setChatId(user.getChatId());
+                        editVenueMenu.setReplyMarkup(getVenueSelectionMarkup(number));
+
+                        bot.execute(editVenueMenu);
+                    }
+
+                case InlineKeyboardService.CALLBACK_NAVIGATION_PAGE:
+                    reply.setText(localizationService.getString("admin.pagepress"));
+            }
         }
         else if (sanitizedData.startsWith(CALLBACK_DIET_PREFIX))
         {
