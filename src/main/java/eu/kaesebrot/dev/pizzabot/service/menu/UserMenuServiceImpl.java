@@ -216,7 +216,7 @@ public class UserMenuServiceImpl implements UserMenuService {
         for (Venue venue : venueRepository.findAll())
         {
             var button = new InlineKeyboardButton(formatVenueForButton(venue));
-            button.setCallbackData(prependCallbackPrefix(String.format("%s-%d", CALLBACK_VENUE_SELECTION, venue.getId())));
+            button.setCallbackData(prependCallbackPrefix(StringUtils.appendNumberToCallbackData(CALLBACK_VENUE_PREFIX + "-" + CALLBACK_VENUE_SELECTION, Math.toIntExact(venue.getId()))));
             venueButtons.add(button);
         }
 
@@ -231,7 +231,7 @@ public class UserMenuServiceImpl implements UserMenuService {
                 venueRepository.existsByVenueInfoModifiedAtAfter(lastPagedVenueSelectionUpdate) ||
                 lastAmountOfVenuesInRepository != venueRepository.count()
         ) {
-            pagedVenueSelectionMenu = inlineKeyboardService.getPagedInlineKeyboardButtonsWithFooterAndCloseButton(getVenueButtons(), VENUE_SELECTION_COLUMNS, VENUE_SELECTION_ROWS, CALLBACK_VENUE_PREFIX);
+            pagedVenueSelectionMenu = inlineKeyboardService.getPagedInlineKeyboardButtonsWithFooterAndCloseButton(getVenueButtons(), VENUE_SELECTION_COLUMNS, VENUE_SELECTION_ROWS, getCallbackPrefix() + "-" + CALLBACK_VENUE_PREFIX);
             lastPagedVenueSelectionUpdate = Timestamp.from(Instant.now());
             lastAmountOfVenuesInRepository = venueRepository.count();
         }

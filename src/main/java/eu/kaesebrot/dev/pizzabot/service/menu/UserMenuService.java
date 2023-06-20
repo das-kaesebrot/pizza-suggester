@@ -9,7 +9,7 @@ public interface UserMenuService extends MenuService {
     String CALLBACK_PREFIX = "usermenu";
     String CALLBACK_DIET_PREFIX = "diet";
     String CALLBACK_VENUE_PREFIX = "venue";
-    String CALLBACK_VENUE_SELECTION = CALLBACK_VENUE_PREFIX + "-select";
+    String CALLBACK_VENUE_SELECTION = "select";
     String MESSAGES_LABEL_DIET_PREFIX = "label.diet";
     int VENUE_SELECTION_COLUMNS = 1;
     int VENUE_SELECTION_ROWS = 3;
