@@ -135,7 +135,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
         // initialize ingredient selection array
         selectedUserIngredients.put(user.getChatId(), new ArrayList<>());
 
-        SendMessage reply = new SendMessage(user.getChatId().toString(), localizationService.getString("pizza.random"));
+        SendMessage reply = new SendMessage(user.getChatId().toString(), localizationService.getString("pizza.selectingredients"));
         reply.setParseMode(ParseMode.MARKDOWNV2);
 
         reply.setReplyMarkup(getKeyboardForPage(user.getSelectedVenue(), 0));
