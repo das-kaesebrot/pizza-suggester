@@ -116,7 +116,16 @@ public class UserMenuServiceImpl implements UserMenuService {
 
     @Override
     public boolean canCallbackMenuBeDeletedAfterHandling(CallbackQuery query) {
-        return true;
+        var sanitizedData = StringUtils.stripNumberFromCallbackData(stripCallbackPrefix(query.getData()));
+
+        switch (sanitizedData) {
+            case CALLBACK_VENUE_PREFIX + "-" + InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE:
+            case CALLBACK_VENUE_PREFIX + "-" + InlineKeyboardService.CALLBACK_NAVIGATION_PAGE:
+                return false;
+
+            default:
+                return true;
+        }
     }
 
     @Override
