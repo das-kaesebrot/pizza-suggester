@@ -465,6 +465,9 @@ Probiere es bitte noch einmal:
 
         paramsDefault = {"chat_id": from_id}
 
+        if not ("text" in update["message"].keys()):
+          return
+
         # Response for /start or /help
         if (update["message"]["text"] == commandStart) or (update["message"]["text"] == commandHelp):
             sendTyping(methodChatAction, from_id)
