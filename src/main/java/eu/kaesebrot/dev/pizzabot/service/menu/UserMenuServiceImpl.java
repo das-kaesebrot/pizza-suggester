@@ -162,7 +162,7 @@ public class UserMenuServiceImpl implements UserMenuService {
         SendMessage venueSelection = new SendMessage();
         venueSelection.setChatId(user.getChatId());
         venueSelection.setText(localizationService.getString("select.venue"));
-        venueSelection.setReplyMarkup(getVenueSelectionMarkup());
+        venueSelection.setReplyMarkup(getVenueSelectionMarkup(0));
 
         user.addState(UserState.SELECTING_VENUE);
         cachedUserRepository.save(user);
@@ -218,11 +218,11 @@ public class UserMenuServiceImpl implements UserMenuService {
         return msg;
     }
 
-    private InlineKeyboardMarkup getVenueSelectionMarkup() {
+    private InlineKeyboardMarkup getVenueSelectionMarkup(int page) {
         var keyboard = new InlineKeyboardMarkup();
         regenerateMenuCaches();
 
-        keyboard.setKeyboard(pagedVenueSelectionMenu.get(0));
+        keyboard.setKeyboard(pagedVenueSelectionMenu.get(page));
 
         return keyboard;
     }
