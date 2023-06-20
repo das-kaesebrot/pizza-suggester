@@ -2,10 +2,12 @@ package eu.kaesebrot.dev.pizzabot.service.menu;
 
 import eu.kaesebrot.dev.pizzabot.bot.PizzaSuggesterBot;
 import eu.kaesebrot.dev.pizzabot.classes.IngredientButtonList;
+import eu.kaesebrot.dev.pizzabot.enums.UserDiet;
 import eu.kaesebrot.dev.pizzabot.exceptions.PendingVenueSelectionException;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.model.Pizza;
 import eu.kaesebrot.dev.pizzabot.model.Venue;
+import eu.kaesebrot.dev.pizzabot.properties.TelegramBotProperties;
 import eu.kaesebrot.dev.pizzabot.repository.VenueRepository;
 import eu.kaesebrot.dev.pizzabot.service.InlineKeyboardService;
 import eu.kaesebrot.dev.pizzabot.service.LocalizationService;
@@ -34,14 +36,16 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
     private final InlineKeyboardService inlineKeyboardService;
     private final PizzaService pizzaService;
     private final LocalizationService localizationService;
+    private final TelegramBotProperties botProperties;
     private HashMap<Long, IngredientButtonList> venueIngredientButtons = new HashMap<>();
     private HashMap<Long, List<Integer>> selectedUserIngredients = new HashMap<>();
 
-    public PizzaMenuServiceImpl(VenueRepository venueRepository, LocalizationService localizationService, InlineKeyboardService inlineKeyboardService, PizzaService pizzaService, LocalizationService localizationService1) {
+    public PizzaMenuServiceImpl(VenueRepository venueRepository, LocalizationService localizationService, InlineKeyboardService inlineKeyboardService, PizzaService pizzaService, LocalizationService localizationService1, TelegramBotProperties botProperties) {
         this.venueRepository = venueRepository;
         this.inlineKeyboardService = inlineKeyboardService;
         this.pizzaService = pizzaService;
         this.localizationService = localizationService1;
+        this.botProperties = botProperties;
     }
 
     @Override
@@ -208,8 +212,6 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
     private String formatPizzaForMessage(Pizza pizza) {
         var pizzaInfoText = localizationService.getString("pizza.info");
 
-        var pizzaDiet = localizationService.getString(String.format("%s.%s", UserMenuService.MESSAGES_LABEL_DIET_PREFIX, pizza.getMinimumUserDiet().toString().toLowerCase()));
-
         var price = NumberFormat.getCurrencyInstance(Locale.GERMANY).format(pizza.getPrice());
 
         pizzaInfoText = StringUtils.replacePropertiesVariable("pizza_number",
@@ -219,9 +221,55 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
         pizzaInfoText = StringUtils.replacePropertiesVariable("pizza_price",
                 StringUtils.escapeForMarkdownV2Format(price), pizzaInfoText);
         pizzaInfoText = StringUtils.replacePropertiesVariable("diet_compatibility",
-                pizzaDiet, pizzaInfoText);
-        pizzaInfoText = StringUtils.replacePropertiesVariable("pizza_ingredients", pizza.getIngredients().toString(), pizzaInfoText);
+                StringUtils.escapeForMarkdownV2Format(getPizzaDietString(pizza.getMinimumUserDiet())), pizzaInfoText);
+        pizzaInfoText = StringUtils.replacePropertiesVariable("pizza_ingredients", StringUtils.escapeForMarkdownV2Format(formatIngredientListAsReadableString(pizza.getIngredients())), pizzaInfoText);
 
         return pizzaInfoText;
+    }
+
+    private String formatIngredientListAsReadableString(List<String> ingredients) {
+        var ingredientsWithGrammar = new ArrayList<String>();
+        for (var ingredient: ingredients) {
+            ingredientsWithGrammar.add(StringUtils.applyGrammarRules(ingredient, botProperties.getPrimaryLocale()));
+        }
+
+        ingredients = ingredientsWithGrammar;
+
+        if (ingredients.size() == 1)
+            return ingredients.get(0);
+
+        var andString = localizationService.getString("pizza.ingredients.and");
+
+        StringBuilder ingredientsString = new StringBuilder();
+
+        if (ingredients.size() == 1)
+            return ingredients.get(0);
+
+        for (int index = 0; index < ingredients.size(); index++) {
+            if (ingredients.size() > 2 && index < ingredients.size() - 2) {
+                ingredientsString
+                        .append(ingredients.get(index))
+                        .append(", ");
+            }
+
+            if (index == ingredients.size() - 2) {
+                ingredientsString
+                        .append(ingredients.get(index))
+                        .append(" ")
+                        .append(andString)
+                        .append(" ");
+            }
+
+            if (index == ingredients.size() - 1) {
+                ingredientsString.append(ingredients.get(index));
+            }
+
+        }
+
+        return ingredientsString.toString();
+    }
+
+    private String getPizzaDietString(UserDiet diet) {
+        return localizationService.getString(String.format("pizza.diet.%s", diet.toString().toLowerCase()));
     }
 }
