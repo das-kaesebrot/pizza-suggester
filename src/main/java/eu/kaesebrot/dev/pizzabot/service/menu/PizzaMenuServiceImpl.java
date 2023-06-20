@@ -60,10 +60,11 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
 
         var sanitizedData = stripCallbackPrefix(query.getData());
         var sanitizedDataWithoutNumbers = StringUtils.stripNumberFromCallbackData(sanitizedData);
+        var number = StringUtils.getNumberFromCallbackData(sanitizedData);
 
         switch (sanitizedDataWithoutNumbers) {
             case CALLBACK_PIZZA_INGREDIENT_TOGGLE:
-                toggleSelectedIngredient(user, getIngredientIndexFromCallbackData(sanitizedData));
+                toggleSelectedIngredient(user, number);
 
                 var editMessageText = new EditMessageText();
                 editMessageText.setText(getMessageStringForIngredientToggle(user));
@@ -82,7 +83,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
                 var editMessageMarkup = new EditMessageReplyMarkup();
                 editMessageMarkup.setChatId(user.getChatId().toString());
                 editMessageMarkup.setMessageId(query.getMessage().getMessageId());
-                editMessageMarkup.setReplyMarkup(getKeyboardForPage(user.getSelectedVenue(), StringUtils.getNumberFromCallbackData(sanitizedData)));
+                editMessageMarkup.setReplyMarkup(getKeyboardForPage(user.getSelectedVenue(), number));
 
                 bot.execute(editMessageMarkup);
                 break;
@@ -202,13 +203,6 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
             entry.add(ingredientIndex);
 
         selectedUserIngredients.put(user.getChatId(), entry);
-    }
-
-    private int getIngredientIndexFromCallbackData(String data) {
-        if (data.startsWith(CALLBACK_PIZZA_INGREDIENT_TOGGLE))
-            return Integer.parseInt(data.replace(String.format("%s--", CALLBACK_PIZZA_INGREDIENT_TOGGLE), ""));
-
-        return 0;
     }
 
     private String formatPizzaForMessage(Pizza pizza) {
