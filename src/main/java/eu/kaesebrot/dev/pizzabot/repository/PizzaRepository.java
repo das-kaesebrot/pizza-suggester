@@ -13,7 +13,6 @@ import java.util.Set;
 public interface PizzaRepository extends JpaRepository<Pizza, Long> {
     List<Pizza> findByVenue(Venue venue);
     List<Pizza> findByVenueAndMinimumUserDietGreaterThanEqual(Venue venue, UserDiet diet);
-    List<Pizza> findByVenueAndIngredientsContainingAndMinimumUserDietGreaterThanEqualOrderByPriceAsc(Venue venue, Set<String> ingredients, UserDiet minimumUserDiet);
     void deletePizzasByVenue(Venue venue);
     boolean existsPizzasByVenue(Venue venue);
 }
