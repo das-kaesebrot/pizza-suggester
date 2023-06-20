@@ -237,8 +237,8 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
         user.removeState(UserState.SENDING_VENUE_CSV);
 
         // remove all previous pizzas for that venue
-        if (!pizzaRepository.findByVenue(venue).isEmpty())
-            pizzaRepository.deleteAll(pizzaRepository.findByVenue(venue));
+        if (pizzaRepository.existsPizzasByVenue(venue))
+            pizzaRepository.deletePizzasByVenue(venue);
 
         pizzaRepository.saveAllAndFlush(pizzas);
         cachedUserRepository.save(user);
