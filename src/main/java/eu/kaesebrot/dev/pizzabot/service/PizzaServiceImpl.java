@@ -1,6 +1,7 @@
 package eu.kaesebrot.dev.pizzabot.service;
 
 import eu.kaesebrot.dev.pizzabot.classes.IngredientList;
+import eu.kaesebrot.dev.pizzabot.enums.UserDiet;
 import eu.kaesebrot.dev.pizzabot.exceptions.NoPizzasFoundException;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.model.Pizza;
@@ -52,23 +53,23 @@ public class PizzaServiceImpl implements PizzaService {
     }
 
     @Override
-    public List<Pizza> getMatchingPizzasByIngredientIndexList(Long venueId, List<Integer> ingredientIndexList) {
+    public List<Pizza> getMatchingPizzasByIngredientIndexList(Long venueId, UserDiet diet, List<Integer> ingredientIndexList) {
         List<String> ingredients = new LinkedList<>();
 
         for (int ingredientIndex: ingredientIndexList) {
             ingredients.add(resolveIngredientFromIndex(venueId, ingredientIndex));
         }
 
-        return getMatchingPizzasByIngredientStrings(venueId, ingredients);
+        return getMatchingPizzasByIngredientStrings(venueId, diet, ingredients);
     }
 
     @Override
-    public List<Pizza> getMatchingPizzasByIngredientStrings(Long venueId, List<String> ingredients) {
+    public List<Pizza> getMatchingPizzasByIngredientStrings(Long venueId, UserDiet diet, List<String> ingredients) {
         if (!venueRepository.existsById(venueId))
             throw new RuntimeException(String.format("Can't find venue by id %s!", venueId));
 
         //noinspection OptionalGetWithoutIsPresent
-        var menu = pizzaRepository.findByVenue(venueRepository.findById(venueId).get());
+        var menu = pizzaRepository.findByVenueAndMinimumUserDietGreaterThanEqual(venueRepository.findById(venueId).get(), diet);
 
         List<Pizza> matches = new LinkedList<>();
 
