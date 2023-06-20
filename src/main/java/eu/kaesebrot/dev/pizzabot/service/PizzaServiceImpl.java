@@ -68,11 +68,11 @@ public class PizzaServiceImpl implements PizzaService {
             throw new RuntimeException(String.format("Can't find venue by id %s!", venueId));
 
         //noinspection OptionalGetWithoutIsPresent
-        var venue = venueRepository.findById(venueId).get();
+        var menu = pizzaRepository.findByVenue(venueRepository.findById(venueId).get());
 
         List<Pizza> matches = new LinkedList<>();
 
-        for (Pizza pizza: venue.getPizzaMenu()) {
+        for (Pizza pizza: menu) {
             if (new HashSet<>(pizza.getIngredients()).containsAll(ingredients)) {
                 matches.add(pizza);
             }
