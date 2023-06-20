@@ -3,33 +3,29 @@ package eu.kaesebrot.dev.pizzabot.service.menu;
 import eu.kaesebrot.dev.pizzabot.bot.PizzaSuggesterBot;
 import eu.kaesebrot.dev.pizzabot.enums.UserDiet;
 import eu.kaesebrot.dev.pizzabot.enums.UserState;
-import eu.kaesebrot.dev.pizzabot.exceptions.PendingVenueSelectionException;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
-import eu.kaesebrot.dev.pizzabot.model.Pizza;
 import eu.kaesebrot.dev.pizzabot.model.Venue;
 import eu.kaesebrot.dev.pizzabot.properties.VersionProperties;
 import eu.kaesebrot.dev.pizzabot.repository.CachedUserRepository;
 import eu.kaesebrot.dev.pizzabot.repository.VenueRepository;
 import eu.kaesebrot.dev.pizzabot.service.InlineKeyboardService;
 import eu.kaesebrot.dev.pizzabot.service.LocalizationService;
-import eu.kaesebrot.dev.pizzabot.service.PizzaService;
 import eu.kaesebrot.dev.pizzabot.utils.StringUtils;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.sql.Timestamp;
-import java.text.NumberFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 @Service
 public class UserMenuServiceImpl implements UserMenuService {
