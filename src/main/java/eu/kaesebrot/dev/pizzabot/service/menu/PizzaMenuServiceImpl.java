@@ -222,7 +222,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
     private void toggleSelectedIngredient(CachedUser user, int ingredientIndex) {
         var entry = selectedUserIngredients.get(user.getChatId());
         if (entry.contains(ingredientIndex))
-            entry.remove(ingredientIndex);
+            entry.remove((Integer) ingredientIndex); // cast to integer to remove by value instead of index
         else
             entry.add(ingredientIndex);
 
