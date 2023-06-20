@@ -227,7 +227,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
             logger.error("Exception encountered while handling an update", e);
             if (isDebug) {
                 var stackTraceZero = e.getStackTrace()[0];
-                reply.setText(String.format("Encountered exception:\n```java\n%s\n\tat %s.%s(%s:%d)\n```",
+                reply.setText(String.format("Encountered unhandled exception:\n```java\n%s\n\tat %s.%s(%s:%d)\n```",
                         StringUtils.escapeCodeForMarkdownV2Format(e.toString()),
                         stackTraceZero.getClassName(), stackTraceZero.getMethodName(), stackTraceZero.getFileName(),
                         stackTraceZero.getLineNumber()));
