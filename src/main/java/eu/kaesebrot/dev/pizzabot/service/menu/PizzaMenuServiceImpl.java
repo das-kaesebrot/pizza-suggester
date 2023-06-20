@@ -76,6 +76,9 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
                 bot.execute(editMessageText);
                 break;
 
+            case InlineKeyboardService.CALLBACK_NAVIGATION_CONFIRM:
+                bot.execute(handleButtonPressConfirmIngredients(user));
+                break;
 
             case InlineKeyboardService.CALLBACK_NAVIGATION_PAGE:
                 reply.setText(localizationService.getString("admin.pagepress"));
