@@ -182,16 +182,16 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
         if (ingredients == null || ingredients.isEmpty())
             return localizationService.getString("pizza.selectingredients");
 
-        var ingredientString = "";
+        StringBuilder ingredientString = new StringBuilder();
 
         for (int i = 0; i < ingredients.size(); i++) {
-            ingredientString += pizzaService.resolveIngredientFromIndex(user.getSelectedVenue().getId(), ingredients.get(i));
+            ingredientString.append(pizzaService.resolveIngredientFromIndex(user.getSelectedVenue().getId(), ingredients.get(i)));
             if (i < ingredients.size() - 1) {
-                ingredientString += ", ";
+                ingredientString.append(", ");
             }
         }
 
-        text = StringUtils.replacePropertiesVariable("ingredients", ingredientString, text);
+        text = StringUtils.replacePropertiesVariable("ingredients", ingredientString.toString(), text);
         return text;
     }
 
