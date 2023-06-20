@@ -82,12 +82,12 @@ public class PizzaServiceImpl implements PizzaService {
     }
 
     @Override
-    public List<Pizza> filterSortAndTrimListOfPizzasForUser(CachedUser user, List<Pizza> allMatches) {
+    public List<Pizza> filterSortAndTrimListOfPizzasForUser(CachedUser user, List<Pizza> allMatches, int maxResults) {
         return allMatches
                 .stream()
                 .filter(p -> p.getMinimumUserDiet().ordinal() >= user.getUserDiet().ordinal())
                 .sorted(Comparator.comparing(Pizza::getPrice))
-                .limit(MAX_PIZZA_RESULTS)
+                .limit(maxResults)
                 .toList();
     }
 
