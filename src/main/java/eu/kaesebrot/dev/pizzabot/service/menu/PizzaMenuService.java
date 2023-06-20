@@ -9,6 +9,7 @@ import java.util.Optional;
 public interface PizzaMenuService extends MenuService {
     int maxIngredientKeyboardRows = 3;
     int maxIngredientKeyboardColumns = 2;
+    int MAX_PIZZA_RESULTS = 3;
     String CALLBACK_PREFIX = "pizzamenu";
     String CALLBACK_PIZZA_INGREDIENT_TOGGLE = "ingr";
     SendMessage getRandomPizza(CachedUser user);
