@@ -79,6 +79,8 @@ public class UserMenuServiceImpl implements UserMenuService {
 
                     bot.execute(new SendMessage(query.getFrom().getId().toString(),
                             StringUtils.replacePropertiesVariable("venue_name", venue.get().getName(), localizationService.getString("select.venuesuccess"))));
+                    break;
+
                 case InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE:
                     if (pagedVenueSelectionMenu.size() > 1) {
                         var editVenueMenu = new EditMessageReplyMarkup();
@@ -88,9 +90,11 @@ public class UserMenuServiceImpl implements UserMenuService {
 
                         bot.execute(editVenueMenu);
                     }
+                    break;
 
                 case InlineKeyboardService.CALLBACK_NAVIGATION_PAGE:
                     reply.setText(localizationService.getString("admin.pagepress"));
+                    break;
             }
         }
         else if (sanitizedData.startsWith(CALLBACK_DIET_PREFIX))
