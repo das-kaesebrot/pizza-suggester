@@ -73,7 +73,7 @@ public class PizzaServiceImpl implements PizzaService {
         List<Pizza> matches = new LinkedList<>();
 
         for (Pizza pizza: venue.getPizzaMenu()) {
-            if (pizza.getIngredients().containsAll(ingredients)) {
+            if (new HashSet<>(pizza.getIngredients()).containsAll(ingredients)) {
                 matches.add(pizza);
             }
         }

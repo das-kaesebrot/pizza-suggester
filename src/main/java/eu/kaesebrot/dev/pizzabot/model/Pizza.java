@@ -8,7 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "pizza")
@@ -22,8 +22,9 @@ public class Pizza implements Serializable {
     private String name;
 
     private BigDecimal price;
+
     @ElementCollection
-    private Set<String> ingredients;
+    private List<String> ingredients;
 
     private UserDiet minimumUserDiet;
 
@@ -49,7 +50,7 @@ public class Pizza implements Serializable {
         this.venue = venue;
     }
 
-    public Pizza(String menuNumber, String name, BigDecimal price, Set<String> ingredients, UserDiet minimumUserDiet, Venue venue) {
+    public Pizza(String menuNumber, String name, BigDecimal price, List<String> ingredients, UserDiet minimumUserDiet, Venue venue) {
         this.menuNumber = menuNumber;
         this.name = name;
         this.price = price;
@@ -70,7 +71,7 @@ public class Pizza implements Serializable {
         this.price = price;
     }
 
-    public void setIngredients(Set<String> ingredients) {
+    public void setIngredients(List<String> ingredients) {
         this.ingredients = ingredients;
     }
 
@@ -94,7 +95,7 @@ public class Pizza implements Serializable {
         return price;
     }
 
-    public Set<String> getIngredients() {
+    public List<String> getIngredients() {
         return ingredients;
     }
 

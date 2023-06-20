@@ -213,7 +213,7 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
                 String number = row.get(0).trim();
                 String name = row.get(1).trim();
                 BigDecimal price = new BigDecimal(row.get(2));
-                Set<String> ingredients = Set.of(row.get(3).trim().split(","));
+                List<String> ingredients = List.of(row.get(3).trim().split(","));
                 UserDiet minimumUserDiet;
                 try {
                     minimumUserDiet = UserDiet.valueOf(row.get(4).trim().toUpperCase());
