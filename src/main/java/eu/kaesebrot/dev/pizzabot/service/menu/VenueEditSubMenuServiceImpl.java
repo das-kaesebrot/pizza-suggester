@@ -132,6 +132,7 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
             case InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE:
             case InlineKeyboardService.CALLBACK_NAVIGATION_BACK:
             case CALLBACK_SUBMENU_PREFIX:
+            case CALLBACK_CREATE_VENUE:
             case CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-" + InlineKeyboardService.CALLBACK_NAVIGATION_BACK:
             case CALLBACK_ROOT_MENU:
             case CALLBACK_EDIT_NAME:
