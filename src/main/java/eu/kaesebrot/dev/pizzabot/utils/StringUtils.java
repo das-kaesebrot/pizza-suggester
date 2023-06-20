@@ -1,6 +1,7 @@
 package eu.kaesebrot.dev.pizzabot.utils;
 
 import java.util.List;
+import java.util.Locale;
 
 public final class StringUtils {
     private StringUtils() {}
@@ -72,5 +73,15 @@ public final class StringUtils {
 
     public static String stripNumberFromCallbackData(String data) {
         return data.replaceAll("--\\d+$", "");
+    }
+
+    public static String applyGrammarRules(String ingredient, String locale) {
+
+        // there's probably a better way to do this, but for now I'm doing it this way
+        if (Locale.forLanguageTag(locale) == Locale.GERMAN) {
+            ingredient = ingredient.replaceAll("er\\ |es\\ ", "em ");
+        }
+
+        return ingredient;
     }
 }
