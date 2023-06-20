@@ -156,6 +156,18 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
         return reply;
     }
 
+    private SendMessage handleButtonPressConfirmIngredients(CachedUser user) {
+        var reply =  new SendMessage();
+        reply.setChatId(user.getChatId());
+
+        var allMatchingPizzas = pizzaService.getMatchingPizzasByIngredientIndexList(user.getSelectedVenue().getId(), user.getUserDiet(), selectedUserIngredients.get(user.getChatId()));
+        allMatchingPizzas = pizzaService.filterSortAndTrimListOfPizzasForUser(user, allMatchingPizzas, MAX_PIZZA_RESULTS);
+
+        // TODO implement handling
+
+        return reply;
+    }
+
     private InlineKeyboardMarkup getKeyboardForPage(Venue venue, int pageNumber) {
         regenerateInlineKeyboardPageCache();
 
