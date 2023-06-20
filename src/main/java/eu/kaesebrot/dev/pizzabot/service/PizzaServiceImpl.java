@@ -21,7 +21,7 @@ public class PizzaServiceImpl implements PizzaService {
     Logger logger = LoggerFactory.getLogger(PizzaServiceImpl.class);
     private final VenueRepository venueRepository;
     private final PizzaRepository pizzaRepository;
-    private HashMap<Long, IngredientList> venueIngredients;
+    private HashMap<Long, IngredientList> venueIngredients = new HashMap<>();
 
     public PizzaServiceImpl(VenueRepository venueRepository, PizzaRepository pizzaRepository) {
         this.venueRepository = venueRepository;
