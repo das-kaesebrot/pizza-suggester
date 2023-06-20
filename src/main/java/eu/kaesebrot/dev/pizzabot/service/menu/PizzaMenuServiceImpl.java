@@ -97,7 +97,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
                 break;
 
             default:
-                throw new IllegalArgumentException(String.format("Unknown callback data for pizza menu! Given data: %s, CallbackQuery: %s", query.getData(), query));
+                throw new IllegalArgumentException(String.format("Unknown callback data for pizza menu! Given data: %s", query.getData()));
         }
 
         return reply;
