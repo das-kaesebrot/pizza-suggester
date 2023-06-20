@@ -225,8 +225,8 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     }
 
     @Override
-    public SendMessage handleVenueModificationReply(CachedUser user, String message) {
-        return venueEditSubMenuService.handleVenueModificationReply(user, message);
+    public SendMessage handleVenueModificationReply(CachedUser user, String message, PizzaSuggesterBot bot) {
+        return venueEditSubMenuService.handleVenueModificationReply(user, message, bot);
     }
 
     private InlineKeyboardMarkup getAdminMenuMarkup(CachedUser user) {

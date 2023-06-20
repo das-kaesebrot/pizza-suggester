@@ -33,5 +33,5 @@ public interface VenueEditSubMenuService extends MenuService {
 
     BotApiMethod<?> handleCsvUpload(CachedUser user, String fileId, PizzaSuggesterBot bot) throws TelegramApiException, IOException;
     SendMessage handleVenueCreationReply(CachedUser user, String message);
-    SendMessage handleVenueModificationReply(CachedUser user, String message);
+    SendMessage handleVenueModificationReply(CachedUser user, String message, PizzaSuggesterBot bot);
 }

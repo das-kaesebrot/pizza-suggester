@@ -53,6 +53,7 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
     private long lastAmountOfVenuesInRepository = 0;
 
     HashMap<Long, Long> venuesBeingEditedByUsers = new HashMap<>();
+    HashMap<Long, Map.Entry<Long, Integer>> activeEditMenus = new HashMap<>();
 
     public VenueEditSubMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, PizzaRepository pizzaRepository, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService, TelegramBotProperties botProperties) {
         this.cachedUserRepository = cachedUserRepository;
@@ -76,6 +77,7 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
             case CALLBACK_ROOT_MENU:
             case CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-" + InlineKeyboardService.CALLBACK_NAVIGATION_BACK:
                 handleButtonPressGetRootMenu(user, query.getMessage().getMessageId(), bot);
+                activeEditMenus.remove(user.getChatId());
                 break;
 
             case CALLBACK_CREATE_VENUE:
@@ -112,6 +114,7 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
 
             case CALLBACK_DELETE:
                 bot.execute(handleButtonPressDeleteVenue(user, number));
+                activeEditMenus.remove(user.getChatId());
                 break;
 
             default:
@@ -242,6 +245,8 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
 
         logger.info(String.format("Processed %d rows and generated %d pizza objects, encountered %d errors", rows.size(), pizzas.size(), errorCounter));
 
+        tryUpdateEditMenuAfterVenueModification(user, bot);
+
         return reply;
     }
 
@@ -270,7 +275,7 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
     }
 
     @Override
-    public SendMessage handleVenueModificationReply(CachedUser user, String message) {
+    public SendMessage handleVenueModificationReply(CachedUser user, String message, PizzaSuggesterBot bot) {
         if (!user.isAdmin())
             throw new NotAuthorizedException(String.format("User %d is not allowed to modify venues!", user.getChatId()));
 
@@ -322,7 +327,22 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
         var text = localizationService.getString("admin.venues.edit.success");
         text = StringUtils.replacePropertiesVariable("name", venue.getName(), text);
 
+        tryUpdateEditMenuAfterVenueModification(user, bot);
+
         return new SendMessage(user.getChatId().toString(), text);
+    }
+
+    private void tryUpdateEditMenuAfterVenueModification(CachedUser user, PizzaSuggesterBot bot) {
+        var entry = activeEditMenus.get(user.getChatId());
+
+        if (entry == null)
+            return;
+
+        try {
+            handleButtonPressEditInSubmenuEditVenueForSpecificVenue(user, entry.getValue(), Math.toIntExact(entry.getKey()), bot);
+        } catch (Exception e) {
+            logger.error("Encountered exception while updating edit menu. Handling gracefully.", e);
+        }
     }
 
     private SendMessage handleButtonPressCreateVenue(CachedUser user) {
@@ -395,11 +415,19 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
         var editMarkup = new EditMessageReplyMarkup();
         var venue = venueRepository.findById((long) venueId).get();
 
+        activeEditMenus.put(user.getChatId(), Map.entry(venue.getId(), messageId));
+
         editMarkup.setChatId(user.getChatId().toString());
         editMarkup.setMessageId(messageId);
         editMarkup.setReplyMarkup(getVenueSpecificOpsMarkup(venueId));
 
+        bot.execute(getVenueEditMessageText(user, messageId, venueId));
+        bot.execute(editMarkup);
+    }
+
+    private EditMessageText getVenueEditMessageText(CachedUser user, int messageId, int venueId) {
         var editMessageText = new EditMessageText();
+        var venue = venueRepository.findById((long) venueId).get();
 
         var text = localizationService.getString("admin.venues.edit.venue");
 
@@ -419,9 +447,9 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
         editMessageText.setParseMode(ParseMode.MARKDOWNV2);
         editMessageText.setText(text);
 
-        bot.execute(editMessageText);
-        bot.execute(editMarkup);
+        return editMessageText;
     }
+
 
     private void handleButtonPressGetRootMenu(CachedUser user, int messageId, PizzaSuggesterBot bot) throws TelegramApiException {
         if (venueRepository.findAll().isEmpty()) {

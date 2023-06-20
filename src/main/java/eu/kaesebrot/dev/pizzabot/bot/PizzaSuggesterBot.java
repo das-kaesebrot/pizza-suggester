@@ -193,7 +193,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                 } else if (user.hasState(UserState.CREATING_VENUE)) {
                     return adminMenuService.handleVenueCreationReply(user, messageText);
                 } else if (user.hasState(UserState.MODIFYING_VENUE)) {
-                    return adminMenuService.handleVenueModificationReply(user, messageText);
+                    return adminMenuService.handleVenueModificationReply(user, messageText, this);
                 }
             }
 

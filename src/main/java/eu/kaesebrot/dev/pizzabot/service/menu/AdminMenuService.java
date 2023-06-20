@@ -18,6 +18,6 @@ public interface AdminMenuService extends MenuService {
     BotApiMethod<?> handleKeyRedemption(CachedUser user, String key);
     BotApiMethod<?> handleCsvUpload(CachedUser user, String fileId, PizzaSuggesterBot bot) throws TelegramApiException, IOException;
     SendMessage handleVenueCreationReply(CachedUser user, String message);
-    SendMessage handleVenueModificationReply(CachedUser user, String message);
+    SendMessage handleVenueModificationReply(CachedUser user, String message, PizzaSuggesterBot bot);
     SendMessage getAdminMenu(CachedUser user);
 }
