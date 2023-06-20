@@ -2,6 +2,7 @@ package eu.kaesebrot.dev.pizzabot.bot;
 
 import eu.kaesebrot.dev.pizzabot.enums.BotCommand;
 import eu.kaesebrot.dev.pizzabot.enums.UserState;
+import eu.kaesebrot.dev.pizzabot.exceptions.NoPizzasFoundException;
 import eu.kaesebrot.dev.pizzabot.exceptions.NotAuthorizedException;
 import eu.kaesebrot.dev.pizzabot.exceptions.PendingSelectionException;
 import eu.kaesebrot.dev.pizzabot.model.AdminKey;
@@ -214,6 +215,12 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
             logger.error("Exception encountered while handling an update", e);
 
             reply.setText(localizationService.getString("error.finishselection"));
+            return reply;
+
+        } catch (NoPizzasFoundException e) {
+            logger.error("Exception encountered while handling an update", e);
+
+            reply.setText(localizationService.getString("error.nopizzasfound"));
             return reply;
 
         } catch (Exception e) {

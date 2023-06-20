@@ -1,6 +1,7 @@
 package eu.kaesebrot.dev.pizzabot.service;
 
 import eu.kaesebrot.dev.pizzabot.classes.IngredientList;
+import eu.kaesebrot.dev.pizzabot.exceptions.NoPizzasFoundException;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.model.Pizza;
 import eu.kaesebrot.dev.pizzabot.model.Venue;
@@ -100,6 +101,9 @@ public class PizzaServiceImpl implements PizzaService {
         Random rand = new Random();
 
         var menu = pizzaRepository.findByVenueAndMinimumUserDietGreaterThanEqual(venue, user.getUserDiet());
+
+        if (menu.isEmpty())
+            throw new NoPizzasFoundException();
 
         while (true) {
             var randPizza = menu.get(rand.nextInt(menu.size()));
