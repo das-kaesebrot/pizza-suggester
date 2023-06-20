@@ -39,6 +39,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
     private final TelegramBotProperties botProperties;
     private HashMap<Long, IngredientButtonList> venueIngredientButtons = new HashMap<>();
     private HashMap<Long, List<Integer>> selectedUserIngredients = new HashMap<>();
+    private HashMap<Long, Integer> currentUserPages = new HashMap<>();
 
     public PizzaMenuServiceImpl(VenueRepository venueRepository, LocalizationService localizationService, InlineKeyboardService inlineKeyboardService, PizzaService pizzaService, LocalizationService localizationService1, TelegramBotProperties botProperties) {
         this.venueRepository = venueRepository;
@@ -70,6 +71,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
                 editMessageText.setText(getMessageStringForIngredientToggle(user));
                 editMessageText.setChatId(user.getChatId().toString());
                 editMessageText.setMessageId(query.getMessage().getMessageId());
+                editMessageText.setReplyMarkup(getKeyboardForPage(user.getSelectedVenue(), currentUserPages.get(user.getChatId())));
 
                 bot.execute(editMessageText);
                 break;
@@ -85,7 +87,13 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
                 editMessageMarkup.setMessageId(query.getMessage().getMessageId());
                 editMessageMarkup.setReplyMarkup(getKeyboardForPage(user.getSelectedVenue(), number));
 
+                currentUserPages.put(user.getChatId(), number);
+
                 bot.execute(editMessageMarkup);
+                break;
+
+            case InlineKeyboardService.CALLBACK_NAVIGATION_CLOSE:
+                currentUserPages.remove(user.getChatId());
                 break;
 
             default:
@@ -135,6 +143,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
 
         // initialize ingredient selection array
         selectedUserIngredients.put(user.getChatId(), new ArrayList<>());
+        currentUserPages.put(user.getChatId(), 0);
 
         SendMessage reply = new SendMessage(user.getChatId().toString(), localizationService.getString("pizza.selectingredients"));
         reply.setParseMode(ParseMode.MARKDOWNV2);
