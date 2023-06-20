@@ -96,7 +96,9 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
 
     @Override
     public boolean canCallbackMenuBeDeletedAfterHandling(CallbackQuery query) {
-        switch (StringUtils.stripNumberFromCallbackData(stripCallbackPrefix(query.getData()))) {
+        var sanitizedData = StringUtils.stripNumberFromCallbackData(stripCallbackPrefix(query.getData()));
+
+        switch (sanitizedData) {
             case InlineKeyboardService.CALLBACK_NAVIGATION_PAGE:
             case InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE:
             case CALLBACK_PIZZA_INGREDIENT_TOGGLE:
