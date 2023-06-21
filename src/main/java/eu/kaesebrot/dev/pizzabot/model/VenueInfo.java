@@ -102,9 +102,15 @@ public class VenueInfo implements Serializable {
     }
 
     public void setLatitude(Double latitude) {
+        if (Math.abs(latitude) > 90.0)
+            throw new IllegalArgumentException(String.format("Latitude can't be bigger than 90.0 or smaller than -90.0! Given value: %f", latitude));
+
         this.latitude = latitude;
     }
     public void setLongitude(Double longitude) {
+        if (Math.abs(longitude) > 180)
+            throw new IllegalArgumentException(String.format("Latitude can't be bigger than 180.0 or smaller than -180.0! Given value: %f", longitude));
+
         this.longitude = longitude;
     }
 
