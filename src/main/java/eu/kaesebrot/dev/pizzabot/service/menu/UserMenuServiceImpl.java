@@ -172,6 +172,12 @@ public class UserMenuServiceImpl implements UserMenuService {
     public SendMessage getVenueSelection(CachedUser user) {
         SendMessage venueSelection = new SendMessage();
         venueSelection.setChatId(user.getChatId());
+
+        if (venueRepository.count() == 0) {
+            venueSelection.setText(localizationService.getString("error.novenuesyet"));
+            return venueSelection;
+        }
+
         venueSelection.setText(localizationService.getString("select.venue"));
         venueSelection.setReplyMarkup(getVenueSelectionMarkup(0));
 
