@@ -69,14 +69,14 @@ public class VenueInfo implements Serializable {
         else
             string.append("S");
 
-        string.append(latitude).append(", ");
+        string.append(Math.abs(latitude)).append(", ");
 
         if (longitude < 0.0)
             string.append("W");
         else
             string.append("E");
 
-        string.append(longitude);
+        string.append(Math.abs(longitude));
 
         return string.toString();
     }
