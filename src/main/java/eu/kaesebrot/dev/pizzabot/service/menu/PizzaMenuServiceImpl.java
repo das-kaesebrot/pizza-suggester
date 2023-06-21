@@ -77,6 +77,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
                 break;
 
             case InlineKeyboardService.CALLBACK_NAVIGATION_CONFIRM:
+                currentUserPages.remove(user.getChatId());
                 bot.execute(handleButtonPressConfirmIngredients(user));
                 break;
 
@@ -163,7 +164,32 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
         var allMatchingPizzas = pizzaService.getMatchingPizzasByIngredientIndexList(user.getSelectedVenue().getId(), user.getUserDiet(), selectedUserIngredients.get(user.getChatId()));
         allMatchingPizzas = pizzaService.filterSortAndTrimListOfPizzasForUser(user, allMatchingPizzas, MAX_PIZZA_RESULTS);
 
-        // TODO implement handling
+        if (allMatchingPizzas.isEmpty()) {
+            // throw new NoPizzasFoundException();
+            reply.setText(localizationService.getString("error.nopizzasfoundwithretry"));
+            return reply;
+        }
+
+        var formattedPizzaStrings = new StringBuilder();
+
+        for (int index = 0; index < allMatchingPizzas.size(); index++) {
+            formattedPizzaStrings
+                    .append(formatPizzaForMessage(allMatchingPizzas.get(index)));
+
+            if (index != allMatchingPizzas.size() - 1) {
+                formattedPizzaStrings.append("\n\n");
+            }
+
+        }
+
+        var text = localizationService.getString("pizza.selection");
+        text = StringUtils.replacePropertiesVariable("pizza_info_list", formattedPizzaStrings.toString(), text);
+        text = StringUtils.replacePropertiesVariable("greeting", StringUtils.escapeForMarkdownV2Format(localizationService.getString("pizza.greeting")), text);
+
+        reply.setText(text);
+        reply.setParseMode(ParseMode.MARKDOWNV2);
+
+        selectedUserIngredients.remove(user.getChatId());
 
         return reply;
     }
