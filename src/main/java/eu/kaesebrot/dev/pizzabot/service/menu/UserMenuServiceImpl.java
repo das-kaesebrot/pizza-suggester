@@ -355,7 +355,24 @@ public class UserMenuServiceImpl implements UserMenuService {
     private String formatVenueForButton(Venue venue) {
         var venueInfoText = localizationService.getString("venue.info");
         venueInfoText = StringUtils.replacePropertiesVariable("venue_name", venue.getName(), venueInfoText);
-        venueInfoText = StringUtils.replacePropertiesVariable("venue_address", venue.getVenueInfo().getAddress(), venueInfoText);
+
+        var venueAddress = localizationService.getString("venue.address.fallback");
+
+        if (!StringUtils.isNullOrEmpty(venue.getVenueInfo().getAddress()))
+            venueAddress = venue.getVenueInfo().getAddress();
+
+        venueInfoText = StringUtils.replacePropertiesVariable("venue_address", venueAddress, venueInfoText);
+
+        var additionalInfoText = "";
+
+        if (venue.supportsGlutenFree() && venue.supportsLactoseFree())
+            additionalInfoText = " - " + localizationService.getString("label.glutenandlactosefree");
+        else if (venue.supportsGlutenFree() && !venue.supportsLactoseFree())
+            additionalInfoText = " - " +localizationService.getString("label.glutenfree");
+        else if (!venue.supportsGlutenFree() && venue.supportsLactoseFree())
+            additionalInfoText = " - " +localizationService.getString("label.lactosefree");
+
+        venueInfoText = StringUtils.replacePropertiesVariable("venue_additional_info", additionalInfoText, venueInfoText);
 
         return venueInfoText;
     }
