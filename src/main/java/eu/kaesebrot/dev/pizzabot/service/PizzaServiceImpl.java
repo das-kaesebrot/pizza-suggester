@@ -84,6 +84,13 @@ public class PizzaServiceImpl implements PizzaService {
 
     @Override
     public List<Pizza> filterSortAndTrimListOfPizzasForUser(CachedUser user, List<Pizza> allMatches, int maxResults) {
+
+        if (user.isGlutenIntolerant() && user.getSelectedVenue().supportsGlutenFree())
+            allMatches.forEach(p -> p.setPrice(p.getPrice().add(user.getSelectedVenue().getGlutenFreeMarkup())));
+
+        if (user.isLactoseIntolerant() && user.getSelectedVenue().supportsLactoseFree())
+            allMatches.forEach(p -> p.setPrice(p.getPrice().add(user.getSelectedVenue().getLactoseFreeMarkup())));
+
         return allMatches
                 .stream()
                 .filter(p -> p.getMinimumUserDiet().ordinal() >= user.getUserDiet().ordinal())
@@ -103,15 +110,25 @@ public class PizzaServiceImpl implements PizzaService {
 
         var menu = pizzaRepository.findByVenueAndMinimumUserDietGreaterThanEqual(venue, user.getUserDiet());
 
-        if (menu.isEmpty())
+        if (menu.isEmpty()
+                || (!venue.supportsGlutenFree() && user.isGlutenIntolerant())
+                || (!venue.supportsLactoseFree() && user.isLactoseIntolerant()))
             throw new NoPizzasFoundException();
 
         while (true) {
             var randPizza = menu.get(rand.nextInt(menu.size()));
 
             // check if pizza is compatible with user diet before returning
-            if (randPizza.getMinimumUserDiet().ordinal() >= user.getUserDiet().ordinal())
+            if (randPizza.getMinimumUserDiet().ordinal() >= user.getUserDiet().ordinal()) {
+
+                if (user.isGlutenIntolerant())
+                    randPizza.setPrice(randPizza.getPrice().add(venue.getGlutenFreeMarkup()));
+
+                if (user.isLactoseIntolerant())
+                    randPizza.setPrice(randPizza.getPrice().add(venue.getLactoseFreeMarkup()));
+
                 return randPizza;
+            }
         }
     }
 

@@ -129,7 +129,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
 
         var pizza = pizzaService.getRandomPizza(user.getSelectedVenue(), user);
 
-        var text = formatPizzaForMessage(pizza);
+        var text = formatPizzaForMessage(user, pizza);
         var formattedPizzaRandText = localizationService.getString("pizza.random");
         text = StringUtils.replacePropertiesVariable("pizza_info", text, formattedPizzaRandText);
         text = StringUtils.replacePropertiesVariable("greeting", StringUtils.escapeForMarkdownV2Format(localizationService.getString("pizza.greeting")), text);
@@ -161,6 +161,12 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
         var reply =  new SendMessage();
         reply.setChatId(user.getChatId());
 
+        if ((!user.getSelectedVenue().supportsGlutenFree() && user.isGlutenIntolerant())
+            || (!user.getSelectedVenue().supportsLactoseFree() && user.isLactoseIntolerant())) {
+            reply.setText(localizationService.getString("error.nopizzasfound"));
+            return reply;
+        }
+
         var allMatchingPizzas = pizzaService.getMatchingPizzasByIngredientIndexList(user.getSelectedVenue().getId(), user.getUserDiet(), selectedUserIngredients.get(user.getChatId()));
         allMatchingPizzas = pizzaService.filterSortAndTrimListOfPizzasForUser(user, allMatchingPizzas, MAX_PIZZA_RESULTS);
 
@@ -174,7 +180,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
 
         for (int index = 0; index < allMatchingPizzas.size(); index++) {
             formattedPizzaStrings
-                    .append(formatPizzaForMessage(allMatchingPizzas.get(index)));
+                    .append(formatPizzaForMessage(user, allMatchingPizzas.get(index)));
 
             if (index != allMatchingPizzas.size() - 1) {
                 formattedPizzaStrings.append("\n\n");
@@ -255,10 +261,26 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
         selectedUserIngredients.put(user.getChatId(), entry);
     }
 
-    private String formatPizzaForMessage(Pizza pizza) {
+    private String formatPizzaForMessage(CachedUser user, Pizza pizza) {
         var pizzaInfoText = localizationService.getString("pizza.info");
+        var venue = user.getSelectedVenue();
 
-        var price = NumberFormat.getCurrencyInstance(Locale.GERMANY).format(pizza.getPrice());
+        var pizzaPrice = pizza.getPrice();
+        var additionalInfo = "";
+
+        if (user.isGlutenIntolerant() && venue.supportsGlutenFree() && user.isLactoseIntolerant() && venue.supportsLactoseFree()) {
+            additionalInfo = "\n" + localizationService.getString("pizza.additionalinfo.glutenandlactosefree");
+        } else {
+            if (user.isGlutenIntolerant() && venue.supportsGlutenFree()) {
+                additionalInfo = "\n" + localizationService.getString("pizza.additionalinfo.glutenfree");
+            }
+
+            if (user.isLactoseIntolerant() && venue.supportsLactoseFree()) {
+                additionalInfo = "\n" + localizationService.getString("pizza.additionalinfo.lactosefree");
+            }
+        }
+
+        var price = NumberFormat.getCurrencyInstance(Locale.GERMANY).format(pizzaPrice);
 
         pizzaInfoText = StringUtils.replacePropertiesVariable("pizza_number",
                 pizza.getMenuNumber(), pizzaInfoText);
@@ -269,6 +291,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
         pizzaInfoText = StringUtils.replacePropertiesVariable("diet_compatibility",
                 StringUtils.escapeForMarkdownV2Format(getPizzaDietString(pizza.getMinimumUserDiet())), pizzaInfoText);
         pizzaInfoText = StringUtils.replacePropertiesVariable("pizza_ingredients", StringUtils.escapeForMarkdownV2Format(formatIngredientListAsReadableString(pizza.getIngredients())), pizzaInfoText);
+        pizzaInfoText = StringUtils.replacePropertiesVariable("additional_info", StringUtils.escapeForMarkdownV2Format(additionalInfo), pizzaInfoText);
 
         return pizzaInfoText;
     }
