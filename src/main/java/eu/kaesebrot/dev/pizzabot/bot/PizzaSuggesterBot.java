@@ -195,6 +195,8 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                     return adminMenuService.handleVenueCreationReply(user, messageText);
                 } else if (user.hasState(UserState.MODIFYING_VENUE)) {
                     return adminMenuService.handleVenueModificationReply(user, messageText, this);
+                } else if (messageText.matches("^.*(?i)pizza time.*$")) {
+                    reply.setText("https://www.youtube.com/watch?v=TRgdA9_FsXM");
                 }
             }
 
