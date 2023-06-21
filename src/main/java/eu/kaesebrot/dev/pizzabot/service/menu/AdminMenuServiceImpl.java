@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
+import org.telegram.telegrambots.meta.api.methods.pinnedmessages.UnpinAllChatMessages;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -126,6 +127,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
 
             case CALLBACK_ADMIN_FORGET_ME:
                 cachedUserRepository.delete(user);
+                bot.execute(new UnpinAllChatMessages(user.getChatId().toString()));
                 bot.execute(new SendMessage(user.getChatId().toString(), localizationService.getString("reply.forgetme")));
                 break;
 

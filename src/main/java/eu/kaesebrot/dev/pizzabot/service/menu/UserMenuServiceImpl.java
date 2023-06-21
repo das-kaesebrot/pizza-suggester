@@ -16,10 +16,13 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
+import org.telegram.telegrambots.meta.api.methods.pinnedmessages.PinChatMessage;
+import org.telegram.telegrambots.meta.api.methods.pinnedmessages.UnpinAllChatMessages;
 import org.telegram.telegrambots.meta.api.methods.send.SendContact;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendVenue;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -82,6 +85,9 @@ public class UserMenuServiceImpl implements UserMenuService {
 
                     bot.execute(new SendMessage(query.getFrom().getId().toString(),
                             StringUtils.replacePropertiesVariable("venue_name", venue.get().getName(), localizationService.getString("select.venuesuccess"))));
+
+                    updateOrSetPinnedInfoMessage(user, bot);
+
                     break;
 
                 case InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE:
@@ -112,6 +118,8 @@ public class UserMenuServiceImpl implements UserMenuService {
                     StringUtils.replacePropertiesVariable("diet_name",
                             localizationService.getString(String.format("%s.%s", MESSAGES_LABEL_DIET_PREFIX, selectedDiet.toLowerCase())),
                             localizationService.getString("select.dietsuccess"))));
+
+            updateOrSetPinnedInfoMessage(user, bot);
         }
 
         return reply;
@@ -150,7 +158,7 @@ public class UserMenuServiceImpl implements UserMenuService {
 
         for (UserDiet diet : UserDiet.values())
         {
-            var button = new InlineKeyboardButton(localizationService.getString(String.format("%s.%s", MESSAGES_LABEL_DIET_PREFIX, diet.name().toLowerCase())));
+            var button = new InlineKeyboardButton(getDietString(diet));
             button.setCallbackData(prependCallbackPrefix(String.format("%s-%s", CALLBACK_DIET_PREFIX, diet.name().toLowerCase())));
             dietButtonRows.add(List.of(button));
         }
@@ -258,6 +266,74 @@ public class UserMenuServiceImpl implements UserMenuService {
         return venueContact;
     }
 
+    private void updateOrSetPinnedInfoMessage(CachedUser user, PizzaSuggesterBot bot) throws TelegramApiException {
+        if (user.getPinnedInfoMessageId() == null) {
+            setNewPinnedInfoMessage(user, bot);
+            return;
+        }
+
+        try {
+            var text = getInfoMessageText(user);
+
+            var editMessage = new EditMessageText();
+            editMessage.setText(text);
+            editMessage.setChatId(user.getChatId());
+            editMessage.setMessageId(user.getPinnedInfoMessageId());
+            editMessage.setParseMode(ParseMode.MARKDOWNV2);
+
+            var pinMessage = new PinChatMessage();
+            pinMessage.setMessageId(user.getPinnedInfoMessageId());
+            pinMessage.setChatId(user.getChatId());
+
+            bot.execute(editMessage);
+            bot.execute(pinMessage);
+        } catch (TelegramApiException e) {
+            setNewPinnedInfoMessage(user, bot);
+        }
+    }
+
+    private void setNewPinnedInfoMessage(CachedUser user, PizzaSuggesterBot bot) throws TelegramApiException {
+        bot.execute(new UnpinAllChatMessages(user.getChatId().toString()));
+
+        var text = getInfoMessageText(user);
+
+        var message = new SendMessage();
+        message.setText(text);
+        message.setChatId(user.getChatId());
+        message.setParseMode(ParseMode.MARKDOWNV2);
+
+        var result = bot.execute(message);
+        user.setPinnedInfoMessageId(result.getMessageId());
+
+        cachedUserRepository.save(user);
+
+        var pinMessage = new PinChatMessage();
+        pinMessage.setMessageId(user.getPinnedInfoMessageId());
+        pinMessage.setChatId(user.getChatId());
+
+        bot.execute(pinMessage);
+    }
+
+    private String getInfoMessageText(CachedUser user) {
+        var text = localizationService.getString("pinnedmessage");
+        var placeholder = localizationService.getString("pinnedmessage.placeholder");
+        var venueName = placeholder;
+        var dietString = placeholder;
+
+        if (user.getSelectedVenue() != null) {
+            venueName = user.getSelectedVenue().getName();
+        }
+
+        if (user.getUserDiet() != null) {
+            dietString = getDietString(user.getUserDiet());
+        }
+
+        text = StringUtils.replacePropertiesVariable("venue_name", StringUtils.escapeForMarkdownV2Format(venueName), text);
+        text = StringUtils.replacePropertiesVariable("diet", StringUtils.escapeForMarkdownV2Format(dietString), text);
+
+        return text;
+    }
+
     private InlineKeyboardMarkup getVenueSelectionMarkup(int page) {
         var keyboard = new InlineKeyboardMarkup();
         regenerateMenuCaches();
@@ -286,6 +362,10 @@ public class UserMenuServiceImpl implements UserMenuService {
         }
 
         return venueButtons;
+    }
+
+    private String getDietString(UserDiet diet) {
+        return localizationService.getString(String.format("%s.%s", MESSAGES_LABEL_DIET_PREFIX, diet.name().toLowerCase()));
     }
 
     private void regenerateMenuCaches() {

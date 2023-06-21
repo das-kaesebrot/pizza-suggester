@@ -17,6 +17,8 @@ public class CachedUser implements Serializable {
     @Column(updatable = false, nullable = false)
     private Long chatId;
     private UserDiet userDiet;
+
+    private Integer pinnedInfoMessageId;
     private EnumSet<UserState> userState;
     private String languageTag;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -97,6 +99,14 @@ public class CachedUser implements Serializable {
 
     public boolean isSuperAdmin() {
         return isAdmin() && isSuperAdmin;
+    }
+
+    public void setPinnedInfoMessageId(Integer pinnedInfoMessageId) {
+        this.pinnedInfoMessageId = pinnedInfoMessageId;
+    }
+
+    public Integer getPinnedInfoMessageId() {
+        return pinnedInfoMessageId;
     }
 
     public UserDiet getUserDiet() {
