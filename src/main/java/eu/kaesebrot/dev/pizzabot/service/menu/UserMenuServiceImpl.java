@@ -222,7 +222,7 @@ public class UserMenuServiceImpl implements UserMenuService {
     }
 
     @Override
-    public void getVenueContactInfoMessages(CachedUser user, PizzaSuggesterBot bot) throws TelegramApiException {
+    public BotApiMethod<?> getVenueContactInfoMessages(CachedUser user, PizzaSuggesterBot bot) throws TelegramApiException {
         if (user.getSelectedVenue() == null)
             throw new PendingVenueSelectionException("No venue selected by user yet!");
 
@@ -236,8 +236,7 @@ public class UserMenuServiceImpl implements UserMenuService {
                 || (venueInfo.getLatitude() == 0.0 && venueInfo.getLongitude() == 0.0)
                 || StringUtils.isNullOrEmpty(venueInfo.getPhoneNumber())) {
             sendMessage.setText(localizationService.getString("error.notenoughvenuedatayet"));
-            bot.execute(sendMessage);
-            return;
+            return sendMessage;
         }
 
         sendMessage.setText(localizationService.getString("reply.contact"));
@@ -254,9 +253,9 @@ public class UserMenuServiceImpl implements UserMenuService {
         venueContact.setPhoneNumber(venue.getVenueInfo().getPhoneNumber());
         venueContact.setFirstName(venue.getName());
 
-        bot.execute(venueContact);
         bot.execute(venueInfoMessage);
         bot.execute(sendMessage);
+        return venueContact;
     }
 
     private InlineKeyboardMarkup getVenueSelectionMarkup(int page) {

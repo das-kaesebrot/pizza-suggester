@@ -185,8 +185,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                             return userMenuService.getAboutMessage(user);
 
                         case CONTACT:
-                            userMenuService.getVenueContactInfoMessages(user, this);
-                            break;
+                            return userMenuService.getVenueContactInfoMessages(user, this);
 
                         case CARLOS:
                             // TODO
