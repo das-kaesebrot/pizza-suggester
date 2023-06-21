@@ -188,7 +188,7 @@ public class UserMenuServiceImpl implements UserMenuService {
     @Override
     public SendMessage getHelpMessageWithGreeting(CachedUser user) {
         var msg = new SendMessage(user.getChatId().toString(),
-                String.format("%s\n%s", localizationService.getString("reply.greeting"), localizationService.getString("reply.help")));
+                String.format("%s\n\n%s", localizationService.getString("reply.greeting"), localizationService.getString("reply.help")));
         msg.setParseMode(ParseMode.MARKDOWNV2);
 
         return msg;
