@@ -380,11 +380,11 @@ public class UserMenuServiceImpl implements UserMenuService {
         var additionalInfoText = "";
 
         if (venue.supportsGlutenFree() && venue.supportsLactoseFree())
-            additionalInfoText = " - " + localizationService.getString("label.glutenandlactosefree");
+            additionalInfoText = " | " + localizationService.getString("picto.glutenandlactosefree");
         else if (venue.supportsGlutenFree() && !venue.supportsLactoseFree())
-            additionalInfoText = " - " +localizationService.getString("label.glutenfree");
+            additionalInfoText = " | " +localizationService.getString("picto.glutenfree");
         else if (!venue.supportsGlutenFree() && venue.supportsLactoseFree())
-            additionalInfoText = " - " +localizationService.getString("label.lactosefree");
+            additionalInfoText = " | " +localizationService.getString("picto.lactosefree");
 
         venueInfoText = StringUtils.replacePropertiesVariable("venue_additional_info", additionalInfoText, venueInfoText);
 
