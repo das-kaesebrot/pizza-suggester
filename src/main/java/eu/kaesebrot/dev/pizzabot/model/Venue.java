@@ -36,7 +36,7 @@ public class Venue implements Serializable {
     private VenueInfo venueInfo;
 
     private BigDecimal glutenFreeMarkup;
-    private BigDecimal lactoseIntoleranceMarkup;
+    private BigDecimal lactoseFreeMarkup;
 
     @CreationTimestamp
     @Column(nullable = false)
@@ -91,16 +91,16 @@ public class Venue implements Serializable {
         return glutenFreeMarkup;
     }
 
-    public BigDecimal getLactoseIntoleranceMarkup() {
-        return lactoseIntoleranceMarkup;
+    public BigDecimal getLactoseFreeMarkup() {
+        return lactoseFreeMarkup;
     }
 
     public boolean supportsGlutenFree() {
         return glutenFreeMarkup != null;
     }
 
-    public boolean supportsLactoseIntolerance() {
-        return lactoseIntoleranceMarkup != null;
+    public boolean supportsLactoseFree() {
+        return lactoseFreeMarkup != null;
     }
 
     public VenueInfo getVenueInfo() {
@@ -135,15 +135,15 @@ public class Venue implements Serializable {
         this.glutenFreeMarkup = glutenFreeMarkup;
     }
 
-    public void setLactoseIntoleranceMarkup(BigDecimal lactoseIntoleranceMarkup) {
-        this.lactoseIntoleranceMarkup = lactoseIntoleranceMarkup;
+    public void setLactoseFreeMarkup(BigDecimal lactoseIntoleranceMarkup) {
+        this.lactoseFreeMarkup = lactoseIntoleranceMarkup;
     }
 
     public void disableGlutenFreeSupport() {
         setGlutenFreeMarkup(null);
     }
 
-    public void disableLactoseIntoleranceSupport() {
-        setLactoseIntoleranceMarkup(null);
+    public void disableLactoseFreeSupport() {
+        setLactoseFreeMarkup(null);
     }
 }

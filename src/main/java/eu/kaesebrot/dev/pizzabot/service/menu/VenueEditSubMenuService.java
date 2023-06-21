@@ -12,7 +12,7 @@ public interface VenueEditSubMenuService extends MenuService {
     int MENU_COLUMNS = 1;
     int MENU_ROWS = 3;
     int EDIT_MENU_COLUMNS = 2;
-    int EDIT_MENU_ROWS = 5;
+    int EDIT_MENU_ROWS = 10;
     public final String CALLBACK_PREFIX = "v";
     // only used to get the submenu for editing venues from the admin menu
     public final String CALLBACK_ROOT_MENU = "menu";
@@ -30,6 +30,8 @@ public interface VenueEditSubMenuService extends MenuService {
     public final String CALLBACK_EDIT_URL = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-url";
     public final String CALLBACK_EDIT_PHONE = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-phn";
     public final String CALLBACK_EDIT_PIZZAS = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-pzz";
+    public final String CALLBACK_EDIT_GLUTENFREE = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-glf";
+    public final String CALLBACK_EDIT_LACTOSEFREE = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-laf";
     public final String CALLBACK_DELETE = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-del";
 
     BotApiMethod<?> handleCsvUpload(CachedUser user, String fileId, PizzaSuggesterBot bot) throws TelegramApiException, IOException;

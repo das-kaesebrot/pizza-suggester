@@ -36,6 +36,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
+import java.text.NumberFormat;
 import java.time.Instant;
 import java.util.*;
 
@@ -113,6 +114,12 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
                 bot.execute(handleButtonPressChangeVenue(user, sanitizedData, number));
                 break;
 
+            case CALLBACK_EDIT_GLUTENFREE:
+            case CALLBACK_EDIT_LACTOSEFREE:
+                bot.execute(handleButtonPressChangeVenue(user, sanitizedData, number));
+                tryUpdateEditMenuAfterVenueModification(user, bot);
+                break;
+
             case CALLBACK_DELETE:
                 bot.execute(handleButtonPressDeleteVenue(user, number));
                 activeEditMenus.remove(user.getChatId());
@@ -142,6 +149,8 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
             case CALLBACK_EDIT_ADDRESS:
             case CALLBACK_EDIT_COORDINATES:
             case CALLBACK_EDIT_PIZZAS:
+            case CALLBACK_EDIT_GLUTENFREE:
+            case CALLBACK_EDIT_LACTOSEFREE:
                 return false;
 
             default:
@@ -323,6 +332,14 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
                 var venueInfo = venue.getVenueInfo();
                 venueInfo.setUrl(trimmedText);
                 venue.setVenueInfo(venueInfo);
+            } else if (user.hasState(UserState.SENDING_GLUTENFREE_MARKUP)) {
+                user.removeState(UserState.SENDING_GLUTENFREE_MARKUP);
+
+                venue.setGlutenFreeMarkup(BigDecimal.valueOf(Double.parseDouble(trimmedText)));
+            } else if (user.hasState(UserState.SENDING_LACTOSEFREE_MARKUP)) {
+                user.removeState(UserState.SENDING_LACTOSEFREE_MARKUP);
+
+                venue.setLactoseFreeMarkup(BigDecimal.valueOf(Double.parseDouble(trimmedText)));
             }
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
@@ -386,6 +403,9 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
         user.addState(UserState.MODIFYING_VENUE);
         message.setChatId(user.getChatId());
 
+        var venue = venueRepository.findById((long) venueId).get();
+        boolean addToEditMap = true;
+
         switch (operation) {
             case CALLBACK_EDIT_NAME:
                 user.addState(UserState.SENDING_VENUE_NAME);
@@ -416,9 +436,36 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
                 user.addState(UserState.SENDING_VENUE_CSV);
                 message.setText(localizationService.getString("admin.venues.edit.pizzas.reply"));
                 break;
+
+            case CALLBACK_EDIT_GLUTENFREE:
+                if (venue.supportsGlutenFree()) {
+                    venue.disableGlutenFreeSupport();
+                    message.setText(localizationService.getString("admin.venues.edit.glutenfree.off"));
+                    venueRepository.save(venue);
+                    addToEditMap = false;
+
+                } else {
+                    user.addState(UserState.SENDING_GLUTENFREE_MARKUP);
+                    message.setText(localizationService.getString("admin.venues.edit.glutenfree.reply"));
+                }
+                break;
+
+            case CALLBACK_EDIT_LACTOSEFREE:
+                if (venue.supportsLactoseFree()) {
+                    venue.disableLactoseFreeSupport();
+                    message.setText(localizationService.getString("admin.venues.edit.lactosefree.off"));
+                    venueRepository.save(venue);
+                    addToEditMap = false;
+
+                } else {
+                    user.addState(UserState.SENDING_LACTOSEFREE_MARKUP);
+                    message.setText(localizationService.getString("admin.venues.edit.lactosefree.reply"));
+                }
+                break;
         }
 
-        venuesBeingEditedByUsers.put(user.getChatId(), (long) venueId);
+        if (addToEditMap)
+            venuesBeingEditedByUsers.put(user.getChatId(), (long) venueId);
 
         cachedUserRepository.saveAndFlush(user);
 
@@ -446,10 +493,26 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
 
         var text = localizationService.getString("admin.venues.edit.venue");
 
+        var glutenFree = localizationService.getString("admin.venues.edit.venue.glutenfree.false");
+        var lactoseFree = localizationService.getString("admin.venues.edit.venue.lactosefree.false");
+
+        var currencyFormat = NumberFormat.getCurrencyInstance(Locale.GERMANY);
+
         var url = venue.getVenueInfo().getUrl();
         var urlString = "";
         if (url != null)
             urlString = url.toString();
+
+        if (venue.supportsGlutenFree()) {
+            glutenFree = localizationService.getString("admin.venues.edit.venue.glutenfree.true");
+            glutenFree = StringUtils.replacePropertiesVariable("markup", StringUtils.escapeForMarkdownV2Format(currencyFormat.format(venue.getGlutenFreeMarkup())), glutenFree);
+        }
+
+
+        if (venue.supportsLactoseFree()) {
+            lactoseFree = localizationService.getString("admin.venues.edit.venue.lactosefree.true");
+            lactoseFree = StringUtils.replacePropertiesVariable("markup", StringUtils.escapeForMarkdownV2Format(currencyFormat.format(venue.getLactoseFreeMarkup())), lactoseFree);
+        }
 
         text = StringUtils.replacePropertiesVariable("venue_name", StringUtils.escapeForMarkdownV2Format(venue.getName()), text);
         text = StringUtils.replacePropertiesVariable("venue_id", venue.getId().toString(), text);
@@ -458,6 +521,8 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
         text = StringUtils.replacePropertiesVariable("venue_coordinates", StringUtils.escapeForMarkdownV2Format(venue.getVenueInfo().getCoordinatesString()), text);
         text = StringUtils.replacePropertiesVariable("venue_number", StringUtils.escapeForMarkdownV2Format(venue.getVenueInfo().getPhoneNumber()), text);
         text = StringUtils.replacePropertiesVariable("venue_pizza_amount", String.valueOf(venue.getPizzaMenu().size()), text);
+        text = StringUtils.replacePropertiesVariable("venue_gluten_free", glutenFree, text);
+        text = StringUtils.replacePropertiesVariable("venue_lactose_free", lactoseFree, text);
 
         editMessageText.setChatId(user.getChatId().toString());
         editMessageText.setMessageId(messageId);
@@ -518,10 +583,16 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
         var buttonUploadPizzaCsv = new InlineKeyboardButton(localizationService.getString("admin.venues.edit.pizzas"));
         buttonUploadPizzaCsv.setCallbackData(StringUtils.appendNumberToCallbackData(prependCallbackPrefix(CALLBACK_EDIT_PIZZAS), Math.toIntExact(venue.getId())));
 
+        var buttonToggleGlutenFree = new InlineKeyboardButton(localizationService.getString("admin.venues.edit.glutenfree"));
+        buttonToggleGlutenFree.setCallbackData(StringUtils.appendNumberToCallbackData(prependCallbackPrefix(CALLBACK_EDIT_GLUTENFREE), Math.toIntExact(venue.getId())));
+
+        var buttonToggleLactoseFree = new InlineKeyboardButton(localizationService.getString("admin.venues.edit.lactosefree"));
+        buttonToggleLactoseFree.setCallbackData(StringUtils.appendNumberToCallbackData(prependCallbackPrefix(CALLBACK_EDIT_LACTOSEFREE), Math.toIntExact(venue.getId())));
+
         var buttonDelete = new InlineKeyboardButton(localizationService.getString("admin.venues.edit.delete"));
         buttonDelete.setCallbackData(StringUtils.appendNumberToCallbackData(prependCallbackPrefix(CALLBACK_DELETE), Math.toIntExact(venue.getId())));
 
-        return List.of(buttonChangeName, buttonChangeUrl, buttonChangeAddress, buttonChangeCoordinates, buttonChangeNumber, buttonUploadPizzaCsv, buttonDelete);
+        return List.of(buttonChangeName, buttonChangeUrl, buttonChangeAddress, buttonChangeCoordinates, buttonChangeNumber, buttonUploadPizzaCsv, buttonToggleGlutenFree, buttonToggleLactoseFree, buttonDelete);
     }
 
     private List<InlineKeyboardButton> getVenueButtons() {
