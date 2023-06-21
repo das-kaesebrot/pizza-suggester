@@ -145,7 +145,7 @@ public class VenueInfo implements Serializable {
         if (longitudeString.matches(REGEX_LONGITUDE_WEST)
                 || longitudeString.matches(REGEX_LONGITUDE_EAST)) {
 
-            if (longitudeString.matches(REGEX_LONGITUDE_EAST))
+            if (longitudeString.matches(REGEX_LONGITUDE_WEST))
                 longitudeString = "-" + longitudeString;
 
             longitudeString = longitudeString.replaceAll("(?i)[WE]", "");
