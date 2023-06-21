@@ -96,6 +96,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         var callbackQuery = update.getCallbackQuery();
 
         var reply = new SendMessage();
+        reply.setText(localizationService.getString("error.unknownop"));
 
         Long chatId;
 
