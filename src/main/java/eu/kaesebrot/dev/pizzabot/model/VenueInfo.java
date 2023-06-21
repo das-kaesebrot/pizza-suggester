@@ -17,9 +17,8 @@ public class VenueInfo implements Serializable {
     @Column(updatable = false, nullable = false)
     private Long id;
 
-    private double longitude;
-
-    private double latitude;
+    private Double latitude;
+    private Double longitude;
 
     private String phoneNumber;
 
@@ -36,15 +35,18 @@ public class VenueInfo implements Serializable {
     private Timestamp modifiedAt;
 
     public VenueInfo() {
+        this.latitude = 0.0;
+        this.longitude = 0.0;
     }
 
     public VenueInfo(String address) {
+        this();
         this.address = address;
     }
 
-    public VenueInfo(double longitude, double latitude, String phoneNumber, URL url) {
-        this.longitude = longitude;
+    public VenueInfo(Double latitude, Double longitude, String phoneNumber, URL url) {
         this.latitude = latitude;
+        this.longitude = longitude;
         this.phoneNumber = phoneNumber;
         this.url = url;
     }
@@ -53,12 +55,11 @@ public class VenueInfo implements Serializable {
         return id;
     }
 
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public double getLatitude() {
+    public Double getLatitude() {
         return latitude;
+    }
+    public Double getLongitude() {
+        return longitude;
     }
 
     public String getPhoneNumber() {
@@ -81,12 +82,11 @@ public class VenueInfo implements Serializable {
         return modifiedAt;
     }
 
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
-    }
-
-    public void setLatitude(double latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
+    }
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 
     public void setPhoneNumber(String phoneNumber) {
