@@ -139,7 +139,7 @@ public class PizzaServiceImpl implements PizzaService {
             }
         }
 
-        venueIngredients.put(venue.getId(), new IngredientList(sortByComparator(frequencyMap, true), Timestamp.from(Instant.now())));
+        venueIngredients.put(venue.getId(), new IngredientList(sortByComparator(frequencyMap, false), Timestamp.from(Instant.now())));
     }
 
     private static List<String> sortByComparator(Map<String, Integer> unsortMap, final boolean order)
