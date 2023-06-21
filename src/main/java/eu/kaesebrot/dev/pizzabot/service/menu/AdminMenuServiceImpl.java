@@ -132,6 +132,18 @@ public class AdminMenuServiceImpl implements AdminMenuService {
                 bot.execute(new SendMessage(user.getChatId().toString(), localizationService.getString("reply.forgetme")));
                 break;
 
+            case CALLBACK_ADMIN_TOGGLE_GLUTENFREE:
+                user.toggleGlutenIntolerance();
+                cachedUserRepository.save(user);
+                reply.setText(localizationService.getString(String.format("admin.glutenfree.reply.%s", user.isGlutenIntolerant())));
+                break;
+
+            case CALLBACK_ADMIN_TOGGLE_LACTOSEFREE:
+                user.toggleLactoseIntolerance();
+                cachedUserRepository.save(user);
+                reply.setText(localizationService.getString(String.format("admin.lactosefree.reply.%s", user.isLactoseIntolerant())));
+                break;
+
             case InlineKeyboardService.CALLBACK_NAVIGATION_CLOSE:
                 reply.setText(localizationService.getString("admin.closed"));
                 break;
@@ -170,6 +182,8 @@ public class AdminMenuServiceImpl implements AdminMenuService {
             case CALLBACK_ADMIN_VENUES_CREATE:
             case CALLBACK_ADMIN_RESET_INFOPIN:
             case CALLBACK_ADMIN_BOTSTATS:
+            case CALLBACK_ADMIN_TOGGLE_GLUTENFREE:
+            case CALLBACK_ADMIN_TOGGLE_LACTOSEFREE:
             case InlineKeyboardService.CALLBACK_NAVIGATION_PAGE:
             case InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE:
                 return false;
@@ -319,7 +333,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         if (venue != null)
             venueNumber = venue.getId().toString();
 
-        return String.format("__*User %s*__\nSuperAdmin: %s\nAdmin: %s\nDiet: %s\nSelected venue: %s\nUser states: %s\nFirst seen: _%s_\nLast modified: _%s_", user.getChatId(), user.isSuperAdmin(), user.isAdmin(), user.getUserDiet(), venueNumber, userState, createdAt, modifiedAt);
+        return String.format("__*User %s*__\nSuperAdmin: %s\nAdmin: %s\nDiet: %s\nSelected venue: %s\nUser states: %s\nGluten intolerant: %s\nLactose intolerant: %s\nFirst seen: _%s_\nLast modified: _%s_", user.getChatId(), user.isSuperAdmin(), user.isAdmin(), user.getUserDiet(), venueNumber, userState, user.isGlutenIntolerant(), user.isLactoseIntolerant(), createdAt, modifiedAt);
     }
 
     private String getBotStats(PizzaSuggesterBot bot) {
@@ -360,6 +374,12 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         var buttonPersonalVenue = new InlineKeyboardButton(localizationService.getString("admin.changevenue"));
         buttonPersonalVenue.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_CHANGE_PERSONAL_VENUE));
 
+        var buttonToggleGlutenFree = new InlineKeyboardButton(localizationService.getString("admin.glutenfree"));
+        buttonToggleGlutenFree.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_TOGGLE_GLUTENFREE));
+
+        var buttonToggleLactoseFree = new InlineKeyboardButton(localizationService.getString("admin.lactosefree"));
+        buttonToggleLactoseFree.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_TOGGLE_LACTOSEFREE));
+
         var buttonResetPinnedMessage = new InlineKeyboardButton(localizationService.getString("admin.resetinfopin"));
         buttonResetPinnedMessage.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_RESET_INFOPIN));
 
@@ -369,7 +389,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         var buttonForgetMe = new InlineKeyboardButton(localizationService.getString("admin.forgetme"));
         buttonForgetMe.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_FORGET_ME));
 
-        return Stream.of(buttonDiet, buttonPersonalVenue, buttonResetPinnedMessage, buttonAboutMe, buttonForgetMe);
+        return Stream.of(buttonDiet, buttonPersonalVenue, buttonToggleGlutenFree, buttonToggleLactoseFree, buttonResetPinnedMessage, buttonAboutMe, buttonForgetMe);
     }
 
     private void regenerateMenuCaches() {

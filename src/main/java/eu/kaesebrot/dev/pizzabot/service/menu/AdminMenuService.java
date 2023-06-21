@@ -15,6 +15,8 @@ public interface AdminMenuService extends MenuService {
 
     String CALLBACK_ADMIN_REDEEM = "key-redeem";
     String CALLBACK_ADMIN_CHANGE_PERSONAL_VENUE = "change-personal-venue";
+    String CALLBACK_ADMIN_TOGGLE_GLUTENFREE = "toggle-glutenfree";
+    String CALLBACK_ADMIN_TOGGLE_LACTOSEFREE = "toggle-lactosefree";
     String CALLBACK_ADMIN_CHANGE_DIET = "change-diet";
     String CALLBACK_ADMIN_ABOUT_ME = "about-me";
     String CALLBACK_ADMIN_FORGET_ME = "forget-me";

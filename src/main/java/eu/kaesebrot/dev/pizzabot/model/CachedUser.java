@@ -30,6 +30,8 @@ public class CachedUser implements Serializable {
     private AdminKey adminKey;
 
     private boolean isSuperAdmin;
+    private boolean isGlutenIntolerant;
+    private boolean isLactoseIntolerant;
 
     @CreationTimestamp
     @Column(nullable = false)
@@ -42,6 +44,8 @@ public class CachedUser implements Serializable {
 
     public CachedUser() {
         this.userState = EnumSet.noneOf(UserState.class);
+        this.isGlutenIntolerant = false;
+        this.isLactoseIntolerant = false;
     }
 
     public CachedUser(Long chatId) {
@@ -67,12 +71,33 @@ public class CachedUser implements Serializable {
     public void addState(UserState userState) {
         this.userState.add(userState);
     }
+
+    public void setGlutenIntolerant(boolean glutenIntolerant) {
+        isGlutenIntolerant = glutenIntolerant;
+    }
+
+    public void toggleGlutenIntolerance() {
+        isGlutenIntolerant = !isGlutenIntolerant;
+    }
+
+    public void setLactoseIntolerant(boolean lactoseIntolerant) {
+        isLactoseIntolerant = lactoseIntolerant;
+    }
+
+    public void toggleLactoseIntolerance() {
+        isLactoseIntolerant = !isLactoseIntolerant;
+    }
+
     public void removeState(UserState userState) {
         this.userState.remove(userState);
     }
 
     public void clearState() {
         this.setState(EnumSet.noneOf(UserState.class));
+    }
+
+    public void setPinnedInfoMessageId(Integer pinnedInfoMessageId) {
+        this.pinnedInfoMessageId = pinnedInfoMessageId;
     }
 
     public Long getChatId() {
@@ -101,10 +126,6 @@ public class CachedUser implements Serializable {
         return isAdmin() && isSuperAdmin;
     }
 
-    public void setPinnedInfoMessageId(Integer pinnedInfoMessageId) {
-        this.pinnedInfoMessageId = pinnedInfoMessageId;
-    }
-
     public Integer getPinnedInfoMessageId() {
         return pinnedInfoMessageId;
     }
@@ -126,6 +147,14 @@ public class CachedUser implements Serializable {
     }
     public boolean hasState(UserState state) {
         return userState.contains(state);
+    }
+
+    public boolean isGlutenIntolerant() {
+        return isGlutenIntolerant;
+    }
+
+    public boolean isLactoseIntolerant() {
+        return isLactoseIntolerant;
     }
 
     public Timestamp getCreatedAt() {
