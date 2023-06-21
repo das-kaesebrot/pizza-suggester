@@ -455,6 +455,7 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
         text = StringUtils.replacePropertiesVariable("venue_id", venue.getId().toString(), text);
         text = StringUtils.replacePropertiesVariable("venue_url", StringUtils.escapeForMarkdownV2Format(urlString), text);
         text = StringUtils.replacePropertiesVariable("venue_address", StringUtils.escapeForMarkdownV2Format(venue.getVenueInfo().getAddress()), text);
+        text = StringUtils.replacePropertiesVariable("venue_coordinates", StringUtils.escapeForMarkdownV2Format(venue.getVenueInfo().getCoordinatesString()), text);
         text = StringUtils.replacePropertiesVariable("venue_number", StringUtils.escapeForMarkdownV2Format(venue.getVenueInfo().getPhoneNumber()), text);
         text = StringUtils.replacePropertiesVariable("venue_pizza_amount", String.valueOf(venue.getPizzaMenu().size()), text);
 
