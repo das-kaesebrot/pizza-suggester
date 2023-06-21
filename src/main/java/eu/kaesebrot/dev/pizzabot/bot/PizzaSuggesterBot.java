@@ -146,13 +146,13 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
             if (!update.hasMessage())
                 return reply;
 
-            if (!update.getMessage().hasText()) {
-                return null;
-            }
-
             if (update.getMessage().hasDocument() && CsvMimeTypeUtil.MimeTypeCouldBeCsv(update.getMessage().getDocument().getMimeType()))
             {
                 return adminMenuService.handleCsvUpload(user, update.getMessage().getDocument().getFileId(), this);
+            }
+
+            if (!update.getMessage().hasText()) {
+                return null;
             }
 
             if (update.hasMessage()) {
