@@ -102,7 +102,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
         if (!update.hasMessage() && !update.hasCallbackQuery()) {
             logger.error(String.format("Got an invalid update: %s", update));
-            throw new RuntimeException("Can't handle update!");
+            return null;
         }
 
         if (message != null) {
@@ -112,14 +112,11 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         }
 
         reply.setChatId(chatId);
-        reply.setText(localizationService.getString("error.unknownop"));
 
         try {
             // don't handle if message doesn't come from a user
             if (update.hasMessage() && !message.isUserMessage()) {
-                var leave = new LeaveChat();
-                leave.setChatId(chatId);
-                return leave; // mommy taught me not to talk to strangers!
+                return null;
             }
 
             //logger.debug("User has language tag: {}", update.getMessage().getChatId())
