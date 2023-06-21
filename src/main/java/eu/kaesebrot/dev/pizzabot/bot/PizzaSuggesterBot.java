@@ -184,8 +184,11 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                         case ABOUT:
                             return userMenuService.getAboutMessage(user);
 
-                        case CARLOS:
                         case CONTACT:
+                            userMenuService.getVenueContactInfoMessages(user, this);
+                            break;
+
+                        case CARLOS:
                             // TODO
                             throw new UnsupportedOperationException("Not implemented yet!");
                         }

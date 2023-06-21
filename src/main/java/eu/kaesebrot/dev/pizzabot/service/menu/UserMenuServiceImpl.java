@@ -3,6 +3,7 @@ package eu.kaesebrot.dev.pizzabot.service.menu;
 import eu.kaesebrot.dev.pizzabot.bot.PizzaSuggesterBot;
 import eu.kaesebrot.dev.pizzabot.enums.UserDiet;
 import eu.kaesebrot.dev.pizzabot.enums.UserState;
+import eu.kaesebrot.dev.pizzabot.exceptions.PendingVenueSelectionException;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.model.Venue;
 import eu.kaesebrot.dev.pizzabot.properties.VersionProperties;
@@ -15,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
+import org.telegram.telegrambots.meta.api.methods.send.SendContact;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendVenue;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -216,6 +219,44 @@ public class UserMenuServiceImpl implements UserMenuService {
         msg.disableWebPagePreview();
 
         return msg;
+    }
+
+    @Override
+    public void getVenueContactInfoMessages(CachedUser user, PizzaSuggesterBot bot) throws TelegramApiException {
+        if (user.getSelectedVenue() == null)
+            throw new PendingVenueSelectionException("No venue selected by user yet!");
+
+        var venue = user.getSelectedVenue();
+        var venueInfo = venue.getVenueInfo();
+
+        var sendMessage = new SendMessage();
+        sendMessage.setChatId(user.getChatId());
+
+        if (StringUtils.isNullOrEmpty(venueInfo.getAddress())
+                || (venueInfo.getLatitude() == 0.0 && venueInfo.getLongitude() == 0.0)
+                || StringUtils.isNullOrEmpty(venueInfo.getPhoneNumber())) {
+            sendMessage.setText(localizationService.getString("error.notenoughvenuedatayet"));
+            bot.execute(sendMessage);
+            return;
+        }
+
+        sendMessage.setText(localizationService.getString("reply.contact"));
+
+        var venueInfoMessage = new SendVenue();
+        venueInfoMessage.setChatId(user.getChatId());
+        venueInfoMessage.setAddress(venue.getVenueInfo().getAddress());
+        venueInfoMessage.setLatitude(venueInfo.getLatitude());
+        venueInfoMessage.setLongitude(venueInfo.getLongitude());
+        venueInfoMessage.setTitle(venue.getName());
+
+        var venueContact = new SendContact();
+        venueContact.setChatId(user.getChatId());
+        venueContact.setPhoneNumber(venue.getVenueInfo().getPhoneNumber());
+        venueContact.setFirstName(venue.getName());
+
+        bot.execute(venueContact);
+        bot.execute(venueInfoMessage);
+        bot.execute(sendMessage);
     }
 
     private InlineKeyboardMarkup getVenueSelectionMarkup(int page) {
