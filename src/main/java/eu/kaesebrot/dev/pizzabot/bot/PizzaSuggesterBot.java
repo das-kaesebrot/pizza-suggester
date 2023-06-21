@@ -189,8 +189,8 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                             // TODO
                             throw new UnsupportedOperationException("Not implemented yet!");
                         }
-                } else if (messageText.length() == 32 && user.hasState(UserState.SENDING_ADMIN_KEY)) {
-                    return adminMenuService.handleKeyRedemption(user, messageText);
+                } else if (messageText.trim().length() == 32 && user.hasState(UserState.SENDING_ADMIN_KEY)) {
+                    return adminMenuService.handleKeyRedemption(user, messageText.trim());
                 } else if (user.hasState(UserState.CREATING_VENUE)) {
                     return adminMenuService.handleVenueCreationReply(user, messageText);
                 } else if (user.hasState(UserState.MODIFYING_VENUE)) {
