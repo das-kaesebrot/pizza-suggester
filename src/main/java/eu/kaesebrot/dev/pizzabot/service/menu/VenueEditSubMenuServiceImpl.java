@@ -505,13 +505,13 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
 
         if (venue.supportsGlutenFree()) {
             glutenFree = localizationService.getString("admin.venues.edit.venue.glutenfree.true");
-            glutenFree = StringUtils.replacePropertiesVariable("markup", StringUtils.escapeForMarkdownV2Format(currencyFormat.format(venue.getGlutenFreeMarkup())), glutenFree);
+            glutenFree = StringUtils.replacePropertiesVariable("markup", currencyFormat.format(venue.getGlutenFreeMarkup()), glutenFree);
         }
 
 
         if (venue.supportsLactoseFree()) {
             lactoseFree = localizationService.getString("admin.venues.edit.venue.lactosefree.true");
-            lactoseFree = StringUtils.replacePropertiesVariable("markup", StringUtils.escapeForMarkdownV2Format(currencyFormat.format(venue.getLactoseFreeMarkup())), lactoseFree);
+            lactoseFree = StringUtils.replacePropertiesVariable("markup", currencyFormat.format(venue.getLactoseFreeMarkup()), lactoseFree);
         }
 
         text = StringUtils.replacePropertiesVariable("venue_name", StringUtils.escapeForMarkdownV2Format(venue.getName()), text);
@@ -521,8 +521,8 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
         text = StringUtils.replacePropertiesVariable("venue_coordinates", StringUtils.escapeForMarkdownV2Format(venue.getVenueInfo().getCoordinatesString()), text);
         text = StringUtils.replacePropertiesVariable("venue_number", StringUtils.escapeForMarkdownV2Format(venue.getVenueInfo().getPhoneNumber()), text);
         text = StringUtils.replacePropertiesVariable("venue_pizza_amount", String.valueOf(venue.getPizzaMenu().size()), text);
-        text = StringUtils.replacePropertiesVariable("venue_gluten_free", glutenFree, text);
-        text = StringUtils.replacePropertiesVariable("venue_lactose_free", lactoseFree, text);
+        text = StringUtils.replacePropertiesVariable("venue_gluten_free", StringUtils.escapeForMarkdownV2Format(glutenFree), text);
+        text = StringUtils.replacePropertiesVariable("venue_lactose_free", StringUtils.escapeForMarkdownV2Format(lactoseFree), text);
 
         editMessageText.setChatId(user.getChatId().toString());
         editMessageText.setMessageId(messageId);
