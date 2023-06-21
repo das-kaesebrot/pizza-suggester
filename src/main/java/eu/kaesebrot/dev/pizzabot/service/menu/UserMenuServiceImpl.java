@@ -290,12 +290,13 @@ public class UserMenuServiceImpl implements UserMenuService {
     }
 
     private void regenerateMenuCaches() {
-        if (pagedVenueSelectionMenu == null ||
+        if (!venueRepository.findAll().isEmpty() &&
+                (pagedVenueSelectionMenu == null ||
                 pagedVenueSelectionMenu.isEmpty() ||
                 lastPagedVenueSelectionUpdate == null ||
                 venueRepository.existsByModifiedAtAfter(lastPagedVenueSelectionUpdate) ||
                 venueRepository.existsByVenueInfoModifiedAtAfter(lastPagedVenueSelectionUpdate) ||
-                lastAmountOfVenuesInRepository != venueRepository.count()
+                lastAmountOfVenuesInRepository != venueRepository.count())
         ) {
             pagedVenueSelectionMenu = inlineKeyboardService.getPagedInlineKeyboardButtonsWithFooterAndCloseButton(getVenueButtons(), VENUE_SELECTION_COLUMNS, VENUE_SELECTION_ROWS, getCallbackPrefix() + "-" + CALLBACK_VENUE_PREFIX);
             lastPagedVenueSelectionUpdate = Timestamp.from(Instant.now());
