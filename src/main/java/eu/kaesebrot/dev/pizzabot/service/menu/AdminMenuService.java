@@ -12,6 +12,15 @@ public interface AdminMenuService extends MenuService {
     String CALLBACK_PREFIX = "admin";
     int MENU_COLUMNS = 1;
     int MENU_ROWS = 3;
+
+    String CALLBACK_ADMIN_REDEEM = "key-redeem";
+    String CALLBACK_ADMIN_CHANGE_PERSONAL_VENUE = "change-personal-venue";
+    String CALLBACK_ADMIN_CHANGE_DIET = "change-diet";
+    String CALLBACK_ADMIN_ABOUT_ME = "about-me";
+    String CALLBACK_ADMIN_FORGET_ME = "forget-me";
+    String CALLBACK_ADMIN_GENERATE_KEY = "gen-key";
+    String CALLBACK_ADMIN_RESET_INFOPIN = "reset-pin";
+    String CALLBACK_ADMIN_BOTSTATS = "botstats";
     String CALLBACK_ADMIN_VENUES_CREATE = VenueEditSubMenuService.CALLBACK_PREFIX + "-" + VenueEditSubMenuService.CALLBACK_CREATE_VENUE;
     String CALLBACK_ADMIN_VENUES_EDIT = VenueEditSubMenuService.CALLBACK_PREFIX + "-" + VenueEditSubMenuService.CALLBACK_ROOT_MENU;
 

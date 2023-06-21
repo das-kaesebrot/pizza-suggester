@@ -45,13 +45,6 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     private final LocalizationService localizationService;
     private final TelegramBotProperties botProperties;
 
-    public final String CALLBACK_ADMIN_REDEEM = "key-redeem";
-    public final String CALLBACK_ADMIN_CHANGE_PERSONAL_VENUE = "change-personal-venue";
-    public final String CALLBACK_ADMIN_CHANGE_DIET = "change-diet";
-    public final String CALLBACK_ADMIN_ABOUT_ME = "about-me";
-    public final String CALLBACK_ADMIN_FORGET_ME = "forget-me";
-    public final String CALLBACK_ADMIN_GENERATE_KEY = "gen-key";
-
     private List<List<List<InlineKeyboardButton>>> pagedSuperAdminMenu;
     private List<List<List<InlineKeyboardButton>>> pagedFullAdminMenu;
     private List<List<List<InlineKeyboardButton>>> pagedLimitedAdminMenu;
