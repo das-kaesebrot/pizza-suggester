@@ -108,6 +108,7 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
             case CALLBACK_EDIT_URL:
             case CALLBACK_EDIT_PHONE:
             case CALLBACK_EDIT_ADDRESS:
+            case CALLBACK_EDIT_COORDINATES:
             case CALLBACK_EDIT_PIZZAS:
                 bot.execute(handleButtonPressChangeVenue(user, sanitizedData, number));
                 break;
@@ -139,6 +140,7 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
             case CALLBACK_EDIT_URL:
             case CALLBACK_EDIT_PHONE:
             case CALLBACK_EDIT_ADDRESS:
+            case CALLBACK_EDIT_COORDINATES:
             case CALLBACK_EDIT_PIZZAS:
                 return false;
 
@@ -302,6 +304,13 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
                 venueInfo.setAddress(trimmedText);
                 venue.setVenueInfo(venueInfo);
 
+            } else if (user.hasState(UserState.SENDING_VENUE_COORDINATES)) {
+                user.removeState(UserState.SENDING_VENUE_COORDINATES);
+
+                var venueInfo = venue.getVenueInfo();
+                venueInfo.setCoordinatesByString(trimmedText);
+                venue.setVenueInfo(venueInfo);
+
             } else if (user.hasState(UserState.SENDING_VENUE_PHONE_NUMBER)) {
                 user.removeState(UserState.SENDING_VENUE_PHONE_NUMBER);
 
@@ -396,6 +405,11 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
             case CALLBACK_EDIT_ADDRESS:
                 user.addState(UserState.SENDING_VENUE_ADDRESS);
                 message.setText(localizationService.getString("admin.venues.edit.address.reply"));
+                break;
+
+            case CALLBACK_EDIT_COORDINATES:
+                user.addState(UserState.SENDING_VENUE_COORDINATES);
+                message.setText(localizationService.getString("admin.venues.edit.coordinates.reply"));
                 break;
 
             case CALLBACK_EDIT_PIZZAS:
@@ -494,6 +508,9 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
         var buttonChangeAddress = new InlineKeyboardButton(localizationService.getString("admin.venues.edit.address"));
         buttonChangeAddress.setCallbackData(StringUtils.appendNumberToCallbackData(prependCallbackPrefix(CALLBACK_EDIT_ADDRESS), Math.toIntExact(venue.getId())));
 
+        var buttonChangeCoordinates = new InlineKeyboardButton(localizationService.getString("admin.venues.edit.coordinates"));
+        buttonChangeCoordinates.setCallbackData(StringUtils.appendNumberToCallbackData(prependCallbackPrefix(CALLBACK_EDIT_COORDINATES), Math.toIntExact(venue.getId())));
+
         var buttonChangeNumber = new InlineKeyboardButton(localizationService.getString("admin.venues.edit.number"));
         buttonChangeNumber.setCallbackData(StringUtils.appendNumberToCallbackData(prependCallbackPrefix(CALLBACK_EDIT_PHONE), Math.toIntExact(venue.getId())));
 
@@ -503,7 +520,7 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
         var buttonDelete = new InlineKeyboardButton(localizationService.getString("admin.venues.edit.delete"));
         buttonDelete.setCallbackData(StringUtils.appendNumberToCallbackData(prependCallbackPrefix(CALLBACK_DELETE), Math.toIntExact(venue.getId())));
 
-        return List.of(buttonChangeName, buttonChangeUrl, buttonChangeAddress, buttonChangeNumber, buttonUploadPizzaCsv, buttonDelete);
+        return List.of(buttonChangeName, buttonChangeUrl, buttonChangeAddress, buttonChangeCoordinates, buttonChangeNumber, buttonUploadPizzaCsv, buttonDelete);
     }
 
     private List<InlineKeyboardButton> getVenueButtons() {

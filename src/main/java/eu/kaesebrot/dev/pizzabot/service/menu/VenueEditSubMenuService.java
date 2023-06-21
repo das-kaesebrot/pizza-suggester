@@ -24,12 +24,13 @@ public interface VenueEditSubMenuService extends MenuService {
     // used for buttons when selecting an edit operation for a venue
     public final String CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX = CALLBACK_SUBMENU_PREFIX + "-ops";
     // used for editing the name
-    public final String CALLBACK_EDIT_NAME = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-n";
-    public final String CALLBACK_EDIT_ADDRESS = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-a";
-    public final String CALLBACK_EDIT_URL = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-u";
-    public final String CALLBACK_EDIT_PHONE = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-p";
-    public final String CALLBACK_EDIT_PIZZAS = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-c";
-    public final String CALLBACK_DELETE = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-d";
+    public final String CALLBACK_EDIT_NAME = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-nme";
+    public final String CALLBACK_EDIT_ADDRESS = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-addr";
+    public final String CALLBACK_EDIT_COORDINATES = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-crd";
+    public final String CALLBACK_EDIT_URL = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-url";
+    public final String CALLBACK_EDIT_PHONE = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-phn";
+    public final String CALLBACK_EDIT_PIZZAS = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-pzz";
+    public final String CALLBACK_DELETE = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-del";
 
     BotApiMethod<?> handleCsvUpload(CachedUser user, String fileId, PizzaSuggesterBot bot) throws TelegramApiException, IOException;
     SendMessage handleVenueCreationReply(CachedUser user, String message);
