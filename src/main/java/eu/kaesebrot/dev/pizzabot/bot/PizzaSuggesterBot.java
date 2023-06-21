@@ -170,7 +170,12 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                     logger.debug("Mapped command string '{}' to enum type '{}'", messageText, command);
 
                     if (
-                            !(command == BotCommand.SETTINGS || command == BotCommand.ABOUT || command == BotCommand.HELP || command == BotCommand.START)
+                            !(command == BotCommand.SETTINGS
+                                    || command == BotCommand.ABOUT
+                                    || command == BotCommand.HELP
+                                    || command == BotCommand.START
+                                    || command == BotCommand.DIET
+                                    || command == BotCommand.VENUE)
                                     && (user.hasState(UserState.SELECTING_DIET)
                                     || user.hasState(UserState.SELECTING_VENUE))
                     ) {
@@ -190,6 +195,12 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
                         case SETTINGS:
                             return adminMenuService.getAdminMenu(user);
+
+                        case DIET:
+                            return userMenuService.getDietSelection(user);
+
+                        case VENUE:
+                            return userMenuService.getVenueSelection(user);
 
                         case ABOUT:
                             return userMenuService.getAboutMessage(user);

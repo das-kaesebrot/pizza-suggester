@@ -9,5 +9,7 @@ public enum BotCommand {
     CARLOS,
     START,
     CONTACT,
+    DIET,
+    VENUE,
     ;
 }
