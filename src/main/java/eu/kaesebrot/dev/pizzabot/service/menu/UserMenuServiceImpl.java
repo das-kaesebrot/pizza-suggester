@@ -31,6 +31,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -43,6 +44,7 @@ public class UserMenuServiceImpl implements UserMenuService {
     private List<List<List<InlineKeyboardButton>>> pagedVenueSelectionMenu;
     private Timestamp lastPagedVenueSelectionUpdate;
     private long lastAmountOfVenuesInRepository = 0;
+    private HashMap<Long, String> lastInfoMessageText = new HashMap<>();
 
     public UserMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService) {
         this.cachedUserRepository = cachedUserRepository;
@@ -290,6 +292,9 @@ public class UserMenuServiceImpl implements UserMenuService {
         try {
             var text = getInfoMessageText(user);
 
+            if (text.equals(lastInfoMessageText.get(user.getChatId())))
+                return;
+
             var editMessage = new EditMessageText();
             editMessage.setText(text);
             editMessage.setChatId(user.getChatId());
@@ -299,6 +304,8 @@ public class UserMenuServiceImpl implements UserMenuService {
             var pinMessage = new PinChatMessage();
             pinMessage.setMessageId(user.getPinnedInfoMessageId());
             pinMessage.setChatId(user.getChatId());
+
+            lastInfoMessageText.put(user.getChatId(), text);
 
             bot.execute(editMessage);
             bot.execute(pinMessage);
@@ -311,6 +318,7 @@ public class UserMenuServiceImpl implements UserMenuService {
         bot.execute(new UnpinAllChatMessages(user.getChatId().toString()));
 
         var text = getInfoMessageText(user);
+        lastInfoMessageText.put(user.getChatId(), text);
 
         var message = new SendMessage();
         message.setText(text);
