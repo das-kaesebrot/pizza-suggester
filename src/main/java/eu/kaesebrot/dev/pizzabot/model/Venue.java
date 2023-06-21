@@ -5,6 +5,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Set;
@@ -33,6 +34,9 @@ public class Venue implements Serializable {
     @OneToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "venueinfo_id")
     private VenueInfo venueInfo;
+
+    private BigDecimal glutenFreeMarkup;
+    private BigDecimal lactoseIntoleranceMarkup;
 
     @CreationTimestamp
     @Column(nullable = false)
@@ -83,6 +87,22 @@ public class Venue implements Serializable {
         return usersUsingVenue;
     }
 
+    public BigDecimal getGlutenFreeMarkup() {
+        return glutenFreeMarkup;
+    }
+
+    public BigDecimal getLactoseIntoleranceMarkup() {
+        return lactoseIntoleranceMarkup;
+    }
+
+    public boolean supportsGlutenFree() {
+        return glutenFreeMarkup != null;
+    }
+
+    public boolean supportsLactoseIntolerance() {
+        return lactoseIntoleranceMarkup != null;
+    }
+
     public VenueInfo getVenueInfo() {
         return venueInfo;
     }
@@ -109,5 +129,21 @@ public class Venue implements Serializable {
 
     public void setVenueInfo(VenueInfo venueInfo) {
         this.venueInfo = venueInfo;
+    }
+
+    public void setGlutenFreeMarkup(BigDecimal glutenFreeMarkup) {
+        this.glutenFreeMarkup = glutenFreeMarkup;
+    }
+
+    public void setLactoseIntoleranceMarkup(BigDecimal lactoseIntoleranceMarkup) {
+        this.lactoseIntoleranceMarkup = lactoseIntoleranceMarkup;
+    }
+
+    public void disableGlutenFreeSupport() {
+        setGlutenFreeMarkup(null);
+    }
+
+    public void disableLactoseIntoleranceSupport() {
+        setLactoseIntoleranceMarkup(null);
     }
 }
