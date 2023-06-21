@@ -32,4 +32,10 @@ public class VersionProperties {
     public ZonedDateTime getBuildDate() {
         return buildDate;
     }
+    public String getVersion() {
+        return getClass().getPackage().getImplementationVersion();
+    }
+    public String getImplementationTitle() {
+        return getClass().getPackage().getImplementationTitle();
+    }
 }

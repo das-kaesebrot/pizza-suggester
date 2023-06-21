@@ -225,8 +225,8 @@ public class UserMenuServiceImpl implements UserMenuService {
     public SendMessage getAboutMessage(CachedUser user) {
         var text = localizationService.getString("reply.about");
         text = StringUtils.replacePropertiesVariable("bot_handle", "KantineBot", text);
-        text = StringUtils.replacePropertiesVariable("technical_name", "pizza-suggester", text);
-        text = StringUtils.replacePropertiesVariable("git_hash", versionProperties.getGitHash(), text);
+        text = StringUtils.replacePropertiesVariable("technical_name", versionProperties.getImplementationTitle(), text);
+        text = StringUtils.replacePropertiesVariable("version", versionProperties.getVersion(), text);
         text = StringUtils.replacePropertiesVariable("git_branch", versionProperties.getGitBranch(), text);
         text = StringUtils.replacePropertiesVariable("build_date", versionProperties.getBuildDate().toString(), text);
 
