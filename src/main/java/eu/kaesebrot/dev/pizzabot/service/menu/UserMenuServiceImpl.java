@@ -266,6 +266,15 @@ public class UserMenuServiceImpl implements UserMenuService {
         return venueContact;
     }
 
+    @Override
+    public void resetPinnedInfoMessage(CachedUser user, PizzaSuggesterBot bot) throws TelegramApiException {
+        user.setPinnedInfoMessageId(null);
+        bot.execute(new UnpinAllChatMessages(user.getChatId().toString()));
+
+        cachedUserRepository.save(user);
+        updateOrSetPinnedInfoMessage(user, bot);
+    }
+
     private void updateOrSetPinnedInfoMessage(CachedUser user, PizzaSuggesterBot bot) throws TelegramApiException {
         if (user.getPinnedInfoMessageId() == null) {
             setNewPinnedInfoMessage(user, bot);

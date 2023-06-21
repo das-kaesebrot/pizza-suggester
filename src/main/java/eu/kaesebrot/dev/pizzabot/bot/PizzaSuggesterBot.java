@@ -25,12 +25,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
-import org.telegram.telegrambots.meta.api.methods.groupadministration.LeaveChat;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.starter.SpringWebhookBot;
+
+import java.sql.Timestamp;
+import java.time.Instant;
 
 @Component
 public class PizzaSuggesterBot extends SpringWebhookBot {
@@ -44,6 +46,8 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
     private final CallbackHandlingService callbackHandlingService;
     private final TelegramBotProperties properties;
     private final LocalizationService localizationService;
+    private Long handledUpdates;
+    private final Timestamp startedAt;
 
     @Value("#{environment.getProperty('debug') != null && environment.getProperty('debug') != 'false'}")
     private boolean isDebug;
@@ -66,6 +70,8 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         this.pizzaMenuService = pizzaMenuService;
         this.callbackHandlingService = callbackHandlingService;
         this.localizationService = localizationService;
+        this.handledUpdates = 0L;
+        this.startedAt = Timestamp.from(Instant.now());
 
         // set webhook url on startup
         this.setWebhook(this.getSetWebhook());
@@ -91,6 +97,8 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
         logger.debug("Got update: {}", update.toString());
+
+        handledUpdates++;
 
         var message = update.getMessage();
         var callbackQuery = update.getCallbackQuery();
@@ -244,5 +252,13 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
             return reply;
         }
+    }
+
+    public Long getHandledUpdates() {
+        return handledUpdates;
+    }
+
+    public Timestamp getStartedAt() {
+        return startedAt;
     }
 }

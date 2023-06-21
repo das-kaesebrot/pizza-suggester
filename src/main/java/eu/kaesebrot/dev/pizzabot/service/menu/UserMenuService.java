@@ -21,4 +21,5 @@ public interface UserMenuService extends MenuService {
     SendMessage getHelpMessage(CachedUser user);
     SendMessage getAboutMessage(CachedUser user);
     BotApiMethod<?> getVenueContactInfoMessages(CachedUser user, PizzaSuggesterBot bot) throws TelegramApiException;
+    void resetPinnedInfoMessage(CachedUser user, PizzaSuggesterBot bot) throws TelegramApiException;
 }

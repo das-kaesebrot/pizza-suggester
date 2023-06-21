@@ -117,13 +117,20 @@ public class AdminMenuServiceImpl implements AdminMenuService {
 
                 bot.execute(sendMessage);
                 break;
+                
+            case CALLBACK_ADMIN_RESET_INFOPIN:
+                userMenuService.resetPinnedInfoMessage(user, bot);
+                break;
+                
+            case CALLBACK_ADMIN_BOTSTATS:
+                bot.execute(getBotStatsMessage(user, bot));
+                break;
 
             case CALLBACK_ADMIN_FORGET_ME:
                 cachedUserRepository.delete(user);
                 bot.execute(new UnpinAllChatMessages(user.getChatId().toString()));
                 bot.execute(new SendMessage(user.getChatId().toString(), localizationService.getString("reply.forgetme")));
                 break;
-
 
             case InlineKeyboardService.CALLBACK_NAVIGATION_CLOSE:
                 reply.setText(localizationService.getString("admin.closed"));
@@ -161,6 +168,8 @@ public class AdminMenuServiceImpl implements AdminMenuService {
             case CALLBACK_ADMIN_GENERATE_KEY:
             case CALLBACK_ADMIN_VENUES_EDIT:
             case CALLBACK_ADMIN_VENUES_CREATE:
+            case CALLBACK_ADMIN_RESET_INFOPIN:
+            case CALLBACK_ADMIN_BOTSTATS:
             case InlineKeyboardService.CALLBACK_NAVIGATION_PAGE:
             case InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE:
                 return false;
@@ -291,6 +300,13 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         bot.execute(editMessageReplyMarkup);
     }
 
+    private SendMessage getBotStatsMessage(CachedUser user, PizzaSuggesterBot bot) {
+        if (!user.isAdmin())
+            throw new NotAuthorizedException(String.format("User %s is not an admin!", user.getChatId()));
+
+        return new SendMessage(user.getChatId().toString(), getBotStats(bot));
+    }
+
     //region helper methods
 
     private String getAboutData(CachedUser user) {
@@ -304,6 +320,10 @@ public class AdminMenuServiceImpl implements AdminMenuService {
             venueNumber = venue.getId().toString();
 
         return String.format("__*User %s*__\nSuperAdmin: %s\nAdmin: %s\nDiet: %s\nSelected venue: %s\nUser states: %s\nFirst seen: _%s_\nLast modified: _%s_", user.getChatId(), user.isSuperAdmin(), user.isAdmin(), user.getUserDiet(), venueNumber, userState, createdAt, modifiedAt);
+    }
+
+    private String getBotStats(PizzaSuggesterBot bot) {
+        return String.format("Handled updates: %d\nCached users: %d\nVenues: %d\nTotal admin keys: %d\nUnredeemed admin keys: %d\nRunning since: %s", bot.getHandledUpdates(), cachedUserRepository.count(), venueRepository.count(), adminKeyRepository.count(), adminKeyRepository.findAll().stream().filter(s -> !s.hasBeenClaimed()).count(), bot.getStartedAt());
     }
 
     private Stream<InlineKeyboardButton> getLimitedAdminMenuButtons() {
@@ -320,7 +340,10 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         var buttonEditVenues = new InlineKeyboardButton(localizationService.getString("admin.venues.edit"));
         buttonEditVenues.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_VENUES_EDIT));
 
-        return Stream.concat(Stream.of(buttonCreateVenue, buttonEditVenues), getCommonButtons());
+        var buttonBotStats = new InlineKeyboardButton(localizationService.getString("admin.botstats"));
+        buttonBotStats.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_BOTSTATS));
+
+        return Stream.concat(Stream.of(buttonCreateVenue, buttonEditVenues, buttonBotStats), getCommonButtons());
     }
 
     private Stream<InlineKeyboardButton> getSuperAdminMenuButtons() {
@@ -337,13 +360,16 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         var buttonPersonalVenue = new InlineKeyboardButton(localizationService.getString("admin.changevenue"));
         buttonPersonalVenue.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_CHANGE_PERSONAL_VENUE));
 
+        var buttonResetPinnedMessage = new InlineKeyboardButton(localizationService.getString("admin.resetinfopin"));
+        buttonResetPinnedMessage.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_RESET_INFOPIN));
+
         var buttonAboutMe = new InlineKeyboardButton(localizationService.getString("admin.aboutme"));
         buttonAboutMe.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_ABOUT_ME));
 
         var buttonForgetMe = new InlineKeyboardButton(localizationService.getString("admin.forgetme"));
         buttonForgetMe.setCallbackData(prependCallbackPrefix(CALLBACK_ADMIN_FORGET_ME));
 
-        return Stream.of(buttonDiet, buttonPersonalVenue ,buttonAboutMe, buttonForgetMe);
+        return Stream.of(buttonDiet, buttonPersonalVenue, buttonResetPinnedMessage, buttonAboutMe, buttonForgetMe);
     }
 
     private void regenerateMenuCaches() {
