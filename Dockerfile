@@ -1,24 +1,46 @@
-FROM python:3.9.9-alpine3.14
-ENV WORKDIR_APP=/srv/kantinebot
-WORKDIR ${WORKDIR_APP}
-COPY . ./
+FROM gradle:8-focal as build
 
-# Add build dependencies
-RUN apk update && apk add --no-cache --virtual .build-deps \
-  py3-pip
+ARG OUT_DIR=/srv/final
 
-# Install pip dependencies
-RUN pip3 install --no-cache-dir -r requirements.txt
+COPY . .
+RUN gradle clean bootJar && \
+    mkdir -pv ${OUT_DIR} && \
+    mv -v build/libs/*.jar ${OUT_DIR}/app.jar
 
-RUN addgroup -S kantinebot \
-  && adduser -S kantinebot -G kantinebot -H \
-  && chown -R kantinebot:kantinebot ./
+FROM openjdk:17-jdk-slim as app
 
-# Clean up build dependencies
-RUN apk del .build-deps
+ARG BOT_UNIX_USER=pizzabot
 
-ENV APP_ENV=docker
+# Create user and group to run as
+RUN addgroup --system ${BOT_UNIX_USER} && adduser --system --group ${BOT_UNIX_USER}
 
-STOPSIGNAL SIGINT
-USER kantinebot
-CMD ["gunicorn", "-w", "1", "-b", "0.0.0.0:8000", "kantine-bot:app"]
+ARG SPRING_FOLDER=/var/opt/pizza-suggester
+
+# Create settings and logs folder
+RUN mkdir -pv ${SPRING_FOLDER}/logs && \
+    mkdir -pv ${SPRING_FOLDER}/config
+
+# Set path for log file
+ENV LOGGING_FILE_NAME=${SPRING_FOLDER}/logs/pizzabot.log
+
+# Copy over override.properties file to container (ENV variables take precedence)
+ENV SPRING_CONFIG_IMPORT=optional:file:${SPRING_FOLDER}/config/override.properties
+COPY src/main/resources/application.properties.sample ${SPRING_FOLDER}/config/override.properties
+
+ENV SPRING_PROFILES_ACTIVE=prod
+
+# Set proper perms
+RUN chown -R ${BOT_UNIX_USER}:${BOT_UNIX_USER} ${SPRING_FOLDER}
+
+# Set run user and group
+USER ${BOT_UNIX_USER}:${BOT_UNIX_USER}
+
+# Copy over compiled jar
+ARG JAR_PATH=/srv/final/app.jar
+
+WORKDIR ${SPRING_FOLDER}
+COPY --from=build ${JAR_PATH} app.jar
+
+RUN if [ ! -f "app.jar" ]; then exit 1; fi
+
+CMD ["java","-jar","app.jar"]

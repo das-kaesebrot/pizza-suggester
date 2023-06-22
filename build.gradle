@@ -1,0 +1,51 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.0.7'
+	id 'io.spring.dependency-management' version '1.1.0'
+	id 'com.palantir.git-version' version '1.0.0'
+	id "com.gorylenko.gradle-git-properties" version "2.4.1"
+}
+
+group = 'eu.kaesebrot.dev.pizzabot'
+version = gitVersion()
+
+java {
+	sourceCompatibility = '17'
+}
+
+gitProperties {
+	failOnNoGitDirectory = false
+}
+
+springBoot {
+	buildInfo()
+}
+
+repositories {
+	mavenCentral()
+	maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+	implementation 'org.telegram:telegrambots-spring-boot-starter:6.5.0'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.xerial:sqlite-jdbc:3.36.0.3'
+	implementation 'org.hibernate.orm:hibernate-community-dialects'
+	implementation 'org.apache.commons:commons-lang3:3.12.0'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+	runtimeOnly 'org.postgresql:postgresql'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+	systemProperty "file.encoding", "utf-8"
+}
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
