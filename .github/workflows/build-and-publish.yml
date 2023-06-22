@@ -7,13 +7,11 @@ on:
     paths:
       - '**.py'
       - '.github/workflows/build-and-publish.yml'
-      - 'requirements.txt'
-      - 'Pipfile'
-      - 'Pipfile.lock'
-      - 'entrypoint.sh'
+      - '**.java'
+      - '**.properties'
+      - '*.gradle'
+      - 'Dockerfile'
 
-env:
-  IMAGE_NAME: daskaesebrot/dt-version-gen
 
 jobs:
   build-and-push-image:
