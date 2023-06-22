@@ -24,7 +24,7 @@ public class CachedUser implements Serializable {
     @ElementCollection(targetClass = UserState.class)
     @CollectionTable
     @Enumerated(EnumType.STRING)
-    private Collection<UserState> userState;
+    private Set<UserState> userState;
     private String languageTag;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venue_id")
@@ -49,7 +49,7 @@ public class CachedUser implements Serializable {
 
 
     public CachedUser() {
-        this.userState = EnumSet.noneOf(UserState.class);
+        this.userState = Collections.synchronizedSet(EnumSet.noneOf(UserState.class));
         this.isGlutenIntolerant = false;
         this.isLactoseIntolerant = false;
         currentIngredientMenuPage = 0;
@@ -173,7 +173,7 @@ public class CachedUser implements Serializable {
         return languageTag;
     }
 
-    public Collection<UserState> getState() {
+    public Set<UserState> getState() {
         return userState;
     }
     public boolean hasState(UserState state) {
