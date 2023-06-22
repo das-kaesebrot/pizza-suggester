@@ -68,7 +68,11 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         this.startedAt = Timestamp.from(Instant.now());
 
         // set webhook url on startup
-        this.setWebhook(this.getSetWebhook());
+        var webhook = this.getSetWebhook();
+        this.setWebhook(webhook);
+        var webhookInfo = this.getWebhookInfo();
+
+        logger.info(String.format("webhook callback URL was set to %s", webhookInfo.getUrl()));
 
         // create an initial admin key if the repository is empty
         if (adminKeyService.isKeyRepositoryEmpty()) {
