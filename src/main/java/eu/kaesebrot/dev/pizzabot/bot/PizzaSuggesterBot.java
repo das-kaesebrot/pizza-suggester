@@ -55,7 +55,9 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                              AdminMenuService adminMenuService,
                              AdminKeyService adminKeyService, UserMenuService userMenuService,
                              PizzaMenuService pizzaMenuService, CallbackHandlingService callbackHandlingService, LocalizationService localizationService) throws TelegramApiException {
-        super(new SetWebhook(properties.getWebhookBaseUrl()), properties.getBotToken());
+
+        super(new SetWebhook(properties.getFullWebhookUrl()), properties.getBotToken());
+
         this.properties = properties;
         this.cachedUserService = cachedUserService;
         this.cachedUserRepository = cachedUserRepository;

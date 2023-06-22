@@ -10,7 +10,9 @@ public class TelegramBotProperties {
     private String botUsername;
     @NotBlank
     private String botToken;
+    @NotBlank
     private String webhookBaseUrl;
+    private String webhookPath = "";
     private String primaryLocale;
     private String[] supportedLocales;
 
@@ -36,6 +38,21 @@ public class TelegramBotProperties {
 
     public void setWebhookBaseUrl(String webhookBaseUrl) {
         this.webhookBaseUrl = StringUtils.stripEnd(webhookBaseUrl, "/");
+    }
+
+    public String getWebhookPath() {
+        return webhookPath;
+    }
+
+    public void setWebhookPath(String webhookPath) {
+        this.webhookPath = StringUtils.stripStart(StringUtils.stripEnd(webhookPath, "/"), "/");;
+    }
+
+    public String getFullWebhookUrl() {
+        if (eu.kaesebrot.dev.pizzabot.utils.StringUtils.isNullOrEmpty(webhookPath))
+            return webhookBaseUrl;
+
+        return String.format("%s/%s", webhookBaseUrl, webhookPath);
     }
 
     public String getPrimaryLocale() {
