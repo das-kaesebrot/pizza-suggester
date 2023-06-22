@@ -484,5 +484,6 @@ gradle-app.setting
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,windows,linux,macos,intellij,pycharm,gradle,python
 
 secret.properties
-.env
-error.log
+*.env
+*.log
+*.db
