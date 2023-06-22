@@ -14,10 +14,21 @@ services:
       - MYSQL_PASSWORD=pizza_suggester
       - MYSQL_DATABASE=pizza_suggester_db
 
+  db2:
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=pizza_suggester_db
+      - POSTGRES_USER=pizza_suggester
+      - POSTGRES_PASSWORD=pizza_suggester
+
   adminer:
     image: adminer
     depends_on:
       - db
+      - db2
     ports:
       - 8000:8080
     environment:
