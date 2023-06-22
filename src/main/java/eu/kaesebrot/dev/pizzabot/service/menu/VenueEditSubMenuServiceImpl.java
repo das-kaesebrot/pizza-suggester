@@ -183,7 +183,7 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
 
         List<List<String>> rows = new java.util.ArrayList<>(List.of());
 
-        logger.info(String.format("Reading new pizza CSV for venue %s", venue));
+        logger.info(String.format("Reading new pizza CSV for venue %d", venue.getId()));
 
         logger.debug(String.format("Handling new document by %s: %s", user , fileId));
         String filePath = bot.execute(new GetFile(fileId)).getFileUrl(botProperties.getBotToken());
