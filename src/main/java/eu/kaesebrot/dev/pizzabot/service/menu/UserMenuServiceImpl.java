@@ -273,8 +273,8 @@ public class UserMenuServiceImpl implements UserMenuService {
         venueContact.setPhoneNumber(venue.getVenueInfo().getPhoneNumber());
         venueContact.setFirstName(venue.getName());
 
-        bot.execute(venueInfoMessage);
         bot.execute(sendMessage);
+        bot.execute(venueInfoMessage);
         return venueContact;
     }
 
