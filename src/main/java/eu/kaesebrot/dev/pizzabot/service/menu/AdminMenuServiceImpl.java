@@ -3,13 +3,11 @@ package eu.kaesebrot.dev.pizzabot.service.menu;
 import eu.kaesebrot.dev.pizzabot.bot.PizzaSuggesterBot;
 import eu.kaesebrot.dev.pizzabot.enums.UserState;
 import eu.kaesebrot.dev.pizzabot.exceptions.NotAuthorizedException;
-import eu.kaesebrot.dev.pizzabot.model.AdminKey;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
-import eu.kaesebrot.dev.pizzabot.properties.TelegramBotProperties;
 import eu.kaesebrot.dev.pizzabot.repository.AdminKeyRepository;
 import eu.kaesebrot.dev.pizzabot.repository.CachedUserRepository;
-import eu.kaesebrot.dev.pizzabot.repository.PizzaRepository;
 import eu.kaesebrot.dev.pizzabot.repository.VenueRepository;
+import eu.kaesebrot.dev.pizzabot.service.AdminKeyService;
 import eu.kaesebrot.dev.pizzabot.service.InlineKeyboardService;
 import eu.kaesebrot.dev.pizzabot.service.LocalizationService;
 import eu.kaesebrot.dev.pizzabot.utils.StringUtils;
@@ -38,27 +36,25 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     private final VenueRepository venueRepository;
     private final CachedUserRepository cachedUserRepository;
     private final AdminKeyRepository adminKeyRepository;
-    private final PizzaRepository pizzaRepository;
+    private final AdminKeyService adminKeyService;
     private final UserMenuService userMenuService;
     private final VenueEditSubMenuService venueEditSubMenuService;
     private final InlineKeyboardService inlineKeyboardService;
     private final LocalizationService localizationService;
-    private final TelegramBotProperties botProperties;
 
     private List<List<List<InlineKeyboardButton>>> pagedSuperAdminMenu;
     private List<List<List<InlineKeyboardButton>>> pagedFullAdminMenu;
     private List<List<List<InlineKeyboardButton>>> pagedLimitedAdminMenu;
 
-    public AdminMenuServiceImpl(VenueRepository venueRepository, CachedUserRepository cachedUserRepository, AdminKeyRepository adminKeyRepository, PizzaRepository pizzaRepository, UserMenuService userMenuService, VenueEditSubMenuService venueEditSubMenuService, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService, TelegramBotProperties botProperties) {
+    public AdminMenuServiceImpl(VenueRepository venueRepository, CachedUserRepository cachedUserRepository, AdminKeyRepository adminKeyRepository, UserMenuService userMenuService, VenueEditSubMenuService venueEditSubMenuService, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService, AdminKeyService adminKeyService) {
         this.venueRepository = venueRepository;
         this.cachedUserRepository = cachedUserRepository;
         this.adminKeyRepository = adminKeyRepository;
-        this.pizzaRepository = pizzaRepository;
+        this.adminKeyService = adminKeyService;
         this.userMenuService = userMenuService;
         this.venueEditSubMenuService = venueEditSubMenuService;
         this.inlineKeyboardService = inlineKeyboardService;
         this.localizationService = localizationService;
-        this.botProperties = botProperties;
     }
 
     @Override
@@ -203,30 +199,14 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         if (!user.hasState(UserState.SENDING_ADMIN_KEY))
             throw new RuntimeException("No admin key expected!");
 
-        var adminKeyOptional = adminKeyRepository
-                .findById(
-                        UUID.fromString(key.replaceAll(
-                                "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})",
-                                "$1-$2-$3-$4-$5")));
-
-        if (adminKeyOptional.isEmpty()) {
-            throw new RuntimeException(String.format("Couldn't find admin key %s in repository", key));
-        }
-
-        var adminKey = adminKeyOptional.get();
-
         try {
-            if (adminKey.isSuperAdminKey())
-                user.setAdminKeyAsSuperAdmin(adminKey);
-            else
-                user.setAdminKey(adminKey);
-
-            user.removeState(UserState.SENDING_ADMIN_KEY);
-
-            cachedUserRepository.saveAndFlush(user);
+            adminKeyService.redeemAdminKeyForUser(user, key);
         } catch (RuntimeException e) {
             logger.error(String.format("Encountered an exception while redeeming admin key for user %s", user), e);
             throw e;
+        } finally {
+            user.removeState(UserState.SENDING_ADMIN_KEY);
+            cachedUserRepository.save(user);
         }
 
         return reply;
@@ -282,21 +262,13 @@ public class AdminMenuServiceImpl implements AdminMenuService {
         var message = new SendMessage();
         var text = localizationService.getString("admin.genkeydone");
 
-        var key = genAdminKey();
+        var key = adminKeyService.generateNewAdminKey(false);
 
         message.setChatId(user.getChatId());
-        message.setText(StringUtils.replacePropertiesVariable("key", key.getKeyString(), text));
+        message.setText(StringUtils.replacePropertiesVariable("key", key, text));
         message.setParseMode(ParseMode.MARKDOWNV2);
 
         return message;
-    }
-
-    private AdminKey genAdminKey() {
-        var key = new AdminKey();
-
-        adminKeyRepository.saveAndFlush(key);
-
-        return key;
     }
 
     private void handleButtonPressBackFromVenueEditMenu(CachedUser user, int messageId, PizzaSuggesterBot bot) throws TelegramApiException {

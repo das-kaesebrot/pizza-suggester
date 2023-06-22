@@ -2,16 +2,16 @@ package eu.kaesebrot.dev.pizzabot.model;
 
 import jakarta.persistence.*;
 
-import java.util.UUID;
-
 @Entity
 public class AdminKey {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID key;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @OneToOne(mappedBy = "adminKey")
     private CachedUser claimant;
+
+    private String hashedKey;
 
     private boolean grantsSuperAdmin;
 
@@ -19,16 +19,13 @@ public class AdminKey {
         grantsSuperAdmin = false;
     }
 
-    public AdminKey(boolean grantsSuperAdmin) {
+    public AdminKey(boolean grantsSuperAdmin, String hashedKey) {
+        this.hashedKey = hashedKey;
         this.grantsSuperAdmin = grantsSuperAdmin;
     }
 
-    public UUID getKey() {
-        return key;
-    }
-
-    public String getKeyString() {
-        return key.toString().replace("-", "");
+    public String getHashedKey() {
+        return hashedKey;
     }
 
     public CachedUser getClaimant() {
@@ -45,6 +42,6 @@ public class AdminKey {
 
     @Override
     public String toString() {
-        return "AdminKey{" + key.toString().replace("-", "") + "}";
+        return String.format("AdminKey{%s}", hashedKey);
     }
 }

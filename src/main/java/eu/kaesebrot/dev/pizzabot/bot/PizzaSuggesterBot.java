@@ -5,17 +5,15 @@ import eu.kaesebrot.dev.pizzabot.enums.UserState;
 import eu.kaesebrot.dev.pizzabot.exceptions.NoPizzasFoundException;
 import eu.kaesebrot.dev.pizzabot.exceptions.NotAuthorizedException;
 import eu.kaesebrot.dev.pizzabot.exceptions.PendingSelectionException;
-import eu.kaesebrot.dev.pizzabot.model.AdminKey;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
-import eu.kaesebrot.dev.pizzabot.repository.AdminKeyRepository;
 import eu.kaesebrot.dev.pizzabot.repository.CachedUserRepository;
+import eu.kaesebrot.dev.pizzabot.service.AdminKeyService;
 import eu.kaesebrot.dev.pizzabot.service.CachedUserService;
 import eu.kaesebrot.dev.pizzabot.service.CallbackHandlingService;
 import eu.kaesebrot.dev.pizzabot.service.LocalizationService;
 import eu.kaesebrot.dev.pizzabot.service.menu.PizzaMenuService;
 import eu.kaesebrot.dev.pizzabot.service.menu.UserMenuService;
 import eu.kaesebrot.dev.pizzabot.properties.TelegramBotProperties;
-import eu.kaesebrot.dev.pizzabot.repository.VenueRepository;
 import eu.kaesebrot.dev.pizzabot.service.menu.AdminMenuService;
 import eu.kaesebrot.dev.pizzabot.utils.CsvMimeTypeUtil;
 import eu.kaesebrot.dev.pizzabot.utils.StringUtils;
@@ -39,7 +37,6 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
     Logger logger = LoggerFactory.getLogger(PizzaSuggesterBot.class);
     private final CachedUserService cachedUserService;
     private final CachedUserRepository cachedUserRepository;
-    private final VenueRepository venueRepository;
     private final AdminMenuService adminMenuService;
     private final UserMenuService userMenuService;
     private final PizzaMenuService pizzaMenuService;
@@ -55,16 +52,13 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
     public PizzaSuggesterBot(TelegramBotProperties properties,
                              CachedUserService cachedUserService,
                              CachedUserRepository cachedUserRepository,
-                             VenueRepository venueRepository,
-                             AdminKeyRepository adminKeyRepository,
                              AdminMenuService adminMenuService,
-                             UserMenuService userMenuService,
+                             AdminKeyService adminKeyService, UserMenuService userMenuService,
                              PizzaMenuService pizzaMenuService, CallbackHandlingService callbackHandlingService, LocalizationService localizationService) throws TelegramApiException {
         super(new SetWebhook(properties.getWebhookBaseUrl()), properties.getBotToken());
         this.properties = properties;
         this.cachedUserService = cachedUserService;
         this.cachedUserRepository = cachedUserRepository;
-        this.venueRepository = venueRepository;
         this.adminMenuService = adminMenuService;
         this.userMenuService = userMenuService;
         this.pizzaMenuService = pizzaMenuService;
@@ -77,9 +71,8 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         this.setWebhook(this.getSetWebhook());
 
         // create an initial admin key if the repository is empty
-        if (adminKeyRepository.count() <= 0) {
-            var firstAdminKey = new AdminKey(true);
-            adminKeyRepository.saveAndFlush(firstAdminKey);
+        if (adminKeyService.isKeyRepositoryEmpty()) {
+            var firstAdminKey = adminKeyService.generateNewAdminKey(true);
             logger.info(String.format("Created an initial super admin key, use this key to gain admin permissions to the bot!\n\n\t*** ADMINKEY: %s ***\n\n", firstAdminKey));
         }
     }
@@ -212,7 +205,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                             // TODO
                             throw new UnsupportedOperationException("Not implemented yet!");
                         }
-                } else if (messageText.trim().length() == 32 && user.hasState(UserState.SENDING_ADMIN_KEY)) {
+                } else if (user.hasState(UserState.SENDING_ADMIN_KEY)) {
                     return adminMenuService.handleKeyRedemption(user, messageText.trim());
                 } else if (user.hasState(UserState.CREATING_VENUE)) {
                     return adminMenuService.handleVenueCreationReply(user, messageText);
