@@ -7,7 +7,7 @@ RUN gradle clean bootJar && \
     mkdir -pv ${OUT_DIR} && \
     mv -v build/libs/*.jar ${OUT_DIR}/app.jar
 
-FROM openjdk:17-jdk-slim as app
+FROM openjdk:17.0.2-jdk-slim as app
 
 ARG BOT_UNIX_USER=pizzabot
 
