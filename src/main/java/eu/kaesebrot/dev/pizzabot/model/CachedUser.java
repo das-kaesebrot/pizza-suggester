@@ -8,7 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.EnumSet;
+import java.util.*;
 
 @Entity
 @Table(name = "cached_user")
@@ -19,11 +19,19 @@ public class CachedUser implements Serializable {
     private UserDiet userDiet;
 
     private Integer pinnedInfoMessageId;
-    private EnumSet<UserState> userState;
+    private Integer lastInfoMessageTextHash;
+
+    @ElementCollection(targetClass = UserState.class)
+    @CollectionTable
+    @Enumerated(EnumType.STRING)
+    private Collection<UserState> userState;
     private String languageTag;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venue_id")
     private Venue selectedVenue;
+    @ElementCollection
+    private List<Integer> selectedUserIngredients;
+    private Integer currentIngredientMenuPage;
 
     @OneToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "adminkey_id")
@@ -44,6 +52,8 @@ public class CachedUser implements Serializable {
         this.userState = EnumSet.noneOf(UserState.class);
         this.isGlutenIntolerant = false;
         this.isLactoseIntolerant = false;
+        currentIngredientMenuPage = 0;
+        selectedUserIngredients = new ArrayList<>();
     }
 
     public CachedUser(Long chatId) {
@@ -84,6 +94,28 @@ public class CachedUser implements Serializable {
 
     public void toggleLactoseIntolerance() {
         isLactoseIntolerant = !isLactoseIntolerant;
+    }
+    public void toggleSelectedIngredient(int ingredientIndex) {
+        if (selectedUserIngredients.contains(ingredientIndex))
+            selectedUserIngredients.remove((Integer) ingredientIndex); // cast to integer to remove by value instead of index
+        else
+            selectedUserIngredients.add(ingredientIndex);
+    }
+
+    public void clearSelectedIngredients() {
+        selectedUserIngredients = new ArrayList<>();
+    }
+
+    public List<Integer> getSelectedUserIngredients() {
+        return selectedUserIngredients;
+    }
+
+    public int getCurrentIngredientMenuPage() {
+        return currentIngredientMenuPage;
+    }
+
+    public void setCurrentIngredientMenuPage(int page) {
+        currentIngredientMenuPage = page;
     }
 
     public void removeState(UserState userState) {
@@ -134,7 +166,7 @@ public class CachedUser implements Serializable {
         return languageTag;
     }
 
-    public EnumSet<UserState> getState() {
+    public Collection<UserState> getState() {
         return userState;
     }
     public boolean hasState(UserState state) {

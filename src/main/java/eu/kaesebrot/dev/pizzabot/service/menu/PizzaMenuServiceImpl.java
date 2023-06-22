@@ -8,6 +8,7 @@ import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.model.Pizza;
 import eu.kaesebrot.dev.pizzabot.model.Venue;
 import eu.kaesebrot.dev.pizzabot.properties.TelegramBotProperties;
+import eu.kaesebrot.dev.pizzabot.repository.CachedUserRepository;
 import eu.kaesebrot.dev.pizzabot.repository.VenueRepository;
 import eu.kaesebrot.dev.pizzabot.service.InlineKeyboardService;
 import eu.kaesebrot.dev.pizzabot.service.LocalizationService;
@@ -32,20 +33,20 @@ import java.util.*;
 
 @Service
 public class PizzaMenuServiceImpl implements PizzaMenuService {
+    private final CachedUserRepository cachedUserRepository;
     private final VenueRepository venueRepository;
     private final InlineKeyboardService inlineKeyboardService;
     private final PizzaService pizzaService;
     private final LocalizationService localizationService;
     private final TelegramBotProperties botProperties;
     private HashMap<Long, IngredientButtonList> venueIngredientButtons = new HashMap<>();
-    private HashMap<Long, List<Integer>> selectedUserIngredients = new HashMap<>();
-    private HashMap<Long, Integer> currentUserPages = new HashMap<>();
 
-    public PizzaMenuServiceImpl(VenueRepository venueRepository, LocalizationService localizationService, InlineKeyboardService inlineKeyboardService, PizzaService pizzaService, LocalizationService localizationService1, TelegramBotProperties botProperties) {
+    public PizzaMenuServiceImpl(VenueRepository venueRepository, CachedUserRepository cachedUserRepository, InlineKeyboardService inlineKeyboardService, PizzaService pizzaService, LocalizationService localizationService, TelegramBotProperties botProperties) {
         this.venueRepository = venueRepository;
+        this.cachedUserRepository = cachedUserRepository;
         this.inlineKeyboardService = inlineKeyboardService;
         this.pizzaService = pizzaService;
-        this.localizationService = localizationService1;
+        this.localizationService = localizationService;
         this.botProperties = botProperties;
     }
 
@@ -71,13 +72,14 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
                 editMessageText.setText(getMessageStringForIngredientToggle(user));
                 editMessageText.setChatId(user.getChatId().toString());
                 editMessageText.setMessageId(query.getMessage().getMessageId());
-                editMessageText.setReplyMarkup(getKeyboardForPage(user.getSelectedVenue(), currentUserPages.get(user.getChatId())));
+                editMessageText.setReplyMarkup(getKeyboardForPage(user.getSelectedVenue(), user.getCurrentIngredientMenuPage()));
 
                 bot.execute(editMessageText);
                 break;
 
             case InlineKeyboardService.CALLBACK_NAVIGATION_CONFIRM:
-                currentUserPages.remove(user.getChatId());
+                user.setCurrentIngredientMenuPage(0);
+                cachedUserRepository.save(user);
                 bot.execute(handleButtonPressConfirmIngredients(user));
                 break;
 
@@ -91,13 +93,15 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
                 editMessageMarkup.setMessageId(query.getMessage().getMessageId());
                 editMessageMarkup.setReplyMarkup(getKeyboardForPage(user.getSelectedVenue(), number));
 
-                currentUserPages.put(user.getChatId(), number);
+                user.setCurrentIngredientMenuPage(number);
+                cachedUserRepository.save(user);
 
                 bot.execute(editMessageMarkup);
                 break;
 
             case InlineKeyboardService.CALLBACK_NAVIGATION_CLOSE:
-                currentUserPages.remove(user.getChatId());
+                user.setCurrentIngredientMenuPage(0);
+                cachedUserRepository.save(user);
                 break;
 
             default:
@@ -146,8 +150,10 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
             throw new PendingVenueSelectionException("No venue selected by user yet!");
 
         // initialize ingredient selection array
-        selectedUserIngredients.put(user.getChatId(), new ArrayList<>());
-        currentUserPages.put(user.getChatId(), 0);
+        user.clearSelectedIngredients();
+        user.setCurrentIngredientMenuPage(0);
+
+        cachedUserRepository.save(user);
 
         SendMessage reply = new SendMessage(user.getChatId().toString(), localizationService.getString("pizza.selectingredients"));
         reply.setParseMode(ParseMode.MARKDOWNV2);
@@ -167,7 +173,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
             return reply;
         }
 
-        var allMatchingPizzas = pizzaService.getMatchingPizzasByIngredientIndexList(user.getSelectedVenue().getId(), user.getUserDiet(), selectedUserIngredients.get(user.getChatId()));
+        var allMatchingPizzas = pizzaService.getMatchingPizzasByIngredientIndexList(user.getSelectedVenue().getId(), user.getUserDiet(), user.getSelectedUserIngredients());
         allMatchingPizzas = pizzaService.filterSortAndTrimListOfPizzasForUser(user, allMatchingPizzas, MAX_PIZZA_RESULTS);
 
         if (allMatchingPizzas.isEmpty()) {
@@ -195,7 +201,9 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
         reply.setText(text);
         reply.setParseMode(ParseMode.MARKDOWNV2);
 
-        selectedUserIngredients.remove(user.getChatId());
+        user.clearSelectedIngredients();
+
+        cachedUserRepository.save(user);
 
         return reply;
     }
@@ -233,7 +241,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
 
     private String getMessageStringForIngredientToggle(CachedUser user) {
         var text = localizationService.getString("pizza.selectingredientswithlist");
-        var ingredients = selectedUserIngredients.get(user.getChatId());
+        var ingredients = user.getSelectedUserIngredients();
 
         if (ingredients == null || ingredients.isEmpty())
             return localizationService.getString("pizza.selectingredients");
@@ -252,13 +260,8 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
     }
 
     private void toggleSelectedIngredient(CachedUser user, int ingredientIndex) {
-        var entry = selectedUserIngredients.get(user.getChatId());
-        if (entry.contains(ingredientIndex))
-            entry.remove((Integer) ingredientIndex); // cast to integer to remove by value instead of index
-        else
-            entry.add(ingredientIndex);
-
-        selectedUserIngredients.put(user.getChatId(), entry);
+        user.toggleSelectedIngredient(ingredientIndex);
+        cachedUserRepository.save(user);
     }
 
     private String formatPizzaForMessage(CachedUser user, Pizza pizza) {
