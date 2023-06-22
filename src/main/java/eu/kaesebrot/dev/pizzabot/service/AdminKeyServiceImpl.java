@@ -52,10 +52,7 @@ public class AdminKeyServiceImpl implements AdminKeyService {
 
         for (var keyObject: adminKeyRepository.findAllByClaimantIsNull()) {
             if (passwordEncoder.matches(rawKey, keyObject.getHashedKey())) {
-                if (keyObject.isSuperAdminKey())
-                    user.setAdminKeyAsSuperAdmin(keyObject);
-                else
-                    user.setAdminKey(keyObject);
+                user.setAdminKey(keyObject);
 
                 cachedUserRepository.save(user);
 

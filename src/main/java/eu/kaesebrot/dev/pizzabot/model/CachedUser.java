@@ -28,8 +28,6 @@ public class CachedUser implements Serializable {
     @OneToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "adminkey_id")
     private AdminKey adminKey;
-
-    private boolean isSuperAdmin;
     private boolean isGlutenIntolerant;
     private boolean isLactoseIntolerant;
 
@@ -112,18 +110,12 @@ public class CachedUser implements Serializable {
         this.adminKey = adminKey;
     }
 
-    public void setAdminKeyAsSuperAdmin(AdminKey adminKey) {
-        setAdminKey(adminKey);
-
-        this.isSuperAdmin = true;
-    }
-
     public boolean isAdmin() {
         return adminKey != null;
     }
 
     public boolean isSuperAdmin() {
-        return isAdmin() && isSuperAdmin;
+        return isAdmin() && adminKey.isSuperAdminKey();
     }
 
     public Integer getPinnedInfoMessageId() {

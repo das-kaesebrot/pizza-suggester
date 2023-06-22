@@ -309,7 +309,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
     }
 
     private String getBotStats(PizzaSuggesterBot bot) {
-        return String.format("Handled updates: %d\nCached users: %d\nVenues: %d\nTotal admin keys: %d\nUnredeemed admin keys: %d\nRunning since: %s", bot.getHandledUpdates(), cachedUserRepository.count(), venueRepository.count(), adminKeyRepository.count(), adminKeyRepository.findAll().stream().filter(s -> !s.hasBeenClaimed()).count(), bot.getStartedAt());
+        return String.format("Handled updates: %d\nCached users: %d\nVenues: %d\nTotal admin keys: %d\nUnredeemed admin keys: %d\nRunning since: %s", bot.getHandledUpdates(), cachedUserRepository.count(), venueRepository.count(), adminKeyRepository.count(), adminKeyRepository.countAllByClaimantIsNull(), bot.getStartedAt());
     }
 
     private Stream<InlineKeyboardButton> getLimitedAdminMenuButtons() {
