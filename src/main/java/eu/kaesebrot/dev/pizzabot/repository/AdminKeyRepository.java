@@ -10,4 +10,5 @@ import java.util.List;
 public interface AdminKeyRepository extends JpaRepository<AdminKey, Long> {
     boolean existsByHashedKey(String key);
     List<AdminKey> findAllByClaimantIsNull();
+    long countAllByClaimantIsNull();
 }
