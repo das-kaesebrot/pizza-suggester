@@ -1,5 +1,6 @@
 package eu.kaesebrot.dev.pizzabot.service.menu;
 
+import eu.kaesebrot.dev.pizzabot.PizzaSuggesterTelegramBotMain;
 import eu.kaesebrot.dev.pizzabot.bot.PizzaSuggesterBot;
 import eu.kaesebrot.dev.pizzabot.enums.UserDiet;
 import eu.kaesebrot.dev.pizzabot.enums.UserState;
@@ -12,6 +13,7 @@ import eu.kaesebrot.dev.pizzabot.repository.VenueRepository;
 import eu.kaesebrot.dev.pizzabot.service.InlineKeyboardService;
 import eu.kaesebrot.dev.pizzabot.service.LocalizationService;
 import eu.kaesebrot.dev.pizzabot.utils.StringUtils;
+import org.springframework.boot.info.GitProperties;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -41,16 +43,18 @@ public class UserMenuServiceImpl implements UserMenuService {
     private final InlineKeyboardService inlineKeyboardService;
     private final LocalizationService localizationService;
     private final VersionProperties versionProperties;
+    private final GitProperties gitProperties;
     private List<List<List<InlineKeyboardButton>>> pagedVenueSelectionMenu;
     private Timestamp lastPagedVenueSelectionUpdate;
     private long lastAmountOfVenuesInRepository = 0;
     private HashMap<Long, String> lastInfoMessageText = new HashMap<>();
 
-    public UserMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService) {
+    public UserMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService, GitProperties gitProperties) {
         this.cachedUserRepository = cachedUserRepository;
         this.venueRepository = venueRepository;
         this.inlineKeyboardService = inlineKeyboardService;
         this.localizationService = localizationService;
+        this.gitProperties = gitProperties;
 
         versionProperties = new VersionProperties();
     }
@@ -225,10 +229,10 @@ public class UserMenuServiceImpl implements UserMenuService {
     public SendMessage getAboutMessage(CachedUser user) {
         var text = localizationService.getString("reply.about");
         text = StringUtils.replacePropertiesVariable("bot_handle", "KantineBot", text);
-        text = StringUtils.replacePropertiesVariable("technical_name", versionProperties.getImplementationTitle(), text);
-        text = StringUtils.replacePropertiesVariable("version", versionProperties.getVersion(), text);
-        text = StringUtils.replacePropertiesVariable("git_branch", versionProperties.getGitBranch(), text);
-        text = StringUtils.replacePropertiesVariable("build_date", versionProperties.getBuildDate().toString(), text);
+        text = StringUtils.replacePropertiesVariable("technical_name", PizzaSuggesterTelegramBotMain.class.getPackageName(), text);
+        text = StringUtils.replacePropertiesVariable("git_commit_hash", gitProperties.getShortCommitId(), text);
+        text = StringUtils.replacePropertiesVariable("git_branch", gitProperties.getBranch(), text);
+        text = StringUtils.replacePropertiesVariable("git_commit_date", gitProperties.getCommitTime().toString(), text);
 
         var msg = new SendMessage(user.getChatId().toString(), text);
         msg.setParseMode(ParseMode.MARKDOWNV2);
