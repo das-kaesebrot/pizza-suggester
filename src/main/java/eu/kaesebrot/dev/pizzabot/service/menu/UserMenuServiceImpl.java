@@ -47,7 +47,6 @@ public class UserMenuServiceImpl implements UserMenuService {
     private List<List<List<InlineKeyboardButton>>> pagedVenueSelectionMenu;
     private Timestamp lastPagedVenueSelectionUpdate;
     private long lastAmountOfVenuesInRepository = 0;
-    private HashMap<Long, Integer> lastInfoMessageTextHash = new HashMap<>();
 
     public UserMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService, GitProperties gitProperties) {
         this.cachedUserRepository = cachedUserRepository;
@@ -297,7 +296,7 @@ public class UserMenuServiceImpl implements UserMenuService {
             var text = getInfoMessageText(user);
             var hashCode = text.hashCode();
 
-            if (hashCode == lastInfoMessageTextHash.get(user.getChatId()))
+            if (hashCode == user.getLastInfoMessageTextHash())
                 return;
 
             var editMessage = new EditMessageText();
@@ -310,12 +309,14 @@ public class UserMenuServiceImpl implements UserMenuService {
             pinMessage.setMessageId(user.getPinnedInfoMessageId());
             pinMessage.setChatId(user.getChatId());
 
-            lastInfoMessageTextHash.put(user.getChatId(), hashCode);
+            user.setLastInfoMessageTextHash(hashCode);
 
             bot.execute(editMessage);
             bot.execute(pinMessage);
         } catch (TelegramApiException e) {
             setNewPinnedInfoMessage(user, bot);
+        } finally {
+            cachedUserRepository.save(user);
         }
     }
 
@@ -323,7 +324,7 @@ public class UserMenuServiceImpl implements UserMenuService {
         bot.execute(new UnpinAllChatMessages(user.getChatId().toString()));
 
         var text = getInfoMessageText(user);
-        lastInfoMessageTextHash.put(user.getChatId(), text.hashCode());
+        user.setLastInfoMessageTextHash(text.hashCode());
 
         var message = new SendMessage();
         message.setText(text);

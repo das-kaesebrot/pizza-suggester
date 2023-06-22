@@ -54,6 +54,7 @@ public class CachedUser implements Serializable {
         this.isLactoseIntolerant = false;
         currentIngredientMenuPage = 0;
         selectedUserIngredients = new ArrayList<>();
+        lastInfoMessageTextHash = -1;
     }
 
     public CachedUser(Long chatId) {
@@ -129,6 +130,9 @@ public class CachedUser implements Serializable {
     public void setPinnedInfoMessageId(Integer pinnedInfoMessageId) {
         this.pinnedInfoMessageId = pinnedInfoMessageId;
     }
+    public void setLastInfoMessageTextHash(Integer infoMessageTextHash) {
+        this.lastInfoMessageTextHash = infoMessageTextHash;
+    }
 
     public Long getChatId() {
         return chatId;
@@ -152,6 +156,9 @@ public class CachedUser implements Serializable {
 
     public Integer getPinnedInfoMessageId() {
         return pinnedInfoMessageId;
+    }
+    public Integer getLastInfoMessageTextHash() {
+        return lastInfoMessageTextHash;
     }
 
     public UserDiet getUserDiet() {
