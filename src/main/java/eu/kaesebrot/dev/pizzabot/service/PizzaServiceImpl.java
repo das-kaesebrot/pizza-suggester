@@ -141,7 +141,7 @@ public class PizzaServiceImpl implements PizzaService {
 
         var frequencyMap = new HashMap<String, Integer>();
 
-        for (Pizza pizza: venue.getPizzaMenu()) {
+        for (Pizza pizza: pizzaRepository.findByVenue(venue)) {
             var ingredients = pizza.getIngredients();
 
             for (String ingredient: ingredients) {
