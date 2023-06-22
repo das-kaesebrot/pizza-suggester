@@ -2,7 +2,7 @@ version: "2"
 
 services:
   db:
-    image: mariadb:10.3
+    image: mariadb:10.11
     restart: always
     ports:
       - 3306:3306
