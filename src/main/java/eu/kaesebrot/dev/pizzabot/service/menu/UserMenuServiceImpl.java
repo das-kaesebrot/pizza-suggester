@@ -47,7 +47,7 @@ public class UserMenuServiceImpl implements UserMenuService {
     private List<List<List<InlineKeyboardButton>>> pagedVenueSelectionMenu;
     private Timestamp lastPagedVenueSelectionUpdate;
     private long lastAmountOfVenuesInRepository = 0;
-    private HashMap<Long, String> lastInfoMessageText = new HashMap<>();
+    private HashMap<Long, Integer> lastInfoMessageTextHash = new HashMap<>();
 
     public UserMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService, GitProperties gitProperties) {
         this.cachedUserRepository = cachedUserRepository;
@@ -295,8 +295,9 @@ public class UserMenuServiceImpl implements UserMenuService {
 
         try {
             var text = getInfoMessageText(user);
+            var hashCode = text.hashCode();
 
-            if (text.equals(lastInfoMessageText.get(user.getChatId())))
+            if (hashCode == lastInfoMessageTextHash.get(user.getChatId()))
                 return;
 
             var editMessage = new EditMessageText();
@@ -309,7 +310,7 @@ public class UserMenuServiceImpl implements UserMenuService {
             pinMessage.setMessageId(user.getPinnedInfoMessageId());
             pinMessage.setChatId(user.getChatId());
 
-            lastInfoMessageText.put(user.getChatId(), text);
+            lastInfoMessageTextHash.put(user.getChatId(), hashCode);
 
             bot.execute(editMessage);
             bot.execute(pinMessage);
@@ -322,7 +323,7 @@ public class UserMenuServiceImpl implements UserMenuService {
         bot.execute(new UnpinAllChatMessages(user.getChatId().toString()));
 
         var text = getInfoMessageText(user);
-        lastInfoMessageText.put(user.getChatId(), text);
+        lastInfoMessageTextHash.put(user.getChatId(), text.hashCode());
 
         var message = new SendMessage();
         message.setText(text);
