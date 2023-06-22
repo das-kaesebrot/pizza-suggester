@@ -13,7 +13,7 @@ public class WebhookCallbackController {
         this.bot = bot;
     }
 
-    @RequestMapping(value = "${telegrambot.webhookPath:/}callback/${telegrambot.botToken}", method = RequestMethod.POST)
+    @RequestMapping(value = "${telegrambot.webhookPath:}/callback/${telegrambot.botToken}", method = RequestMethod.POST)
     @ResponseBody
     public BotApiMethod<?> onUpdateReceived(@RequestBody Update update) {
         return bot.onWebhookUpdateReceived(update);
