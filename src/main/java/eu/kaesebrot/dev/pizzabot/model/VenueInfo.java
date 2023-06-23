@@ -1,5 +1,6 @@
 package eu.kaesebrot.dev.pizzabot.model;
 
+import eu.kaesebrot.dev.pizzabot.exceptions.MalformedDataException;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -158,7 +159,7 @@ public class VenueInfo implements Serializable {
         phoneNumber = phoneNumber.replaceAll(" ", "");
 
         if (!phoneNumber.matches("^\\+[0-9 ]+$"))
-            throw new RuntimeException("Phone number needs to start with an area code!");
+            throw new MalformedDataException("Phone number needs to start with an area code and only contain digits!");
 
         this.phoneNumber = phoneNumber;
     }
