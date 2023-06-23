@@ -3,6 +3,7 @@ package eu.kaesebrot.dev.pizzabot.service;
 import eu.kaesebrot.dev.pizzabot.classes.IngredientList;
 import eu.kaesebrot.dev.pizzabot.enums.UserDiet;
 import eu.kaesebrot.dev.pizzabot.exceptions.NoPizzasFoundException;
+import eu.kaesebrot.dev.pizzabot.exceptions.NoPizzasYetForVenueException;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.model.Pizza;
 import eu.kaesebrot.dev.pizzabot.model.Venue;
@@ -107,6 +108,9 @@ public class PizzaServiceImpl implements PizzaService {
     @Override
     public Pizza getRandomPizza(Venue venue, CachedUser user) {
         Random rand = new Random();
+
+        if (!pizzaRepository.existsPizzasByVenue(user.getSelectedVenue()))
+            throw new NoPizzasYetForVenueException(venue);
 
         var menu = pizzaRepository.findByVenueAndMinimumUserDietGreaterThanEqual(venue, user.getUserDiet());
 

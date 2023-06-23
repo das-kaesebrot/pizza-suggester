@@ -2,10 +2,7 @@ package eu.kaesebrot.dev.pizzabot.bot;
 
 import eu.kaesebrot.dev.pizzabot.enums.BotCommand;
 import eu.kaesebrot.dev.pizzabot.enums.UserState;
-import eu.kaesebrot.dev.pizzabot.exceptions.MalformedDataException;
-import eu.kaesebrot.dev.pizzabot.exceptions.NoPizzasFoundException;
-import eu.kaesebrot.dev.pizzabot.exceptions.NotAuthorizedException;
-import eu.kaesebrot.dev.pizzabot.exceptions.PendingSelectionException;
+import eu.kaesebrot.dev.pizzabot.exceptions.*;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.repository.CachedUserRepository;
 import eu.kaesebrot.dev.pizzabot.service.AdminKeyService;
@@ -30,7 +27,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.starter.SpringWebhookBot;
 
-import java.net.MalformedURLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 
@@ -122,6 +118,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         }
 
         reply.setChatId(chatId);
+        logger.info("Handling update by user: {}", chatId);
 
         try {
             // don't handle if message doesn't come from a user
@@ -254,7 +251,13 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
             reply.setText(localizationService.getString("error.nopizzasfound"));
             return reply;
 
-        } catch (IllegalArgumentException | MalformedDataException | MalformedURLException e) {
+        } catch (NoPizzasYetForVenueException e) {
+            logger.error("Exception encountered while handling an update", e);
+
+            reply.setText(localizationService.getString("error.nopizzasyet"));
+            return reply;
+
+        } catch (IllegalArgumentException | MalformedDataException e) {
             logger.error("Exception encountered while handling an update", e);
 
             reply.setText(localizationService.getString("error.illegalargument"));

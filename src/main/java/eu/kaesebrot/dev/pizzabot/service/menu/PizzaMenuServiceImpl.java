@@ -3,12 +3,14 @@ package eu.kaesebrot.dev.pizzabot.service.menu;
 import eu.kaesebrot.dev.pizzabot.bot.PizzaSuggesterBot;
 import eu.kaesebrot.dev.pizzabot.classes.IngredientButtonList;
 import eu.kaesebrot.dev.pizzabot.enums.UserDiet;
+import eu.kaesebrot.dev.pizzabot.exceptions.NoPizzasYetForVenueException;
 import eu.kaesebrot.dev.pizzabot.exceptions.PendingVenueSelectionException;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.model.Pizza;
 import eu.kaesebrot.dev.pizzabot.model.Venue;
 import eu.kaesebrot.dev.pizzabot.properties.TelegramBotProperties;
 import eu.kaesebrot.dev.pizzabot.repository.CachedUserRepository;
+import eu.kaesebrot.dev.pizzabot.repository.PizzaRepository;
 import eu.kaesebrot.dev.pizzabot.repository.VenueRepository;
 import eu.kaesebrot.dev.pizzabot.service.InlineKeyboardService;
 import eu.kaesebrot.dev.pizzabot.service.LocalizationService;
@@ -35,15 +37,17 @@ import java.util.*;
 public class PizzaMenuServiceImpl implements PizzaMenuService {
     private final CachedUserRepository cachedUserRepository;
     private final VenueRepository venueRepository;
+    private final PizzaRepository pizzaRepository;
     private final InlineKeyboardService inlineKeyboardService;
     private final PizzaService pizzaService;
     private final LocalizationService localizationService;
     private final TelegramBotProperties botProperties;
     private HashMap<Long, IngredientButtonList> venueIngredientButtons = new HashMap<>();
 
-    public PizzaMenuServiceImpl(VenueRepository venueRepository, CachedUserRepository cachedUserRepository, InlineKeyboardService inlineKeyboardService, PizzaService pizzaService, LocalizationService localizationService, TelegramBotProperties botProperties) {
+    public PizzaMenuServiceImpl(VenueRepository venueRepository, CachedUserRepository cachedUserRepository, PizzaRepository pizzaRepository, InlineKeyboardService inlineKeyboardService, PizzaService pizzaService, LocalizationService localizationService, TelegramBotProperties botProperties) {
         this.venueRepository = venueRepository;
         this.cachedUserRepository = cachedUserRepository;
+        this.pizzaRepository = pizzaRepository;
         this.inlineKeyboardService = inlineKeyboardService;
         this.pizzaService = pizzaService;
         this.localizationService = localizationService;
@@ -148,6 +152,9 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
     public SendMessage getIngredientSelectionMenu(CachedUser user) {
         if (user.getSelectedVenue() == null)
             throw new PendingVenueSelectionException("No venue selected by user yet!");
+
+        if (!pizzaRepository.existsPizzasByVenue(user.getSelectedVenue()))
+            throw new NoPizzasYetForVenueException(user.getSelectedVenue());
 
         // initialize ingredient selection array
         user.clearSelectedIngredients();
