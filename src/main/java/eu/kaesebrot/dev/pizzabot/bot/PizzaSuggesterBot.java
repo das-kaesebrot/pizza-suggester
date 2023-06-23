@@ -302,9 +302,9 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
             try {
                 var commandDescription = localizationService.getString(String.format("command.%s", commandString));
 
-                logger.debug("Adding command {} with description {} to registered commands", commandString, commandDescription);
+                logger.debug("Adding command \"/{}\" with description \"{}\" to registered commands", commandString, commandDescription);
 
-                commands.command(new BotCommand(commandString, commandString));
+                commands.command(new BotCommand(commandString, commandDescription));
 
             } catch (MissingResourceException e) {
                 logger.warn(String.format("Skipping command %s because of missing description", commandString), e);
