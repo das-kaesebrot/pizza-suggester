@@ -2,6 +2,7 @@ package eu.kaesebrot.dev.pizzabot.bot;
 
 import eu.kaesebrot.dev.pizzabot.enums.BotCommand;
 import eu.kaesebrot.dev.pizzabot.enums.UserState;
+import eu.kaesebrot.dev.pizzabot.exceptions.MalformedDataException;
 import eu.kaesebrot.dev.pizzabot.exceptions.NoPizzasFoundException;
 import eu.kaesebrot.dev.pizzabot.exceptions.NotAuthorizedException;
 import eu.kaesebrot.dev.pizzabot.exceptions.PendingSelectionException;
@@ -29,6 +30,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.starter.SpringWebhookBot;
 
+import java.net.MalformedURLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 
