@@ -3,13 +3,13 @@ package eu.kaesebrot.dev.pizzabot.enums;
 public enum PizzaBotCommand {
     PIZZA,
     RANDOM,
-    HELP,
-    ABOUT,
-    SETTINGS,
-    CARLOS,
-    START,
     CONTACT,
+    SETTINGS,
     DIET,
     VENUE,
+    HELP,
+    ABOUT,
+    CARLOS,
+    START,
     ;
 }
