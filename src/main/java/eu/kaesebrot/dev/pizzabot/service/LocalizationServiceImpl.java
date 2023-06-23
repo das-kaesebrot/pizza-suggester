@@ -19,9 +19,7 @@ public class LocalizationServiceImpl implements LocalizationService {
 
     @Override
     public String getString(String key) {
-        return ResourceBundle
-                .getBundle(BASE_NAME, Locale.forLanguageTag(defaultLocale))
-                .getString(key);
+        return getString(key, defaultLocale);
     }
 
     @Override
@@ -36,8 +34,13 @@ public class LocalizationServiceImpl implements LocalizationService {
 
     @Override
     public String getString(String key, String languageTag) {
+        if (ResourceBundle.getBundle(BASE_NAME, Locale.forLanguageTag(languageTag)).containsKey(key))
+            return ResourceBundle
+                    .getBundle(BASE_NAME, Locale.forLanguageTag(languageTag))
+                    .getString(key);
+
         return ResourceBundle
-                .getBundle(BASE_NAME, Locale.forLanguageTag(languageTag))
+                .getBundle(BASE_NAME)
                 .getString(key);
     }
 }
