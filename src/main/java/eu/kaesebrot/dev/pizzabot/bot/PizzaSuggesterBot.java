@@ -83,41 +83,8 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
             var firstAdminKey = adminKeyService.generateNewAdminKey(true);
             logger.info(String.format("Created an initial super admin key, use this key to gain admin permissions to the bot!\n\n\t*** ADMINKEY: %s ***\n\n", firstAdminKey));
         }
-    }
 
-    @Override
-    public void onRegister() {
-        super.onRegister();
-
-        var commands = SetMyCommands.builder();
-
-        // ignore carlos/start commands
-        var excludedCommands = List.of(PizzaBotCommand.CARLOS, PizzaBotCommand.START);
-
-        for (var commandEnum : PizzaBotCommand.values()) {
-
-            if (excludedCommands.contains(commandEnum))
-                continue;
-
-            var commandString = commandEnum.toString().toLowerCase();
-
-            try {
-                var commandDescription = localizationService.getString(String.format("command.%s", commandString));
-
-                logger.debug("Adding command {} with description {} to registered commands", commandString, commandDescription);
-
-                commands.command(new BotCommand(commandString, commandString));
-
-            } catch (MissingResourceException e) {
-                logger.warn(String.format("Skipping command %s because of missing description", commandString), e);
-            }
-        }
-
-        try {
-            execute(commands.build());
-        } catch (TelegramApiException e) {
-            logger.warn("Encountered exception while setting commands", e);
-        }
+        registerCommands();
     }
 
     @Override
@@ -316,6 +283,38 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
             }
 
             return reply;
+        }
+    }
+
+    private void registerCommands() {
+        var commands = SetMyCommands.builder();
+
+        // ignore carlos/start commands
+        var excludedCommands = List.of(PizzaBotCommand.CARLOS, PizzaBotCommand.START);
+
+        for (var commandEnum : PizzaBotCommand.values()) {
+
+            if (excludedCommands.contains(commandEnum))
+                continue;
+
+            var commandString = commandEnum.toString().toLowerCase();
+
+            try {
+                var commandDescription = localizationService.getString(String.format("command.%s", commandString));
+
+                logger.debug("Adding command {} with description {} to registered commands", commandString, commandDescription);
+
+                commands.command(new BotCommand(commandString, commandString));
+
+            } catch (MissingResourceException e) {
+                logger.warn(String.format("Skipping command %s because of missing description", commandString), e);
+            }
+        }
+
+        try {
+            execute(commands.build());
+        } catch (TelegramApiException e) {
+            logger.warn("Encountered exception while setting commands", e);
         }
     }
 
