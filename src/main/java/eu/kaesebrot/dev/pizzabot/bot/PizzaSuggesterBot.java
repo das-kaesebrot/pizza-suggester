@@ -97,7 +97,8 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
-        logger.debug("Got update: {}", update.toString());
+        logger.debug("Got update: {}", update.getUpdateId());
+        logger.trace(update.toString());
 
         handledUpdates++;
 
