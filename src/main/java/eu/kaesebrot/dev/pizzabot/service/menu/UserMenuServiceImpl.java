@@ -125,6 +125,8 @@ public class UserMenuServiceImpl implements UserMenuService {
                             localizationService.getString("select.dietsuccess"))));
 
             updateOrSetPinnedInfoMessage(user, bot);
+        } else {
+            throw new RuntimeException(String.format("Unknown callback data for user menu! Given data: %s", query.getData()));
         }
 
         return reply;

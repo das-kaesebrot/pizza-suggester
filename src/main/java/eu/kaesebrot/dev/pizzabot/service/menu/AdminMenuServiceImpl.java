@@ -158,7 +158,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
                 break;
 
             default:
-                throw new IllegalArgumentException(String.format("Unknown callback data for admin menu! Given data: %s, CallbackQuery: %s", query.getData(), query));
+                throw new RuntimeException(String.format("Unknown callback data for admin menu! Given data: %s", query.getData()));
         }
 
         return reply;
