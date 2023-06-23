@@ -352,7 +352,7 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
                 venue.setLactoseFreeMarkup(BigDecimal.valueOf(Double.parseDouble(trimmedText)));
             }
         } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+            throw new MalformedDataException("Got malformed URL", e);
         } finally {
             // always save, no matter what
             venueRepository.saveAndFlush(venue);
