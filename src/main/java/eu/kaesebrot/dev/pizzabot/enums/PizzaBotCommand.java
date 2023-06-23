@@ -1,6 +1,6 @@
 package eu.kaesebrot.dev.pizzabot.enums;
 
-public enum BotCommand {
+public enum PizzaBotCommand {
     PIZZA,
     RANDOM,
     HELP,

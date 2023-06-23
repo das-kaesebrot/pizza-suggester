@@ -1,6 +1,6 @@
 package eu.kaesebrot.dev.pizzabot.bot;
 
-import eu.kaesebrot.dev.pizzabot.enums.BotCommand;
+import eu.kaesebrot.dev.pizzabot.enums.PizzaBotCommand;
 import eu.kaesebrot.dev.pizzabot.enums.UserState;
 import eu.kaesebrot.dev.pizzabot.exceptions.*;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
@@ -169,16 +169,16 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                     logger.info("Update type: command");
                     messageText = messageText.substring(1);
 
-                    var command = BotCommand.valueOf(messageText.toUpperCase());
+                    var command = PizzaBotCommand.valueOf(messageText.toUpperCase());
                     logger.debug("Mapped command string '{}' to enum type '{}'", messageText, command);
 
                     if (
-                            !(command == BotCommand.SETTINGS
-                                    || command == BotCommand.ABOUT
-                                    || command == BotCommand.HELP
-                                    || command == BotCommand.START
-                                    || command == BotCommand.DIET
-                                    || command == BotCommand.VENUE)
+                            !(command == PizzaBotCommand.SETTINGS
+                                    || command == PizzaBotCommand.ABOUT
+                                    || command == PizzaBotCommand.HELP
+                                    || command == PizzaBotCommand.START
+                                    || command == PizzaBotCommand.DIET
+                                    || command == PizzaBotCommand.VENUE)
                                     && (user.hasState(UserState.SELECTING_DIET)
                                     || user.hasState(UserState.SELECTING_VENUE))
                     ) {
