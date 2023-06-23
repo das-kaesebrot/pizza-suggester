@@ -6,10 +6,12 @@ import eu.kaesebrot.dev.pizzabot.enums.UserState;
 import eu.kaesebrot.dev.pizzabot.exceptions.MalformedDataException;
 import eu.kaesebrot.dev.pizzabot.exceptions.NotAuthorizedException;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
+import eu.kaesebrot.dev.pizzabot.model.Ingredient;
 import eu.kaesebrot.dev.pizzabot.model.Pizza;
 import eu.kaesebrot.dev.pizzabot.model.Venue;
 import eu.kaesebrot.dev.pizzabot.properties.TelegramBotProperties;
 import eu.kaesebrot.dev.pizzabot.repository.CachedUserRepository;
+import eu.kaesebrot.dev.pizzabot.repository.IngredientRepository;
 import eu.kaesebrot.dev.pizzabot.repository.PizzaRepository;
 import eu.kaesebrot.dev.pizzabot.repository.VenueRepository;
 import eu.kaesebrot.dev.pizzabot.service.InlineKeyboardService;
@@ -47,6 +49,7 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
     private final CachedUserRepository cachedUserRepository;
     private final VenueRepository venueRepository;
     private final PizzaRepository pizzaRepository;
+    private final IngredientRepository ingredientRepository;
     private final InlineKeyboardService inlineKeyboardService;
     private final LocalizationService localizationService;
     private final TelegramBotProperties botProperties;
@@ -57,10 +60,11 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
     HashMap<Long, Long> venuesBeingEditedByUsers = new HashMap<>();
     HashMap<Long, Map.Entry<Long, Integer>> activeEditMenus = new HashMap<>();
 
-    public VenueEditSubMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, PizzaRepository pizzaRepository, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService, TelegramBotProperties botProperties) {
+    public VenueEditSubMenuServiceImpl(CachedUserRepository cachedUserRepository, VenueRepository venueRepository, PizzaRepository pizzaRepository, IngredientRepository ingredientRepository, InlineKeyboardService inlineKeyboardService, LocalizationService localizationService, TelegramBotProperties botProperties) {
         this.cachedUserRepository = cachedUserRepository;
         this.venueRepository = venueRepository;
         this.pizzaRepository = pizzaRepository;
+        this.ingredientRepository = ingredientRepository;
         this.inlineKeyboardService = inlineKeyboardService;
         this.localizationService = localizationService;
         this.botProperties = botProperties;
@@ -212,8 +216,12 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
                 throw e;
             }
 
-            var pizzas = new ArrayList<Pizza>();
             int errorCounter = 0;
+            int newPizzaCounter = 0;
+
+            // remove all previous pizzas for that venue
+            if (pizzaRepository.existsPizzasByVenue(venue))
+                pizzaRepository.deletePizzasByVenue(venue);
 
             for (var row: rows) {
                 try {
@@ -226,7 +234,9 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
                     String number = row.get(0).trim();
                     String name = row.get(1).trim();
                     BigDecimal price = new BigDecimal(row.get(2));
-                    List<String> ingredients = List.of(row.get(3).trim().split(","));
+
+                    List<Ingredient> ingredients = new ArrayList<>();
+
                     UserDiet minimumUserDiet;
                     try {
                         minimumUserDiet = UserDiet.valueOf(row.get(4).trim().toUpperCase());
@@ -235,10 +245,31 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
                         minimumUserDiet = UserDiet.values()[Integer.parseInt(row.get(4).trim())];
                     }
 
-                    Pizza pizza = new Pizza(number, name, price, ingredients, minimumUserDiet, venue);
-                    pizzas.add(pizza);
+                    for (var ingredientString: row.get(3).trim().split(",")) {
+                        ingredientString = ingredientString.trim();
+                        var ingredientOptional = ingredientRepository.findByName(ingredientString);
+                        Ingredient ingredient;
+
+                        if (ingredientOptional.isPresent()) {
+                            ingredient = ingredientOptional.get();
+                            ingredient.setCompatibleUserDiet(minimumUserDiet);
+                            logger.debug("Found existing ingredient \"{}\" by string, adding it to new Pizza", ingredientString);
+                        } else {
+                            ingredient = new Ingredient(ingredientString, minimumUserDiet);
+                            logger.debug("Creating new ingredient \"{}\" by string, adding it to new Pizza", ingredientString);
+                        }
+
+                        ingredients.add(ingredient);
+                    }
+
+                    Pizza pizza = new Pizza(number, name, price, ingredients, venue);
+                    venue.addIngredients(new HashSet<>(ingredients));
+
+                    pizzaRepository.saveAndFlush(pizza);
+                    venueRepository.saveAndFlush(venue);
 
                     logger.debug(String.format("Created new pizza: %s", pizza));
+                    newPizzaCounter++;
 
                 } catch (Exception e) {
                     logger.error("Encountered an exception while parsing row from pizza CSV. Skipping row.", e);
@@ -246,21 +277,16 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
                 }
             }
 
-            if (errorCounter == rows.size() || pizzas.isEmpty())
+            if (errorCounter == rows.size() || newPizzaCounter == 0)
                 throw new MalformedDataException("None of the CSV file's rows could be read correctly");
 
-            // remove all previous pizzas for that venue
-            if (pizzaRepository.existsPizzasByVenue(venue))
-                pizzaRepository.deletePizzasByVenue(venue);
-
             var text = localizationService.getString("admin.csvupload.reply");
-            text = StringUtils.replacePropertiesVariable("amount_pizzas", String.valueOf(pizzas.size()), text);
+            text = StringUtils.replacePropertiesVariable("amount_pizzas", String.valueOf(newPizzaCounter), text);
             text = StringUtils.replacePropertiesVariable("amount_errors", String.valueOf(errorCounter), text);
 
             reply.setText(text);
 
-            pizzaRepository.saveAllAndFlush(pizzas);
-            logger.info(String.format("Processed %d rows and generated %d pizza objects, encountered %d errors", rows.size(), pizzas.size(), errorCounter));
+            logger.info(String.format("Processed %d rows and generated %d pizza objects, encountered %d errors", rows.size(), newPizzaCounter, errorCounter));
 
             tryUpdateEditMenuAfterVenueModification(user, bot);
 
