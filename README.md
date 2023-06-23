@@ -5,9 +5,14 @@
 ## Using the bot
 You may use the bot via Telegram: [@holzofenkantine_bot](https://t.me/holzofenkantine_bot)
 
-## Download and execution
-Download the latest `pizza-suggester-x.x.x.xxx.jar` from the [releases](https://github.com/das-kaesebrot/pizza-suggester/releases) tab, then execute the jar file with the specified profile:
-`java -Dspring.profiles.active=prod -jar pizza-suggester-x.x.x.xxx.jar`
+## Bulding and running
+
+Clone the repository: `git clone https://github.com/das-kaesebrot/pizza-suggester.git`
+
+Go into the repository folder and create the jar file with gradle: `./gradlew clean bootJar`
+
+Then, execute the jar file with the specified profile:
+`java -Dspring.profiles.active=prod -jar build/libs/pizza-suggester-x.x.x.xxx.jar`
 
 ## Docker
 ### Pulling the Docker image
