@@ -223,6 +223,9 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
 
             var ingredientList = pizzaService.getVenueIngredientList(venue);
 
+            if (ingredientList.ingredients().isEmpty())
+                continue;
+
             var listOfIngredientButtons = new ArrayList<InlineKeyboardButton>();
 
             for (int index = 0; index < ingredientList.ingredients().size(); index++) {
