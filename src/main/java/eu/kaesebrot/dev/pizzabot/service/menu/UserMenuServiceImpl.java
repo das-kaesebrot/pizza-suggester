@@ -33,7 +33,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -42,7 +41,6 @@ public class UserMenuServiceImpl implements UserMenuService {
     private final VenueRepository venueRepository;
     private final InlineKeyboardService inlineKeyboardService;
     private final LocalizationService localizationService;
-    private final VersionProperties versionProperties;
     private final GitProperties gitProperties;
     private List<List<List<InlineKeyboardButton>>> pagedVenueSelectionMenu;
     private Timestamp lastPagedVenueSelectionUpdate;
@@ -54,8 +52,6 @@ public class UserMenuServiceImpl implements UserMenuService {
         this.inlineKeyboardService = inlineKeyboardService;
         this.localizationService = localizationService;
         this.gitProperties = gitProperties;
-
-        versionProperties = new VersionProperties();
     }
 
     @Override
