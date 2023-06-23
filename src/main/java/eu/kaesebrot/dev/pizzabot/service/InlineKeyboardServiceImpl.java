@@ -58,7 +58,7 @@ public class InlineKeyboardServiceImpl implements InlineKeyboardService {
         var listOfPages = new ArrayList<List<List<InlineKeyboardButton>>>();
 
         if (buttons == null || buttons.isEmpty()) {
-            throw new IllegalArgumentException("List of buttons can't be empty");
+            throw new RuntimeException("List of buttons can't be empty");
         }
 
         long pagesNeeded = buttons.size() / (columns * rows);
