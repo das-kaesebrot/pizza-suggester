@@ -247,6 +247,12 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
             reply.setText(localizationService.getString("error.nopizzasfound"));
             return reply;
 
+        } catch (IllegalArgumentException | MalformedDataException | MalformedURLException e) {
+            logger.error("Exception encountered while handling an update", e);
+
+            reply.setText(localizationService.getString("error.illegalargument"));
+            return reply;
+
         } catch (Exception e) {
             logger.error("Exception encountered while handling an update", e);
             if (isDebug) {
