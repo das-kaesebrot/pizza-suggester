@@ -1,4 +1,4 @@
-FROM gradle:8-focal as build
+FROM gradle:8 as build
 
 ARG OUT_DIR=/srv/final
 
