@@ -126,6 +126,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         try {
             // don't handle if message doesn't come from a user
             if (update.hasMessage() && !message.isUserMessage()) {
+                logger.info("Discarding update since it's coming from a bot");
                 return null;
             }
 
@@ -136,11 +137,13 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
             // early return to show veggie/meat preference selection and usage instructions
             if (isNew) {
+                logger.info("User is new, sending onboarding replies.");
                 return userMenuService.getSetupMessages(user, this);
             }
 
             if (callbackQuery != null) {
-                logger.debug("Update type: callbackQuery");
+                logger.info("Update type: callbackQuery");
+                logger.debug("Data: {}", callbackQuery.getData());
 
                 return callbackHandlingService.handleCallback(user, callbackQuery, this);
             }
@@ -150,6 +153,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
             if (update.getMessage().hasDocument() && CsvMimeTypeUtil.MimeTypeCouldBeCsv(update.getMessage().getDocument().getMimeType()))
             {
+                logger.info("Update type: CSV upload");
                 return adminMenuService.handleCsvUpload(user, update.getMessage().getDocument().getFileId(), this);
             }
 
@@ -165,7 +169,7 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
                     if (messageText.length() <= 1)
                         throw new RuntimeException(String.format("Command %s is too short!", messageText));
 
-                    logger.debug("Update type: command");
+                    logger.info("Update type: command");
                     messageText = messageText.substring(1);
 
                     var command = BotCommand.valueOf(messageText.toUpperCase());
