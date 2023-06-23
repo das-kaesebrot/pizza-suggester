@@ -3,6 +3,7 @@ package eu.kaesebrot.dev.pizzabot.service.menu;
 import eu.kaesebrot.dev.pizzabot.bot.PizzaSuggesterBot;
 import eu.kaesebrot.dev.pizzabot.enums.UserDiet;
 import eu.kaesebrot.dev.pizzabot.enums.UserState;
+import eu.kaesebrot.dev.pizzabot.exceptions.MalformedDataException;
 import eu.kaesebrot.dev.pizzabot.exceptions.NotAuthorizedException;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.model.Pizza;
@@ -126,7 +127,7 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
                 break;
 
             default:
-                throw new IllegalArgumentException(String.format("Unknown callback data for admin venue edit sub menu! Given data: %s, CallbackQuery: %s", query.getData(), query));
+                throw new RuntimeException(String.format("Unknown callback data for admin venue edit sub menu! Given data: %s", query.getData()));
         }
 
         return reply;
@@ -175,91 +176,100 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
         if (!user.isAdmin())
             throw new NotAuthorizedException(String.format("User %s is not an admin!", user.getChatId()));
 
-        var venue = venueRepository.findById(venuesBeingEditedByUsers.get(user.getChatId())).get();
-
-        var reply = new SendMessage();
-        reply.setChatId(user.getChatId());
-        reply.setText(localizationService.getString("admin.csvuploadsuccess"));
-
-        List<List<String>> rows = new java.util.ArrayList<>(List.of());
-
-        logger.info(String.format("Reading new pizza CSV for venue %d", venue.getId()));
-
-        logger.debug(String.format("Handling new document by %s: %s", user , fileId));
-        String filePath = bot.execute(new GetFile(fileId)).getFileUrl(botProperties.getBotToken());
-
-        var outputStream = new ByteArrayOutputStream();
-
         try {
-            logger.debug(String.format("Downloading CSV file from %s", filePath));
-            InputStream in = new URL(filePath).openStream();
-            IOUtils.copy(in, outputStream);
+            var venue = venueRepository.findById(venuesBeingEditedByUsers.get(user.getChatId())).get();
 
-            String csvContent = outputStream.toString(StandardCharsets.UTF_8);
+            var reply = new SendMessage();
+            reply.setChatId(user.getChatId());
 
-            try (BufferedReader br = new BufferedReader(new StringReader(csvContent))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    String[] values = line.split(";");
+            List<List<String>> rows = new java.util.ArrayList<>(List.of());
 
-                    rows.add(Arrays.asList(values));
-                }
-            }
+            logger.info(String.format("Reading new pizza CSV for venue %d", venue.getId()));
 
-        } catch (IOException e) {
-            logger.error(String.format("Encountered an exception while handling file from path '%s'", filePath), e);
-            throw e;
-        }
+            logger.debug(String.format("Handling new document by %s: %s", user , fileId));
+            String filePath = bot.execute(new GetFile(fileId)).getFileUrl(botProperties.getBotToken());
 
-        var pizzas = new ArrayList<Pizza>();
-        int errorCounter = 0;
+            var outputStream = new ByteArrayOutputStream();
 
-        for (var row: rows) {
             try {
-                // Assuming the following data structure:
-                // Pizza Number;Pizza Name;Price;Ingredients (comma-separated);Diet
-                // 2;Pizza;5.5;Tomatensoße,Käse,Salami;vegeterian
-                // 2;Pizza;5.5;Tomatensoße,Käse,Salami;2
+                logger.debug(String.format("Downloading CSV file from %s", filePath));
+                InputStream in = new URL(filePath).openStream();
+                IOUtils.copy(in, outputStream);
 
-                logger.debug(String.format("Parsing row to pizza object: %s", row));
-                String number = row.get(0).trim();
-                String name = row.get(1).trim();
-                BigDecimal price = new BigDecimal(row.get(2));
-                List<String> ingredients = List.of(row.get(3).trim().split(","));
-                UserDiet minimumUserDiet;
-                try {
-                    minimumUserDiet = UserDiet.valueOf(row.get(4).trim().toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    // try with ordinal instead of string
-                    minimumUserDiet = UserDiet.values()[Integer.parseInt(row.get(4).trim())];
+                String csvContent = outputStream.toString(StandardCharsets.UTF_8);
+
+                try (BufferedReader br = new BufferedReader(new StringReader(csvContent))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        String[] values = line.split(";");
+
+                        rows.add(Arrays.asList(values));
+                    }
                 }
 
-                Pizza pizza = new Pizza(number, name, price, ingredients, minimumUserDiet, venue);
-                pizzas.add(pizza);
-
-                logger.debug(String.format("Created new pizza: %s", pizza));
-
-            } catch (Exception e) {
-                logger.error("Encountered an exception while parsing row from pizza CSV. Skipping row.", e);
-                errorCounter++;
+            } catch (IOException e) {
+                logger.error(String.format("Encountered an exception while handling file from path '%s'", filePath), e);
+                throw e;
             }
+
+            var pizzas = new ArrayList<Pizza>();
+            int errorCounter = 0;
+
+            for (var row: rows) {
+                try {
+                    // Assuming the following data structure:
+                    // Pizza Number;Pizza Name;Price;Ingredients (comma-separated);Diet
+                    // 2;Pizza;5.5;Tomatensoße,Käse,Salami;vegetarian
+                    // 2;Pizza;5.5;Tomatensoße,Käse,Salami;2
+
+                    logger.debug(String.format("Parsing row to pizza object: %s", row));
+                    String number = row.get(0).trim();
+                    String name = row.get(1).trim();
+                    BigDecimal price = new BigDecimal(row.get(2));
+                    List<String> ingredients = List.of(row.get(3).trim().split(","));
+                    UserDiet minimumUserDiet;
+                    try {
+                        minimumUserDiet = UserDiet.valueOf(row.get(4).trim().toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        // try with ordinal instead of string
+                        minimumUserDiet = UserDiet.values()[Integer.parseInt(row.get(4).trim())];
+                    }
+
+                    Pizza pizza = new Pizza(number, name, price, ingredients, minimumUserDiet, venue);
+                    pizzas.add(pizza);
+
+                    logger.debug(String.format("Created new pizza: %s", pizza));
+
+                } catch (Exception e) {
+                    logger.error("Encountered an exception while parsing row from pizza CSV. Skipping row.", e);
+                    errorCounter++;
+                }
+            }
+
+            if (errorCounter == rows.size() || pizzas.isEmpty())
+                throw new MalformedDataException("None of the CSV file's rows could be read correctly");
+
+            // remove all previous pizzas for that venue
+            if (pizzaRepository.existsPizzasByVenue(venue))
+                pizzaRepository.deletePizzasByVenue(venue);
+
+            var text = localizationService.getString("admin.csvupload.reply");
+            text = StringUtils.replacePropertiesVariable("amount_pizzas", String.valueOf(pizzas.size()), text);
+            text = StringUtils.replacePropertiesVariable("amount_errors", String.valueOf(errorCounter), text);
+
+            reply.setText(text);
+
+            pizzaRepository.saveAllAndFlush(pizzas);
+            logger.info(String.format("Processed %d rows and generated %d pizza objects, encountered %d errors", rows.size(), pizzas.size(), errorCounter));
+
+            tryUpdateEditMenuAfterVenueModification(user, bot);
+
+            return reply;
+        } finally {
+            user.removeState(UserState.MODIFYING_VENUE);
+            user.removeState(UserState.SENDING_VENUE_CSV);
+            cachedUserRepository.save(user);
         }
-
-        user.removeState(UserState.MODIFYING_VENUE);
-        user.removeState(UserState.SENDING_VENUE_CSV);
-
-        // remove all previous pizzas for that venue
-        if (pizzaRepository.existsPizzasByVenue(venue))
-            pizzaRepository.deletePizzasByVenue(venue);
-
-        pizzaRepository.saveAllAndFlush(pizzas);
-        cachedUserRepository.save(user);
-
-        logger.info(String.format("Processed %d rows and generated %d pizza objects, encountered %d errors", rows.size(), pizzas.size(), errorCounter));
-
-        tryUpdateEditMenuAfterVenueModification(user, bot);
-
-        return reply;
     }
 
     @Override
