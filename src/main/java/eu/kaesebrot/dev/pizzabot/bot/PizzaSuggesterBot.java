@@ -29,7 +29,7 @@ import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.starter.SpringWebhookBot;
 
-import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.MissingResourceException;
@@ -45,8 +45,8 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
     private final CallbackHandlingService callbackHandlingService;
     private final TelegramBotProperties properties;
     private final LocalizationService localizationService;
-    private Long handledUpdates;
-    private final Timestamp startedAt;
+    private long handledUpdatesCount;
+    private final Instant startedAt;
 
     @Value("#{environment.getProperty('debug') != null && environment.getProperty('debug') != 'false'}")
     private boolean isDebug;
@@ -68,8 +68,8 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         this.pizzaMenuService = pizzaMenuService;
         this.callbackHandlingService = callbackHandlingService;
         this.localizationService = localizationService;
-        this.handledUpdates = 0L;
-        this.startedAt = Timestamp.from(Instant.now());
+        this.handledUpdatesCount = 0L;
+        this.startedAt = Instant.now();
 
         // set webhook url on startup
         var webhook = this.getSetWebhook();
@@ -99,10 +99,14 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
 
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
-        logger.debug("Got update: {}", update.getUpdateId());
+        var updateId = update.getUpdateId();
+
+        logger.debug("Got update: {}", updateId);
         logger.trace(update.toString());
 
-        handledUpdates++;
+        var start = Instant.now();
+
+        handledUpdatesCount++;
 
         var message = update.getMessage();
         var callbackQuery = update.getCallbackQuery();
@@ -283,6 +287,8 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
             }
 
             return reply;
+        } finally {
+            logger.debug(String.format("Handling update took %s", Duration.between(start, Instant.now())));
         }
     }
 
@@ -318,11 +324,11 @@ public class PizzaSuggesterBot extends SpringWebhookBot {
         }
     }
 
-    public Long getHandledUpdates() {
-        return handledUpdates;
+    public long getHandledUpdatesCount() {
+        return handledUpdatesCount;
     }
 
-    public Timestamp getStartedAt() {
+    public Instant getStartedAt() {
         return startedAt;
     }
 }
