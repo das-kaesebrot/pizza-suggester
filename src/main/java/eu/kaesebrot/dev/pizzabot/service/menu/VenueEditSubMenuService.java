@@ -33,6 +33,8 @@ public interface VenueEditSubMenuService extends MenuService {
     public final String CALLBACK_EDIT_GLUTENFREE = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-glf";
     public final String CALLBACK_EDIT_LACTOSEFREE = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-laf";
     public final String CALLBACK_DELETE = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-del";
+    public final String CALLBACK_EXPORT_PIZZA_MENU = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-exp";
+    public final String CALLBACK_EXPORT_VENUE_DATA = CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-exv";
 
     BotApiMethod<?> handleCsvUpload(CachedUser user, String fileId, PizzaSuggesterBot bot) throws TelegramApiException, IOException;
     SendMessage handleVenueCreationReply(CachedUser user, String message);

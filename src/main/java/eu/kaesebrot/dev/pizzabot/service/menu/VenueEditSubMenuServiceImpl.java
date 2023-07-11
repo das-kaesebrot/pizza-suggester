@@ -4,6 +4,7 @@ import eu.kaesebrot.dev.pizzabot.bot.PizzaSuggesterBot;
 import eu.kaesebrot.dev.pizzabot.enums.UserDiet;
 import eu.kaesebrot.dev.pizzabot.enums.UserState;
 import eu.kaesebrot.dev.pizzabot.exceptions.MalformedDataException;
+import eu.kaesebrot.dev.pizzabot.exceptions.NoPizzasYetForVenueException;
 import eu.kaesebrot.dev.pizzabot.exceptions.NotAuthorizedException;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
 import eu.kaesebrot.dev.pizzabot.model.Pizza;
@@ -15,6 +16,8 @@ import eu.kaesebrot.dev.pizzabot.repository.VenueRepository;
 import eu.kaesebrot.dev.pizzabot.service.InlineKeyboardService;
 import eu.kaesebrot.dev.pizzabot.service.LocalizationService;
 import eu.kaesebrot.dev.pizzabot.utils.StringUtils;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,10 +26,12 @@ import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -121,6 +126,10 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
                 tryUpdateEditMenuAfterVenueModification(user, bot);
                 break;
 
+            case CALLBACK_EXPORT_PIZZA_MENU:
+                bot.execute(handleButtonPressGetVenuePizzaMenuCsv(user, number));
+                break;
+
             case CALLBACK_DELETE:
                 bot.execute(handleButtonPressDeleteVenue(user, number));
                 activeEditMenus.remove(user.getChatId());
@@ -152,6 +161,8 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
             case CALLBACK_EDIT_PIZZAS:
             case CALLBACK_EDIT_GLUTENFREE:
             case CALLBACK_EDIT_LACTOSEFREE:
+            case CALLBACK_EXPORT_PIZZA_MENU:
+            case CALLBACK_EXPORT_VENUE_DATA:
                 return false;
 
             default:
@@ -482,6 +493,51 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
         return message;
     }
 
+    private SendDocument handleButtonPressGetVenuePizzaMenuCsv(CachedUser user, int venueId) {
+        if (!user.isAdmin())
+            throw new NotAuthorizedException(String.format("User %s is not an admin!", user.getChatId()));
+
+        var venue = venueRepository.findById((long) venueId).get();
+
+        if (!pizzaRepository.existsPizzasByVenue(venue))
+            throw new NoPizzasYetForVenueException(venue);
+
+        var docBuilder = SendDocument.builder()
+                .chatId(user.getChatId());
+
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setDelimiter(";")
+                .build();
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
+
+        // Assuming the following data structure:
+        // Pizza Number;Pizza Name;Price;Ingredients (comma-separated);Diet
+        // 2;Pizza;5.5;Tomatensoße,Käse,Salami;2
+
+        try (final CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat)) {
+            for (Pizza pizza: pizzaRepository.findByVenue(venue)) {
+                csvPrinter.printRecord(
+                        pizza.getMenuNumber(),
+                        pizza.getName(),
+                        pizza.getPrice(),
+                        String.join(",", pizza.getIngredients()),
+                        pizza.getMinimumUserDiet().toString().toLowerCase());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String filename = String.format("%d_pizza-suggester_venue-%d_menu.csv", Instant.now().getEpochSecond(), venue.getId());
+
+        logger.trace(String.format("Generated CSV export of pizza menu: \n%s", writer));
+        logger.debug(String.format("Sending a new CSV file export of pizza menu '%s'", filename));
+
+        docBuilder.document(new InputFile(new ByteArrayInputStream(out.toByteArray()), filename));
+
+        return docBuilder.build();
+    }
 
     private void handleButtonPressEditInSubmenuEditVenueForSpecificVenue(CachedUser user, int messageId, int venueId, PizzaSuggesterBot bot) throws TelegramApiException {
         var editMarkup = new EditMessageReplyMarkup();
@@ -598,6 +654,9 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
 
         var buttonToggleLactoseFree = new InlineKeyboardButton(localizationService.getString("admin.venues.edit.lactosefree"));
         buttonToggleLactoseFree.setCallbackData(StringUtils.appendNumberToCallbackData(prependCallbackPrefix(CALLBACK_EDIT_LACTOSEFREE), Math.toIntExact(venue.getId())));
+
+        var buttonExportPizzaCsv = new InlineKeyboardButton(localizationService.getString("admin.venues.edit.exportpizzamenu"));
+        buttonExportPizzaCsv.setCallbackData(StringUtils.appendNumberToCallbackData(prependCallbackPrefix(CALLBACK_EXPORT_PIZZA_MENU), Math.toIntExact(venue.getId())));
 
         var buttonDelete = new InlineKeyboardButton(localizationService.getString("admin.venues.edit.delete"));
         buttonDelete.setCallbackData(StringUtils.appendNumberToCallbackData(prependCallbackPrefix(CALLBACK_DELETE), Math.toIntExact(venue.getId())));
