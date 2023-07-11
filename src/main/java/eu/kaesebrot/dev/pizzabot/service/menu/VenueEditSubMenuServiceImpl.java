@@ -661,7 +661,7 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
         var buttonDelete = new InlineKeyboardButton(localizationService.getString("admin.venues.edit.delete"));
         buttonDelete.setCallbackData(StringUtils.appendNumberToCallbackData(prependCallbackPrefix(CALLBACK_DELETE), Math.toIntExact(venue.getId())));
 
-        return List.of(buttonChangeName, buttonChangeUrl, buttonChangeAddress, buttonChangeCoordinates, buttonChangeNumber, buttonUploadPizzaCsv, buttonToggleGlutenFree, buttonToggleLactoseFree, buttonDelete);
+        return List.of(buttonChangeName, buttonChangeUrl, buttonChangeAddress, buttonChangeCoordinates, buttonChangeNumber, buttonUploadPizzaCsv, buttonToggleGlutenFree, buttonToggleLactoseFree, buttonExportPizzaCsv, buttonDelete);
     }
 
     private List<InlineKeyboardButton> getVenueButtons() {
