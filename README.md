@@ -166,6 +166,10 @@ This application uses Open Source components. You can find the source code of th
 - Copyright (c) 2002 [The Apache Software Foundation](https://github.com/apache) and contributors
 - [Apache License 2.0](https://github.com/apache/commons-lang/blob/master/LICENSE.txt)
 
+### [Apache Commons CSV](https://github.com/apache/commons-csv)
+- Copyright (c) 2014 [The Apache Software Foundation](https://github.com/apache) and contributors
+- [Apache License 2.0](https://github.com/apache/commons-csv/blob/master/LICENSE.txt)
+
 ### [MariaDB Connector/J](https://github.com/mariadb-corporation/mariadb-connector-j)
 - Copyright (c) 2012 [MariaDB](https://github.com/mariadb-corporation) and contributors
 - [GNU Lesser General Public License v2.1](https://github.com/mariadb-corporation/mariadb-connector-j/blob/master/LICENSE)
