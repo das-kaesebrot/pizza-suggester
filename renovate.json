@@ -3,5 +3,16 @@
   "extends": [
     "config:base"
   ],
-  "stabilityDays": 7
+  "stabilityDays": 7,  
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true
+  },  
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchCurrentVersion": "!/^0/",
+      "automerge": true
+    }
+  ]
 }
