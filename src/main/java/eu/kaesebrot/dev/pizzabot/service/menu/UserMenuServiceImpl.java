@@ -26,6 +26,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendVenue;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -94,7 +95,7 @@ public class UserMenuServiceImpl implements UserMenuService {
                 case InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE:
                     if (pagedVenueSelectionMenu.size() > 1) {
                         var editVenueMenu = new EditMessageReplyMarkup();
-                        editVenueMenu.setMessageId(query.getMessage().getMessageId());
+                        editVenueMenu.setMessageId(((Message) query.getMessage()).getMessageId());
                         editVenueMenu.setChatId(user.getChatId());
                         editVenueMenu.setReplyMarkup(getVenueSelectionMarkup(number));
 

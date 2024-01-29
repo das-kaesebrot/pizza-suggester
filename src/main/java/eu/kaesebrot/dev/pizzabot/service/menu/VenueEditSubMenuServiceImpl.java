@@ -32,6 +32,7 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageRe
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -83,7 +84,7 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
         switch (sanitizedData) {
             case CALLBACK_ROOT_MENU:
             case CALLBACK_SUBMENU_VENUE_SPECIFIC_PREFIX + "-" + InlineKeyboardService.CALLBACK_NAVIGATION_BACK:
-                handleButtonPressGetRootMenu(user, query.getMessage().getMessageId(), bot);
+                handleButtonPressGetRootMenu(user, ((Message) query.getMessage()).getMessageId(), bot);
                 activeEditMenus.remove(user.getChatId());
                 break;
 
@@ -92,7 +93,7 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
                 break;
 
             case CALLBACK_SUBMENU_PREFIX:
-                handleButtonPressEditInSubmenuEditVenueForSpecificVenue(user, query.getMessage().getMessageId(), number, bot);
+                handleButtonPressEditInSubmenuEditVenueForSpecificVenue(user, ((Message) query.getMessage()).getMessageId(), number, bot);
                 break;
 
             // used for scrolling through venues in edit selection menu
@@ -100,7 +101,7 @@ public class VenueEditSubMenuServiceImpl implements VenueEditSubMenuService {
                 if (pagedVenueSelectionMenu.size() > 1) {
                     var editVenueMenuMessage = new EditMessageReplyMarkup();
                     editVenueMenuMessage.setChatId(user.getChatId().toString());
-                    editVenueMenuMessage.setMessageId(query.getMessage().getMessageId());
+                    editVenueMenuMessage.setMessageId(((Message) query.getMessage()).getMessageId());
                     editVenueMenuMessage.setReplyMarkup(getVenueSelectionMarkup(number));
 
                     bot.execute(editVenueMenuMessage);

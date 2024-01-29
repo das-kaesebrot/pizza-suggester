@@ -24,6 +24,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -75,7 +76,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
                 var editMessageText = new EditMessageText();
                 editMessageText.setText(getMessageStringForIngredientToggle(user));
                 editMessageText.setChatId(user.getChatId().toString());
-                editMessageText.setMessageId(query.getMessage().getMessageId());
+                editMessageText.setMessageId(((Message) query.getMessage()).getMessageId());
                 editMessageText.setReplyMarkup(getKeyboardForPage(user.getSelectedVenue(), user.getCurrentIngredientMenuPage()));
 
                 bot.execute(editMessageText);
@@ -94,7 +95,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
             case InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE:
                 var editMessageMarkup = new EditMessageReplyMarkup();
                 editMessageMarkup.setChatId(user.getChatId().toString());
-                editMessageMarkup.setMessageId(query.getMessage().getMessageId());
+                editMessageMarkup.setMessageId(((Message) query.getMessage()).getMessageId());
                 editMessageMarkup.setReplyMarkup(getKeyboardForPage(user.getSelectedVenue(), number));
 
                 user.setCurrentIngredientMenuPage(number);
