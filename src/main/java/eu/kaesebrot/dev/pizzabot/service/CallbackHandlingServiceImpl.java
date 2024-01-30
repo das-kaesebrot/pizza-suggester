@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Service
@@ -51,6 +52,6 @@ public class CallbackHandlingServiceImpl implements CallbackHandlingService {
 
     @Override
     public DeleteMessage deleteCallbackMessage(CallbackQuery query) {
-        return new DeleteMessage(query.getFrom().getId().toString(), query.getMessage().getMessageId());
+        return new DeleteMessage(query.getFrom().getId().toString(), ((Message) query.getMessage()).getMessageId());
     }
 }
