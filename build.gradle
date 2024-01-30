@@ -10,7 +10,7 @@ group = 'eu.kaesebrot.dev.pizzabot'
 version = gitVersion()
 
 java {
-	sourceCompatibility = '17'
+	sourceCompatibility = JavaVersion.VERSION_17
 }
 
 gitProperties {
@@ -47,6 +47,3 @@ tasks.named('test') {
 	useJUnitPlatform()
 	systemProperty "file.encoding", "utf-8"
 }
-
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
