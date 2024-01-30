@@ -22,7 +22,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -85,7 +84,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
 
         switch (sanitizedData) {
             case VenueEditSubMenuService.CALLBACK_PREFIX + "-" + InlineKeyboardService.CALLBACK_NAVIGATION_BACK:
-                handleButtonPressBackFromVenueEditMenu(user, ((Message) query.getMessage()).getMessageId(), bot);
+                handleButtonPressBackFromVenueEditMenu(user, query.getMessage().getMessageId(), bot);
                 break;
 
             case CALLBACK_ADMIN_GENERATE_KEY:
@@ -152,7 +151,7 @@ public class AdminMenuServiceImpl implements AdminMenuService {
             case InlineKeyboardService.CALLBACK_NAVIGATION_GETPAGE:
                 var editMessage = new EditMessageReplyMarkup();
                 editMessage.setChatId(user.getChatId().toString());
-                editMessage.setMessageId(((Message) query.getMessage()).getMessageId());
+                editMessage.setMessageId(query.getMessage().getMessageId());
                 editMessage.setReplyMarkup(getAdminMenuMarkup(user, number));
 
                 bot.execute(editMessage);
