@@ -1,4 +1,4 @@
-FROM gradle:8 as build
+FROM gradle:8-jdk21 as build
 
 ARG OUT_DIR=/srv/final
 
