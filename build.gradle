@@ -36,7 +36,7 @@ dependencies {
 	implementation 'org.xerial:sqlite-jdbc:3.46.1.3'
 	implementation 'org.hibernate.orm:hibernate-community-dialects'
 	implementation 'org.apache.commons:commons-lang3:3.17.0'
-	implementation 'org.apache.commons:commons-csv:1.11.0'
+	implementation 'org.apache.commons:commons-csv:1.12.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
