@@ -12,7 +12,7 @@ FROM eclipse-temurin:21.0.4_7-jre AS app
 ARG BOT_UNIX_USER=pizzabot
 
 # Create user and group to run as
-RUN addgroup --system ${BOT_UNIX_USER} && adduser --system --group ${BOT_UNIX_USER}
+RUN useradd --system ${BOT_UNIX_USER}
 
 ARG SPRING_FOLDER=/var/opt/pizza-suggester
 
