@@ -1,0 +1,49 @@
+name: Build a docker image for testing purposes
+
+on:
+  push:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '**.py'
+      - '.github/workflows/build-and-publish.yml'
+      - '**.java'
+      - '**.properties'
+      - '*.gradle'
+      - 'Dockerfile'
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ vars.DOCKERHUB_IMAGENAME }}
+          github-token: ${{ github.token }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: |
+            ${{ steps.meta.outputs.tags }}
+            ${{ vars.DOCKERHUB_IMAGENAME }}:latest
+            ${{ vars.DOCKERHUB_IMAGENAME }}:${{ github.sha }}
+          labels: ${{ steps.meta.outputs.labels }}
