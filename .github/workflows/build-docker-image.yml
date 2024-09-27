@@ -1,7 +1,6 @@
 name: Build a docker image for testing purposes
 
 on:
-  push:
   pull_request:
     branches:
       - master
