@@ -6,6 +6,7 @@ import eu.kaesebrot.dev.pizzabot.enums.UserDiet;
 import eu.kaesebrot.dev.pizzabot.exceptions.NoPizzasYetForVenueException;
 import eu.kaesebrot.dev.pizzabot.exceptions.PendingVenueSelectionException;
 import eu.kaesebrot.dev.pizzabot.model.CachedUser;
+import eu.kaesebrot.dev.pizzabot.model.Ingredient;
 import eu.kaesebrot.dev.pizzabot.model.Pizza;
 import eu.kaesebrot.dev.pizzabot.model.Venue;
 import eu.kaesebrot.dev.pizzabot.properties.TelegramBotProperties;
@@ -303,7 +304,7 @@ public class PizzaMenuServiceImpl implements PizzaMenuService {
                 StringUtils.escapeForMarkdownV2Format(price), pizzaInfoText);
         pizzaInfoText = StringUtils.replacePropertiesVariable("diet_compatibility",
                 StringUtils.escapeForMarkdownV2Format(getPizzaDietString(pizza.getMinimumUserDiet())), pizzaInfoText);
-        pizzaInfoText = StringUtils.replacePropertiesVariable("pizza_ingredients", StringUtils.escapeForMarkdownV2Format(formatIngredientListAsReadableString(pizza.getIngredients())), pizzaInfoText);
+        pizzaInfoText = StringUtils.replacePropertiesVariable("pizza_ingredients", StringUtils.escapeForMarkdownV2Format(formatIngredientListAsReadableString(pizza.getIngredients().stream().map(Ingredient::getName).toList())), pizzaInfoText);
         pizzaInfoText = StringUtils.replacePropertiesVariable("additional_info", StringUtils.escapeForMarkdownV2Format(additionalInfo), pizzaInfoText);
 
         return pizzaInfoText;
