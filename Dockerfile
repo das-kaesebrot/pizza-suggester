@@ -7,7 +7,7 @@ RUN gradle clean bootJar && \
     mkdir -pv ${OUT_DIR} && \
     mv -v build/libs/*.jar ${OUT_DIR}/app.jar
 
-FROM eclipse-temurin:21.0.5_11-jre AS app
+FROM eclipse-temurin:21.0.6_7-jre AS app
 
 ARG BOT_UNIX_USER=pizzabot
 
