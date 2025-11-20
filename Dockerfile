@@ -1,4 +1,4 @@
-FROM gradle:9-jdk21 AS build
+FROM gradle:9-jdk21@sha256:105f4423a690be340bdef02ea2efd80060c3e714e4afba9ea41e7a38ba484e01 AS build
 
 ARG OUT_DIR=/srv/final
 
@@ -7,7 +7,7 @@ RUN gradle clean bootJar && \
     mkdir -pv ${OUT_DIR} && \
     mv -v build/libs/*.jar ${OUT_DIR}/app.jar
 
-FROM eclipse-temurin:21.0.8_9-jre AS app
+FROM eclipse-temurin:21.0.8_9-jre@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc AS app
 
 ARG BOT_UNIX_USER=pizzabot
 
