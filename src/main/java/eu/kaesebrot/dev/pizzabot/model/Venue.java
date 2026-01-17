@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -28,6 +29,13 @@ public class Venue implements Serializable {
     @OneToMany(mappedBy = "venue")
     private List<Pizza> pizzaMenu;
 
+    @ManyToMany
+    @JoinTable(
+            name = "ingredient_in_venue",
+            joinColumns = @JoinColumn(name = "venue_id"),
+            inverseJoinColumns = @JoinColumn(name = "ingredient_id"))
+    private Set<Ingredient> ingredients;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "selectedVenue")
     private Set<CachedUser> usersUsingVenue;
 
@@ -48,19 +56,20 @@ public class Venue implements Serializable {
 
     public Venue() {
         venueInfo = new VenueInfo();
+        ingredients = new HashSet<>();
     }
 
     public Venue(String name, String description, VenueInfo venueInfo) {
+        this();
+
         this.name = name;
         this.description = description;
         this.venueInfo = venueInfo;
     }
 
     public Venue(String name, String description, List<Pizza> pizzaMenu, VenueInfo venueInfo) {
-        this.name = name;
-        this.description = description;
+        this(name, description, venueInfo);
         this.pizzaMenu = pizzaMenu;
-        this.venueInfo = venueInfo;
     }
 
     public Long getVersion() {
@@ -145,5 +154,13 @@ public class Venue implements Serializable {
 
     public void disableLactoseFreeSupport() {
         setLactoseFreeMarkup(null);
+    }
+
+    public void addIngredients(Set<Ingredient> ingredients) {
+        this.ingredients.addAll(ingredients);
+    }
+
+    public Set<Ingredient> getIngredients() {
+        return ingredients;
     }
 }
