@@ -8,7 +8,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "pizza")
@@ -23,10 +25,12 @@ public class Pizza implements Serializable {
 
     private BigDecimal price;
 
-    @ElementCollection
-    private List<String> ingredients;
-
-    private UserDiet minimumUserDiet;
+    @ManyToMany
+    @JoinTable(
+            name = "ingredient_in_pizza",
+            joinColumns = @JoinColumn(name = "pizza_id"),
+            inverseJoinColumns = @JoinColumn(name = "ingredient_id"))
+    private List<Ingredient> ingredients;
 
     @ManyToOne
     @JoinColumn(name = "venue_id")
@@ -50,12 +54,11 @@ public class Pizza implements Serializable {
         this.venue = venue;
     }
 
-    public Pizza(String menuNumber, String name, BigDecimal price, List<String> ingredients, UserDiet minimumUserDiet, Venue venue) {
+    public Pizza(String menuNumber, String name, BigDecimal price, List<Ingredient> ingredients, Venue venue) {
         this.menuNumber = menuNumber;
         this.name = name;
         this.price = price;
         this.ingredients = ingredients;
-        this.minimumUserDiet = minimumUserDiet;
         this.venue = venue;
     }
 
@@ -71,12 +74,8 @@ public class Pizza implements Serializable {
         this.price = price;
     }
 
-    public void setIngredients(List<String> ingredients) {
+    public void setIngredients(List<Ingredient> ingredients) {
         this.ingredients = ingredients;
-    }
-
-    public void setMinimumUserDiet(UserDiet diet) {
-        minimumUserDiet = diet;
     }
 
     public Long getId() {
@@ -95,12 +94,12 @@ public class Pizza implements Serializable {
         return price;
     }
 
-    public List<String> getIngredients() {
+    public List<Ingredient> getIngredients() {
         return ingredients;
     }
 
     public UserDiet getMinimumUserDiet() {
-        return minimumUserDiet;
+        return UserDiet.values()[Collections.min(ingredients.stream().map(i -> i.getCompatibleUserDiet().ordinal()).collect(Collectors.toSet()))];
     }
 
     public Venue getVenue() {
