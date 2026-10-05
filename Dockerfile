@@ -1,4 +1,4 @@
-FROM gradle:9-jdk21@sha256:3bad8c6f194befc7a1a9d4a6452aed83bdbb5a6d6f6752e5b0acbfeec52961b9 AS build
+FROM gradle:9-jdk21@sha256:4debe478645a3ad9208f3403ac021859fdf4d1a819d59970d75309b098f28f76 AS build
 
 ARG OUT_DIR=/srv/final
 
