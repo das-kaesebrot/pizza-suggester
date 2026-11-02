@@ -25,7 +25,7 @@ services:
       - POSTGRES_PASSWORD=pizza_suggester
 
   adminer:
-    image: adminer@sha256:251295c1cd51d3889f1c42ffa4864b24eeab51f0caf395cfe5bf4726c5ec9a2a
+    image: adminer@sha256:400af848ac3f57938abde4867677df1b195674d232c8896a27d111d04b9c088c
     depends_on:
       - db
       - db2
