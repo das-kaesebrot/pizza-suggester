@@ -44,4 +44,6 @@ COPY --from=build ${JAR_PATH} app.jar
 
 RUN if [ ! -f "app.jar" ]; then exit 1; fi
 
-CMD ["java","-jar","app.jar"]
+ENV JVM_OPTS="-XX:-UseBASE64Intrinsics"
+
+CMD java ${JVM_OPTS} -jar app.jar
