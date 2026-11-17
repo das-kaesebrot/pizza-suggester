@@ -3,7 +3,8 @@ FROM gradle:9-jdk21@sha256:607055593f1acc874a98aa7c1cb5adb414b3879bb0a5e1e724018
 ARG OUT_DIR=/srv/final
 
 COPY . .
-RUN gradle clean bootJar && \
+RUN git config --global --add safe.directory /home/gradle && \
+    gradle clean bootJar && \
     mkdir -pv ${OUT_DIR} && \
     mv -v build/libs/*.jar ${OUT_DIR}/app.jar
 
