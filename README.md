@@ -17,9 +17,9 @@ Then, execute the jar file with the specified profile:
 ## Docker
 ### Pulling the Docker image
 
-Docker hub: https://hub.docker.com/r/daskaesebrot/pizza-suggester
+The image is hosted on the GitHub container registry:
 
-`docker pull daskaesebrot/pizza-suggester`
+`docker pull ghcr.io/das-kaesebrot/pizza-suggester`
 
 ### Running via docker-compose
 Using a `docker-compose.yml`, define your service and set the specified environment variables.
@@ -29,7 +29,7 @@ version: "2"
 
 services:
   pizza-suggester:
-    image: daskaesebrot/pizza-suggester
+    image: ghcr.io/das-kaesebrot/pizza-suggester
     restart: always
 
     # we need to listen at a port since that is a webhook based bot
