@@ -3,12 +3,12 @@ name: Run tests
 on:
   push:
     branches-ignore:
-      - master
+      - main
     tags-ignore:
       - "v*"
   pull_request:
     branches:
-      - master
+      - main
   
   # allow this workflow to be called from other workflows
   workflow_call:
