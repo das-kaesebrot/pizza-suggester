@@ -11,6 +11,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(properties = {
         "spring.profiles.active=test",
+        "spring.config.import=",
+        "telegrambot.botToken=test-token",
         "spring.datasource.url=jdbc:sqlite::memory:",
         "spring.datasource.driver-class-name=org.sqlite.JDBC",
         "spring.datasource.hikari.maximum-pool-size=1",
