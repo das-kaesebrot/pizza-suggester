@@ -2,13 +2,10 @@ name: Run tests
 
 on:
   push:
-    branches:
+    branches-ignore:
       - master
-    paths:
-      - ".github/workflows/tests.yml"
-      - "**.java"
-      - "**.properties"
-      - "*.gradle"
+    tags-ignore:
+      - "v*"
   pull_request:
     branches:
       - master
